@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bullseye Theory — Lesson</title>
+<style>
+:root{--bg:#06100e;--panel:#0b1b17;--line:#24483c;--text:#edf7f2;--muted:#91aaa1;--green:#a8ff61;--gold:#e4b957}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}
+body{display:flex;flex-direction:column;overflow:hidden}
+header{height:68px;min-height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid var(--line);background:#07110fee;backdrop-filter:blur(14px)}
+.logo{font-weight:900;letter-spacing:1.8px;font-size:15px}.logo i{color:var(--green);font-style:normal}
+.back{color:var(--text);text-decoration:none;border:1px solid var(--line);padding:9px 13px;border-radius:9px;font-size:12px;font-weight:800}
+.title{padding:10px 18px;border-bottom:1px solid #17342c;background:var(--panel);display:flex;align-items:center;gap:10px;min-height:52px}
+.title .tag{color:var(--green);font-size:10px;font-weight:900;letter-spacing:1.8px}.title h1{font-size:15px;margin:0;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.viewer{flex:1;min-height:0;background:#202522;display:flex;justify-content:center}
+iframe{width:100%;height:100%;border:0;background:#fff}
+@media(max-width:600px){header{padding:0 12px}.logo{font-size:13px}.back{padding:8px 10px}.title{padding:9px 12px}.title h1{font-size:14px}}
+</style>
+</head>
+<body>
+<header><div class="logo">◉ BULLSEYE <i>THEORY</i></div><a class="back" href="index.html#course">← BACK TO COURSE</a></header>
+<div class="title"><span class="tag">LESSON</span><h1 id="lessonTitle">Loading lesson…</h1></div>
+<div class="viewer"><iframe id="pdfFrame" title="Lesson viewer" allow="fullscreen"></iframe></div>
+<script>
+const params=new URLSearchParams(location.search);
+const pdf=params.get('pdf');
+const title=params.get('title')||'Bullseye Theory Lesson';
+if(pdf){document.getElementById('pdfFrame').src=pdf+'#toolbar=1&navpanes=0&view=FitH';}
+document.getElementById('lessonTitle').textContent=title;
+document.title='Bullseye Theory — '+title;
+</script>
+</body>
+</html>
