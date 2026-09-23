@@ -1,0 +1,6 @@
+// Bullseye Theory — Supabase browser configuration
+// IMPORTANT: Only put the Supabase PUBLISHABLE key here.
+// Never put a sb_secret_... key or service_role key in this file.
+
+window.BULLSEYE_SUPABASE_URL = "https://kjhdcpjztuzpysdaugdz.supabase.co";
+window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_SB_PUBLISHABLE_KEY_HERE";
