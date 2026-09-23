@@ -5,13 +5,13 @@
 <title>Bullseye Theory — Student Dashboard</title>
 <style>
 :root{--bg:#050b0a;--panel:#0b1815;--line:#214238;--text:#eff8f3;--muted:#91aaa1;--green:#a8ff61;--gold:#e4b957}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#12372f 0,transparent 30%),var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}header{height:70px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 6%;position:sticky;top:0;background:#07100fee;backdrop-filter:blur(14px);z-index:3}.logo{font-weight:900;letter-spacing:2px}.logo i{color:var(--green);font-style:normal}.actions{display:flex;gap:10px}.btn{border:1px solid var(--line);background:#0a1915;color:var(--text);padding:10px 14px;border-radius:9px;font-weight:800;font-size:12px;cursor:pointer}.btn.primary{background:var(--green);color:#07100f;border-color:var(--green)}main{max-width:1200px;margin:auto;padding:55px 6%}.eyebrow{color:var(--green);font-size:10px;font-weight:900;letter-spacing:2px}.hero{display:flex;justify-content:space-between;gap:30px;align-items:end}.hero h1{font-size:clamp(38px,6vw,65px);letter-spacing:-3px;line-height:1;margin:12px 0}.hero p{color:var(--muted);line-height:1.7;max-width:620px}.status{min-width:250px;border:1px solid var(--line);border-radius:14px;padding:18px;background:#091613}.status b{display:block;color:var(--green);margin-bottom:8px}.notice{margin:28px 0;border:1px solid #4b4930;background:#121913;border-radius:14px;padding:18px;color:#b9c7c1;line-height:1.6}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:28px}.lesson{border:1px solid var(--line);background:linear-gradient(145deg,#0c1e19,#08110f);border-radius:14px;padding:22px}.lesson small{color:var(--green);font-weight:900;letter-spacing:1.5px}.lesson h3{margin:12px 0 8px}.lesson p{color:var(--muted);line-height:1.6;min-height:44px}.locked{opacity:.62}.badge{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:6px 9px;font-size:10px;color:var(--muted);font-weight:800}.footer{padding:35px 6%;border-top:1px solid var(--line);color:#637a72;font-size:11px}@media(max-width:760px){.hero{display:block}.status{margin-top:20px}.grid{grid-template-columns:1fr}}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#12372f 0,transparent 30%),var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}header{height:70px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 6%;position:sticky;top:0;background:#07100fee;backdrop-filter:blur(14px);z-index:3}.logo{font-weight:900;letter-spacing:2px}.logo i{color:var(--green);font-style:normal}.actions{display:flex;gap:10px}.btn{border:1px solid var(--line);background:#0a1915;color:var(--text);padding:10px 14px;border-radius:9px;font-weight:800;font-size:12px;cursor:pointer;text-decoration:none}.btn.primary{background:var(--green);color:#07100f;border-color:var(--green)}main{max-width:1200px;margin:auto;padding:55px 6%}.eyebrow{color:var(--green);font-size:10px;font-weight:900;letter-spacing:2px}.hero{display:flex;justify-content:space-between;gap:30px;align-items:end}.hero h1{font-size:clamp(38px,6vw,65px);letter-spacing:-3px;line-height:1;margin:12px 0}.hero p{color:var(--muted);line-height:1.7;max-width:620px}.status{min-width:250px;border:1px solid var(--line);border-radius:14px;padding:18px;background:#091613}.status b{display:block;color:var(--green);margin-bottom:8px}.notice{margin:28px 0;border:1px solid #4b4930;background:#121913;border-radius:14px;padding:18px;color:#b9c7c1;line-height:1.6}.progress-wrap{margin-top:18px}.progress-head{display:flex;justify-content:space-between;color:#b9cbc4;font-size:12px;margin-bottom:8px}.progress-bar{height:9px;background:#07100e;border:1px solid var(--line);border-radius:999px;overflow:hidden}.progress-fill{height:100%;width:0;background:var(--green);border-radius:999px;transition:width .3s}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:28px}.lesson{border:1px solid var(--line);background:linear-gradient(145deg,#0c1e19,#08110f);border-radius:14px;padding:22px}.lesson small{color:var(--green);font-weight:900;letter-spacing:1.5px}.lesson h3{margin:12px 0 8px}.lesson p{color:var(--muted);line-height:1.6;min-height:44px}.locked{opacity:.62}.badge{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:6px 9px;font-size:10px;color:var(--muted);font-weight:800}.lesson-action{display:inline-flex;margin-top:14px}.complete-badge{color:#c9ffd4;border-color:#315b40;background:#102a1c}.footer{padding:35px 6%;border-top:1px solid var(--line);color:#637a72;font-size:11px}@media(max-width:760px){.hero{display:block}.status{margin-top:20px}.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <header><div class="logo">◉ BULLSEYE <i>THEORY</i></div><div class="actions"><a class="btn" href="index.html">HOME</a><button id="logout" class="btn">LOG OUT</button></div></header>
 <main>
-  <section class="hero"><div><div class="eyebrow">STUDENT DASHBOARD</div><h1 id="welcome">Welcome.</h1><p id="email"></p></div><div class="status"><b id="accessTitle">Checking access…</b><span id="accessText">Please wait.</span></div></section>
+  <section class="hero"><div><div class="eyebrow">STUDENT DASHBOARD</div><h1 id="welcome">Welcome.</h1><p id="email"></p><div class="progress-wrap"><div class="progress-head"><span>COURSE PROGRESS</span><strong id="progressText">0 / 10 lessons</strong></div><div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div></div></div><div class="status"><b id="accessTitle">Checking access…</b><span id="accessText">Please wait.</span></div></section>
   <div id="notice" class="notice">Your student account is separate from course activation. After payment is verified, course access will be activated by the administrator.</div>
   <div class="eyebrow">YOUR CURRICULUM</div>
   <div id="lessons" class="grid"></div>
@@ -22,16 +22,16 @@
 <script>
 const sb=window.supabase.createClient(window.BULLSEYE_SUPABASE_URL,window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const lessons=[
-["01","What Is Trading?","Trading basics, buyers and sellers, price movement, wins and losses."],
-["02","How Financial Markets Work","Financial markets, market types, buyers and sellers, supply and demand."],
-["03","Understanding Stocks, Forex & Crypto","Core differences between stocks, forex and crypto markets."],
-["04","Market Structure & Price Action","Candlesticks, bullish/bearish conditions and chart structure."],
-["05","Candlestick Patterns","Doji, Hammer, Shooting Star, Engulfing and Star formations."],
-["06","Trend Structure & Market Direction","HH, HL, LH, LL, trends, ranges and structure shifts."],
-["07","Support & Resistance","Zones, reactions, breakouts, retests and timeframe context."],
-["08","Breakouts & Retests","Breakouts, retests, false breaks and evidence-based chart study."],
-["09","Risk Management","Risk budget, position sizing, risk/reward and risk controls."],
-["10","Trading Psychology & Discipline","Emotions, routines, journaling and disciplined decision-making."]
+["01","What Is Trading?","Trading basics, buyers and sellers, price movement, wins and losses.","lesson-1.html"],
+["02","How Financial Markets Work","Financial markets, market types, buyers and sellers, supply and demand.",null],
+["03","Understanding Stocks, Forex & Crypto","Core differences between stocks, forex and crypto markets.",null],
+["04","Market Structure & Price Action","Candlesticks, bullish/bearish conditions and chart structure.",null],
+["05","Candlestick Patterns","Doji, Hammer, Shooting Star, Engulfing and Star formations.",null],
+["06","Trend Structure & Market Direction","HH, HL, LH, LL, trends, ranges and structure shifts.",null],
+["07","Support & Resistance","Zones, reactions, breakouts, retests and timeframe context.",null],
+["08","Breakouts & Retests","Breakouts, retests, false breaks and evidence-based chart study.",null],
+["09","Risk Management","Risk budget, position sizing, risk/reward and risk controls.",null],
+["10","Trading Psychology & Discipline","Emotions, routines, journaling and disciplined decision-making.",null]
 ];
 async function init(){
   const {data:{session}}=await sb.auth.getSession();
@@ -44,9 +44,28 @@ async function init(){
   const active=!!access?.is_active && !!access?.payment_verified && (!access.expires_at || new Date(access.expires_at)>new Date());
   document.getElementById("accessTitle").textContent=active?"COURSE ACTIVE":"ACCESS PENDING";
   document.getElementById("accessText").textContent=active?"Your Bullseye Theory course is active.":"Payment verification is pending. Your account is ready, but lessons will unlock after activation.";
+
+  const {data:progressRows}=await sb.from("lesson_progress").select("lesson_number,completed,progress_percent").eq("user_id",user.id);
+  const completed=new Map((progressRows||[]).map(row=>[row.lesson_number,row]));
+  const completedCount=(progressRows||[]).filter(row=>row.completed).length;
+  document.getElementById("progressText").textContent=completedCount+" / 10 lessons";
+  document.getElementById("progressFill").style.width=(completedCount*10)+"%";
+
   const box=document.getElementById("lessons");
-  box.innerHTML=lessons.map(l=>`<article class="lesson ${active?"":"locked"}"><small>LESSON ${l[0]}</small><h3>${l[1]}</h3><p>${l[2]}</p><span class="badge">${active?"AVAILABLE IN COURSE":"LOCKED — WAITING FOR ACTIVATION"}</span></article>`).join("");
-  if(active) document.getElementById("notice").textContent="Course access is active. Lesson content, progress tracking, quizzes and certification will be available inside your student area as the course modules are connected.";
+  box.innerHTML=lessons.map(l=>{
+    const num=Number(l[0]), row=completed.get(num), done=!!row?.completed;
+    let action="";
+    if(active && l[3]){
+      action='<a class="btn primary lesson-action" href="'+l[3]+'">'+(done?"REVIEW LESSON →":"START LESSON →")+'</a>';
+    }else if(active && !l[3]){
+      action='<span class="badge lesson-action">COMING NEXT</span>';
+    }else{
+      action='<span class="badge lesson-action">LOCKED — WAITING FOR ACTIVATION</span>';
+    }
+    return '<article class="lesson '+(active?"":"locked")+'"><small>LESSON '+l[0]+'</small><h3>'+l[1]+'</h3><p>'+l[2]+'</p><span class="badge '+(done?"complete-badge":"")+'">'+(done?"COMPLETED ✓":(active?"AVAILABLE IN COURSE":"LOCKED — WAITING FOR ACTIVATION"))+'</span><br>'+action+'</article>';
+  }).join("");
+
+  if(active) document.getElementById("notice").textContent="Course access is active. Start Lesson 1 to begin the native course experience. Your quiz and completion progress will be saved to your student account.";
   if(error) document.getElementById("accessText").textContent="Account found, but course-access status could not be loaded yet.";
 }
 document.getElementById("logout").onclick=async()=>{await sb.auth.signOut();location.href="auth.html"};
