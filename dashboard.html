@@ -24,14 +24,14 @@ const sb=window.supabase.createClient(window.BULLSEYE_SUPABASE_URL,window.BULLSE
 const lessons=[
 ["01","What Is Trading?","Trading basics, buyers and sellers, price movement, wins and losses.","lesson-1.html"],
 ["02","How Financial Markets Work","Financial markets, market types, buyers and sellers, supply and demand.","lesson-2.html"],
-["03","Understanding Stocks, Forex & Crypto","Core differences between stocks, forex and crypto markets.",null],
-["04","Market Structure & Price Action","Candlesticks, bullish/bearish conditions and chart structure.",null],
-["05","Candlestick Patterns","Doji, Hammer, Shooting Star, Engulfing and Star formations.",null],
-["06","Trend Structure & Market Direction","HH, HL, LH, LL, trends, ranges and structure shifts.",null],
-["07","Support & Resistance","Zones, reactions, breakouts, retests and timeframe context.",null],
-["08","Breakouts & Retests","Breakouts, retests, false breaks and evidence-based chart study.",null],
-["09","Risk Management","Risk budget, position sizing, risk/reward and risk controls.",null],
-["10","Trading Psychology & Discipline","Emotions, routines, journaling and disciplined decision-making.",null]
+["03","Crypto & Forex Foundations","Cryptocurrency, forex, currency values and a basic forex example.","lesson-3.html"],
+["04","Market Structure & Price Action","Candlesticks, bullish/bearish conditions and chart structure.","lesson-4.html"],
+["05","Candlestick Patterns","Doji, Hammer, Shooting Star, Engulfing and Star formations.","lesson-5.html"],
+["06","Trend Structure & Market Direction","HH, HL, LH, LL, trends, ranges and structure shifts.","lesson-6.html"],
+["07","Support & Resistance","Zones, reactions, breakouts, retests and timeframe context.","lesson-7.html"],
+["08","Breakouts & Retests","Breakouts, retests, false breaks and evidence-based chart study.","lesson-8.html"],
+["09","Risk Management","Risk budget, position sizing, risk/reward and risk controls.","lesson-9.html"],
+["10","Trading Psychology & Discipline","Emotions, routines, journaling and disciplined decision-making.","lesson-10.html"]
 ];
 async function init(){
   const {data:{session}}=await sb.auth.getSession();
