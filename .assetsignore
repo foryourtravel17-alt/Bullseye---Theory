@@ -1,0 +1,8 @@
+lessons/
+supabase/
+.github/
+.git/
+readme.txt
+lesson.html
+wrangler.toml
+.assetsignore
