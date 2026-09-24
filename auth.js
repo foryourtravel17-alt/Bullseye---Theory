@@ -55,24 +55,30 @@ async function handleSignUp(event) {
     return;
   }
 
-  const { data, error } = await supabaseClient.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { full_name: name },
-      emailRedirectTo: redirectTarget()
+  try {
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: name },
+        emailRedirectTo: redirectTarget()
+      }
+    });
+
+    if (error) {
+      console.error("Bullseye signup error:", error);
+      setMessage(error.message || "Signup failed.", "error");
+      return;
     }
-  });
 
-  if (error) {
-    setMessage(error.message, "error");
-    return;
-  }
-
-  if (data.session) {
-    window.location.href = redirectTarget();
-  } else {
-    setMessage("Account created. Please check your email and confirm your email address before signing in.", "success");
+    if (data.session) {
+      window.location.href = redirectTarget();
+    } else {
+      setMessage("Account created. Please check your email and confirm your email address before signing in.", "success");
+    }
+  } catch (err) {
+    console.error("Bullseye signup network exception:", err);
+    setMessage("Supabase connection failed. Please refresh and try again. If this continues, the live site is not reaching the Supabase Auth server.", "error");
   }
 }
 
@@ -108,3 +114,24 @@ document.addEventListener("DOMContentLoaded", async () => {
   $("signupForm")?.addEventListener("submit", handleSignUp);
   $("resetForm")?.addEventListener("submit", handleReset);
 });
+
+
+async function runSupabaseConnectionCheck() {
+  try {
+    const response = await fetch(window.BULLSEYE_SUPABASE_URL + "/auth/v1/settings", {
+      method: "GET",
+      headers: {
+        apikey: window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY
+      },
+      cache: "no-store"
+    });
+    console.log("Bullseye Supabase connection check:", response.status, response.statusText);
+    if (!response.ok) {
+      console.warn("Supabase Auth settings endpoint returned:", response.status);
+    }
+  } catch (err) {
+    console.error("Bullseye Supabase connection check failed:", err);
+  }
+}
+
+runSupabaseConnectionCheck();
