@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#050505"/><stop offset=".55" stop-color="#0d0b08"/><stop offset="1" stop-color="#050505"/></linearGradient>
+  <radialGradient id="gold" cx=".5" cy=".35"><stop offset="0" stop-color="#ffe29a"/><stop offset=".45" stop-color="#e4b957"/><stop offset="1" stop-color="#8c5d16"/></radialGradient>
+  <filter id="glow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect width="1200" height="630" fill="url(#bg)"/>
+<g opacity=".28" stroke="#d9a83f" stroke-width="2">
+  <path d="M0 500L120 430 210 455 320 350 420 390 520 270 620 330 720 220 820 280 930 145 1040 190 1200 75"/>
+  <path d="M0 530H1200M0 420H1200M0 310H1200M0 200H1200"/>
+</g>
+<g opacity=".7">
+  <rect x="55" y="445" width="210" height="36" rx="6" fill="#0b0b0b" stroke="#9d7225"/>
+  <rect x="55" y="487" width="210" height="36" rx="6" fill="#0b0b0b" stroke="#9d7225"/>
+  <rect x="55" y="529" width="210" height="36" rx="6" fill="#0b0b0b" stroke="#9d7225"/>
+  <text x="160" y="469" text-anchor="middle" fill="#e7c36e" font-family="Arial" font-size="16" font-weight="700">MARKET BASICS</text>
+  <text x="160" y="511" text-anchor="middle" fill="#e7c36e" font-family="Arial" font-size="16" font-weight="700">MARKET STRUCTURE</text>
+  <text x="160" y="553" text-anchor="middle" fill="#e7c36e" font-family="Arial" font-size="16" font-weight="700">RISK MANAGEMENT</text>
+</g>
+<g transform="translate(600 175)" filter="url(#glow)">
+  <circle r="115" fill="none" stroke="#9a6b1e" stroke-width="5"/>
+  <circle r="82" fill="none" stroke="#e4b957" stroke-width="12"/>
+  <circle r="48" fill="none" stroke="#ffe09a" stroke-width="12"/>
+  <circle r="13" fill="#e4b957"/>
+  <path d="M-8 10L92 -92" stroke="#ffe09a" stroke-width="14" stroke-linecap="round"/>
+  <path d="M72 -88L108 -94 101 -58" fill="none" stroke="#ffe09a" stroke-width="12"/>
+</g>
+<text x="600" y="365" text-anchor="middle" fill="#f7f7f4" font-family="Arial Black,Arial,sans-serif" font-size="76" letter-spacing="7">BULLSEYE</text>
+<text x="600" y="425" text-anchor="middle" fill="#e4b957" font-family="Arial Black,Arial,sans-serif" font-size="47" letter-spacing="12">THEORY</text>
+<text x="600" y="465" text-anchor="middle" fill="#d9d9d9" font-family="Arial,sans-serif" font-size="18" letter-spacing="8">TRADING EDUCATION</text>
+<rect x="405" y="493" width="390" height="48" rx="8" fill="#0b0b0b" stroke="#b9862c"/>
+<text x="600" y="524" text-anchor="middle" fill="#f0d28a" font-family="Arial,sans-serif" font-size="17" font-weight="700" letter-spacing="4">LEARN • PRACTICE • IMPROVE</text>
+<text x="1090" y="75" text-anchor="end" fill="#e4b957" font-family="Arial,sans-serif" font-size="20" font-weight="700">10 STRUCTURED LESSONS</text>
+<text x="1090" y="105" text-anchor="end" fill="#d0d0d0" font-family="Arial,sans-serif" font-size="16">Psychology • Structure • Risk</text>
+</svg>
