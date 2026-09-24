@@ -224,6 +224,9 @@ async function init(){
   const {data:{session}}=await sb.auth.getSession();
   if(!session){location.href="auth.html";return}
   currentUser=session.user;
+  const {data:access}=await sb.from("course_access").select("is_active,payment_verified,expires_at").eq("user_id",currentUser.id).maybeSingle();
+  const active=!!access?.is_active&&!!access?.payment_verified&&(!access.expires_at||new Date(access.expires_at)>new Date());
+  if(!active){alert("Course access is not active yet.");location.href="dashboard.html";return}
 
   const {data:progress}=await sb.from("lesson_progress").select("completed,quiz_passed,progress_percent").eq("user_id",currentUser.id).eq("lesson_number",1).maybeSingle();
   if(progress?.quiz_passed){
