@@ -30,12 +30,28 @@ async function handleSignIn(event) {
   const email = $("loginEmail").value.trim();
   const password = $("loginPassword").value;
 
-  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-  if (error) {
-    setMessage(error.message, "error");
-    return;
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      console.error("Bullseye login error:", error);
+      const message = error.message === "Failed to fetch"
+        ? "Unable to reach Supabase Auth from this site. Please open the current Bullseye Theory Cloudflare URL and try again."
+        : (error.message || "Login failed.");
+      setMessage(message, "error");
+      return;
+    }
+
+    if (!data.session) {
+      setMessage("Login completed but no session was returned. Please try again.", "error");
+      return;
+    }
+
+    window.location.href = redirectTarget();
+  } catch (err) {
+    console.error("Bullseye login network exception:", err);
+    setMessage("Unable to reach Supabase Auth. Please refresh the page and try again.", "error");
   }
-  window.location.href = redirectTarget();
 }
 
 async function handleSignUp(event) {
@@ -103,11 +119,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     setMessage("Supabase is not connected yet. Add your publishable key in supabase-config.js.", "error");
   }
 
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  if (session && location.pathname.endsWith("/auth.html")) {
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session && location.pathname.endsWith("/auth.html")) {
     // A signed-in user can still open auth.html, but we send them to their dashboard.
-    window.location.href = redirectTarget();
-    return;
+      window.location.href = redirectTarget();
+      return;
+    }
+  } catch (err) {
+    console.error("Bullseye session check failed:", err);
+    setMessage("Unable to connect to Supabase Auth. Make sure you are using the current Bullseye Theory site.", "error");
   }
 
   $("loginForm")?.addEventListener("submit", handleSignIn);
