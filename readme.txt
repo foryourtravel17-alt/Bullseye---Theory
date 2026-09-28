@@ -24,3 +24,5 @@ Security notes:
 
 Educational disclaimer:
 Bullseye Theory content is educational only and is not financial advice or a recommendation to buy or sell any asset. Trading involves substantial risk of loss.
+
+Motion system build: 2026-09-29 cinematic Bullseye v3
