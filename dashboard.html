@@ -11,8 +11,8 @@
 <body>
 <header><div class="logo">◉ BULLSEYE <i>THEORY</i></div><div class="actions"><a class="btn" href="index.html">HOME</a><button id="logout" class="btn">LOG OUT</button></div></header>
 <main>
-  <section class="hero"><div><div class="eyebrow">STUDENT DASHBOARD</div><h1 id="welcome">Welcome.</h1><p id="email"></p><div class="progress-wrap"><div class="progress-head"><span>COURSE PROGRESS</span><strong id="progressText">0 / 10 lessons</strong></div><div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div></div></div><div class="status"><b id="accessTitle">Checking access…</b><span id="accessText">Please wait.</span></div></section>
-  <div id="notice" class="notice">Your student account is separate from course activation. After payment is verified, course access will be activated by the administrator.</div><section class="stats"><div class="stat"><small>COMPLETION</small><strong id="completionPct">0%</strong></div><div class="stat"><small>LESSONS DONE</small><strong id="doneStat">0 / 10</strong></div><div class="stat"><small>COURSE STATUS</small><strong id="statusStat">Pending</strong></div></section><section id="continueBox" class="continue" style="display:none"><div><small id="continueEyebrow">CONTINUE LEARNING</small><h2 id="continueTitle">Lesson 1</h2><p id="continueDesc">Start your learning path.</p></div><a id="continueBtn" class="btn primary" href="lesson-1.html">CONTINUE →</a></section>
+  <section class="hero"><div><div class="eyebrow">STUDENT DASHBOARD</div><h1 id="welcome">Welcome.</h1><p id="email"></p><div class="progress-wrap"><div class="progress-head"><span>COURSE PROGRESS</span><strong id="progressText">0 / 11 lessons</strong></div><div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div></div></div><div class="status"><b id="accessTitle">Checking access…</b><span id="accessText">Please wait.</span></div></section>
+  <div id="notice" class="notice">Your student account is separate from course activation. After payment is verified, course access will be activated by the administrator.</div><section class="stats"><div class="stat"><small>COMPLETION</small><strong id="completionPct">0%</strong></div><div class="stat"><small>LESSONS DONE</small><strong id="doneStat">0 / 11</strong></div><div class="stat"><small>COURSE STATUS</small><strong id="statusStat">Pending</strong></div></section><section id="continueBox" class="continue" style="display:none"><div><small id="continueEyebrow">CONTINUE LEARNING</small><h2 id="continueTitle">Lesson 1</h2><p id="continueDesc">Start your learning path.</p></div><a id="continueBtn" class="btn primary" href="lesson-1.html">CONTINUE →</a></section>
   <div class="eyebrow">YOUR CURRICULUM</div>
   <div id="lessons" class="grid"></div>
 </main>
@@ -31,7 +31,8 @@ const lessons=[
 ["07","Support & Resistance","Zones, reactions, breakouts, retests and timeframe context.","lesson-7.html"],
 ["08","Breakouts & Retests","Breakouts, retests, false breaks and evidence-based chart study.","lesson-8.html"],
 ["09","Risk Management","Risk budget, position sizing, risk/reward and risk controls.","lesson-9.html"],
-["10","Trading Psychology & Discipline","Emotions, routines, journaling and disciplined decision-making.","lesson-10.html"]
+["10","Trading Psychology & Discipline","Emotions, routines, journaling and disciplined decision-making.","lesson-10.html"],
+["11","Complete Course Revision","Connect the full Bullseye Theory learning path into one repeatable process.","lesson-11.html"]
 ];
 async function init(){
   const {data:{session}}=await sb.auth.getSession();
@@ -56,7 +57,7 @@ async function init(){
   document.getElementById("statusStat").textContent=active?"Active":"Pending";
   const next=lessons.find(l=>!completed.get(Number(l[0]))?.completed);
   if(active && next){ document.getElementById("continueBox").style.display="flex"; document.getElementById("continueTitle").textContent="Lesson "+next[0]+" — "+next[1]; document.getElementById("continueDesc").textContent=completedCount===0?"Start with the foundations and build forward step by step.":"Pick up where you left off and keep building your process."; document.getElementById("continueBtn").href=next[3]; }
-  if(active && !next){ document.getElementById("continueBox").style.display="flex"; document.getElementById("continueEyebrow").textContent="COURSE COMPLETE"; document.getElementById("continueTitle").textContent="All 10 lessons completed"; document.getElementById("continueDesc").textContent="Review your lessons, quizzes and notes to reinforce the process."; document.getElementById("continueBtn").textContent="REVIEW LESSON 1 →"; document.getElementById("continueBtn").href="lesson-1.html"; }
+  if(active && !next){ document.getElementById("continueBox").style.display="flex"; document.getElementById("continueEyebrow").textContent="COURSE COMPLETE"; document.getElementById("continueTitle").textContent="All 11 lessons completed"; document.getElementById("continueDesc").textContent="Review your lessons, quizzes and notes to reinforce the process."; document.getElementById("continueBtn").textContent="REVIEW LESSON 1 →"; document.getElementById("continueBtn").href="lesson-1.html"; }
 
   const box=document.getElementById("lessons");
   box.innerHTML=lessons.map(l=>{
