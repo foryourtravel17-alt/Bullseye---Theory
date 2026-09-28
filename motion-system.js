@@ -77,5 +77,5 @@ function svgDraw(){
 function countdownHint(){
   document.querySelectorAll(".eyebrow").forEach(function(el){if(/LESSON\s*\d+/i.test(el.textContent))el.classList.add("bt-focus-line")});
 }
-ready(function(){addStyle();progress();pointer();reveals();magnet();cursorLabel();svgDraw();countdownHint();injectHeroMorph();setupHeroParallax();microVisualLabels();});
+ready(function(){addStyle();progress();pointer();reveals();magnet();cursorLabel();svgDraw();countdownHint();injectHeroMorph();setupHeroParallax();microVisualLabels();lessonVisual();});
 })();
