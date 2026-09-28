@@ -130,29 +130,140 @@ function cinematicBrandIntro(){
   if(document.getElementById("bt-cinematic-intro"))return;
   if(!document.getElementById("course"))return;
   var hero=document.querySelector("main .hero"); if(!hero)return;
-  var intro=document.createElement("section");intro.id="bt-cinematic-intro";intro.className="bt-cinema";
+
+  var intro=document.createElement("section");
+  intro.id="bt-cinematic-intro";
+  intro.className="bt-cinema bt-particle-cinema";
   intro.innerHTML=`
-    <div class="btc-noise"></div><div class="btc-topline"><span>BULLSEYE THEORY / ORIGIN</span><span class="btc-code">SYSTEM 01 · PRECISION</span></div>
-    <div class="btc-cinema-stage">
-      <div class="btc-hud btc-hud-a">FORCE / BULL</div><div class="btc-hud btc-hud-b">LOCK / TARGET</div><div class="btc-hud btc-hud-c">ASSET / ₿</div>
-      <svg class="btc-scene" viewBox="0 0 1000 560" aria-hidden="true">
-        <defs><filter id="btcGlow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-        <path class="btc-trajectory" d="M90 390 C230 330 300 260 455 290 S700 185 900 105" fill="none" stroke="#a8ff61" stroke-width="3" stroke-dasharray="420 420" filter="url(#btcGlow)"/>
-        <g class="btc-bullform" fill="none" stroke="#e4b957" stroke-width="9" stroke-linecap="round" filter="url(#btcGlow)">
-          <path d="M110 355 C78 314 88 250 132 219 C180 185 252 193 293 230 C330 265 333 317 303 354 C270 395 178 405 130 378 Z"/>
-          <path d="M133 225 C97 183 62 190 38 157 M143 238 C104 224 68 236 48 262 M279 226 C314 183 350 190 375 157 M268 239 C307 224 343 236 363 262"/>
-          <circle cx="170" cy="273" r="7" fill="#e4b957"/><circle cx="258" cy="273" r="7" fill="#e4b957"/>
-          <path d="M160 331 Q214 365 268 331 M142 380 L126 425 M287 378 L305 423"/>
-        </g>
-        <g class="btc-targetform" fill="none" stroke="currentColor" stroke-width="5"><circle cx="600" cy="275" r="104"/><circle cx="600" cy="275" r="64"/><circle cx="600" cy="275" r="18"/><path d="M600 142V408M467 275H733"/></g>
-        <g class="btc-symbolform" text-anchor="middle"><text x="600" y="296">₿</text><text x="735" y="185">$</text><text x="760" y="375">↗</text></g>
-      </svg>
-      <div class="btc-thesis"><span><b>THE BULL</b><br>FORCE</span><span><b>THE EYE</b><br>FOCUS</span><span><b>THE BULLSEYE</b><br>TARGET</span><span><b>THEORY</b><br>PROCESS</span></div>
-      <div class="btc-wordmark"><span class="btc-word">BULLSEYE</span><span class="btc-word-accent">THEORY</span></div><div class="btc-scroll">SCROLL TO ENTER <i>↓</i></div>
-    </div>`;
+    <div class="btp-atmosphere"></div>
+    <div class="btp-top"><span>BULLSEYE THEORY / ORIGIN</span><b>SYSTEM 01 · PRECISION</b></div>
+    <canvas class="btp-canvas" aria-hidden="true"></canvas>
+    <div class="btp-hud btp-hud-a">FORCE / BULL</div>
+    <div class="btp-hud btp-hud-b">LOCK / PRECISION</div>
+    <div class="btp-hud btp-hud-c">ASSET / CRYPTO</div>
+    <div class="btp-data btp-data-a">VOL 04.28 / FLOW 98.2%</div>
+    <div class="btp-data btp-data-b">TARGET LOCK / 01</div>
+    <div class="btp-word"><span>BULLSEYE</span> <b>THEORY</b></div>
+    <div class="btp-thesis"><span><b>FORCE</b> / BULL</span><span><b>FOCUS</b> / EYE</span><span><b>TARGET</b> / BULLSEYE</span><span><b>PROCESS</b> / THEORY</span></div>
+    <div class="btp-enter">SCROLL / ENTER <i>↓</i></div>`;
   hero.parentNode.insertBefore(intro,hero);
-  function onScroll(){var r=intro.getBoundingClientRect(),p=Math.max(0,Math.min(1,(innerHeight-r.top)/(innerHeight+r.height)));intro.style.setProperty("--cinema-p",p.toFixed(3));}
-  onScroll();addEventListener("scroll",onScroll,{passive:true});
+
+  var canvas=intro.querySelector(".btp-canvas"),ctx=canvas.getContext("2d"), particles=[], W=0,H=0,dpr=1, raf=0, t0=performance.now();
+  var TAU=Math.PI*2;
+  function resize(){
+    var r=intro.getBoundingClientRect(); dpr=Math.min(devicePixelRatio||1,2); W=Math.max(320,r.width); H=Math.max(600,r.height);
+    canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+"px";canvas.style.height=H+"px";ctx.setTransform(dpr,0,0,dpr,0,0);
+    buildParticles();
+  }
+  function insidePoly(x,y,p){
+    var hit=false;
+    for(var i=0,j=p.length-1;i<p.length;j=i++){
+      var xi=p[i][0],yi=p[i][1],xj=p[j][0],yj=p[j][1];
+      var cross=((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi);
+      if(cross)hit=!hit;
+    } return hit;
+  }
+  function bullShape(x,y,s){
+    var pts=[
+      [-.54,-.02],[-.63,-.18],[-.58,-.42],[-.38,-.56],[-.08,-.52],[.14,-.39],[.34,-.22],[.51,-.03],
+      [.58,-.20],[.76,-.42],[.82,-.55],[.74,-.18],[.62,.02],[.74,.24],[.82,.55],[.76,.42],[.58,.20],
+      [.46,.08],[.28,.29],[.08,.45],[-.18,.48],[-.43,.38],[-.57,.20],[-.64,.02]
+    ];
+    return pts.map(function(q){return [x+q[0]*s,y+q[1]*s]});
+  }
+  function targetPoint(cx,cy,s,i){
+    var mode=i%7;
+    if(mode<5){var a=(i*2.39996)%TAU;var rad=s*(.12+((i*37)%100)/100*.72);return [cx+Math.cos(a)*rad,cy+Math.sin(a)*rad]}
+    if(mode===5)return [cx+(i%2?s:-s)*.95,cy+((i*13)%21-10)*2];
+    return [cx+((i*17)%31-15)*2,cy+(i%2?s:-s)*.95];
+  }
+  function cryptoPoint(cx,cy,s,i){
+    var a=(i*2.39996)%TAU, rad=s*(.15+((i*53)%100)/100*.66);
+    var bx=cx+Math.cos(a)*rad, by=cy+Math.sin(a)*rad;
+    var stroke=(i%6<4);
+    if(stroke){var side=(i%2?1:-1), yy=((i*29)%100)/100*2-1; return [cx+side*s*.18+yy*s*.20,cy+yy*s*.82]}
+    return [bx,by];
+  }
+  function buildParticles(){
+    particles=[];
+    var scale=Math.min(W/1180,H/720), cx=W*.49, cy=H*.46, bs=Math.min(W,H)*.30;
+    var poly=bullShape(cx-W*.22,cy,bs);
+    var minx=cx-W*.22-bs*.85,maxx=cx-W*.22+bs*.85,miny=cy-bs*.62,maxy=cy+bs*.62;
+    var count=Math.min(2600,Math.max(1500,Math.floor(W*H/480)));
+    var guard=0;
+    while(particles.length<count && guard<count*20){
+      guard++;
+      var x=minx+Math.random()*(maxx-minx),y=miny+Math.random()*(maxy-miny);
+      if(insidePoly(x,y,poly) || Math.random()<.08){
+        particles.push({bx:x,by:y,tx:targetPoint(cx+W*.08,cy-bs*.02,bs*.55,particles.length),cx:cryptoPoint(cx+W*.08,cy-bs*.02,bs*.55,particles.length),px:x,py:y,r:.6+Math.random()*1.8,a:.25+Math.random()*.75,seed:Math.random()*TAU});
+      }
+    }
+  }
+  function ease(x){return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2}
+  function mix(a,b,p){return a+(b-a)*p}
+  function draw(now){
+    var elapsed=(now-t0)/1000, cycle=10.8, q=(elapsed%cycle)/cycle;
+    ctx.clearRect(0,0,W,H);
+    var bg=ctx.createRadialGradient(W*.52,H*.42,10,W*.52,H*.42,Math.max(W,H)*.62);
+    bg.addColorStop(0,"rgba(8,28,31,.38)");bg.addColorStop(.55,"rgba(3,12,15,.20)");bg.addColorStop(1,"rgba(0,4,6,0)");
+    ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+
+    var bullIn=Math.max(0,Math.min(1,(q-.02)/.20));
+    var dissolve=Math.max(0,Math.min(1,(q-.37)/.13));
+    var target=Math.max(0,Math.min(1,(q-.45)/.16));
+    var crypto=Math.max(0,Math.min(1,(q-.63)/.13));
+    var out=Math.max(0,Math.min(1,(q-.82)/.16));
+    particles.forEach(function(p,i){
+      var x=p.bx,y=p.by,alpha=p.a;
+      if(dissolve>0){
+        var e=ease(dissolve), targetX=mix(p.bx,p.tx,e),targetY=mix(p.by,p.tx? p.tx*0+p.ty||p.by: p.by,e);
+        // targetY is replaced below using stored target point
+        targetY=mix(p.by,p.ty,e);
+        x=targetX;y=targetY;
+      } else {
+        var e=ease(bullIn);x=mix(W*.20,p.bx,e);y=mix(H*.58,p.by,e);
+      }
+      if(crypto>0){
+        var e=ease(crypto);x=mix(p.tx,p.cx,e);y=mix(p.ty,p.cy,e);
+      }
+      if(out>0){var e=ease(out);x+=Math.cos(p.seed)*W*.12*e;y-=H*.10*e;alpha*=1-e}
+      p.px=x;p.py=y;
+      var shimmer=.55+.45*Math.sin(elapsed*3+p.seed);
+      ctx.globalAlpha=alpha*shimmer;
+      ctx.fillStyle=(i%9===0)?"#e4b957":(i%7===0?"#73d7ff":"#a8ff61");
+      ctx.beginPath();ctx.arc(x,y,p.r*(1+.5*shimmer),0,TAU);ctx.fill();
+    });
+    ctx.globalAlpha=1;
+    // Cinematic light sweep
+    var sx=(q*1.7%1)*W;
+    var grd=ctx.createLinearGradient(sx-180,0,sx+180,0);grd.addColorStop(0,"rgba(115,215,255,0)");grd.addColorStop(.5,"rgba(115,215,255,.10)");grd.addColorStop(1,"rgba(115,215,255,0)");
+    ctx.fillStyle=grd;ctx.fillRect(sx-180,0,360,H);
+    // target lock rings
+    if(target>0&&target<1){
+      var te=ease(target),cx=W*.57,cy=H*.45,rr=Math.min(W,H)*(.08+.11*te);
+      ctx.strokeStyle="rgba(168,255,97,"+(1-target*.35)+")";ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(cx,cy,rr,0,TAU);ctx.stroke();
+      ctx.beginPath();ctx.arc(cx,cy,rr*.58,0,TAU);ctx.stroke();
+      ctx.fillStyle="#a8ff61";ctx.fillRect(cx-rr*1.35,cy-.5,rr*2.7,1);ctx.fillRect(cx-.5,cy-rr*1.35,1,rr*2.7);
+    }
+    // crypto glow
+    if(crypto>.05&&crypto<.96){
+      var ce=ease(crypto),cx=W*.57,cy=H*.45,fs=Math.min(W,H)*.19;
+      ctx.save();ctx.translate(cx,cy);ctx.globalAlpha=Math.sin(Math.PI*Math.min(1,crypto*1.15))*.92;
+      ctx.shadowBlur=28;ctx.shadowColor="rgba(115,215,255,.65)";
+      ctx.font="900 "+fs+"px Inter,Arial,sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";
+      ctx.fillStyle="#edfaff";ctx.fillText("₿",0,0);ctx.restore();
+    }
+    intro.style.setProperty("--btp-progress",q.toFixed(3));
+    raf=requestAnimationFrame(draw);
+  }
+  particles.forEach(function(p){});
+  // assign target/crypto coordinates after creation
+  function fixParticleTargets(){
+    var scale=Math.min(W/1180,H/720),s=Math.min(W,H)*.30,cx=W*.57,cy=H*.45;
+    particles.forEach(function(p,i){var a=targetPoint(cx,cy,s*.55,i);p.tx=a[0];p.ty=a[1];var b=cryptoPoint(cx,cy,s*.55,i);p.cx=b[0];p.cy=b[1]});
+  }
+  var ro=new ResizeObserver(function(){resize();fixParticleTargets()});ro.observe(intro);resize();fixParticleTargets();requestAnimationFrame(draw);
+  intro.addEventListener("click",function(){window.scrollTo({top:hero.offsetTop,behavior:"smooth"})});
 }
 function lessonOpeningScene(){
   if(document.getElementById("bt-lesson-opening"))return;
