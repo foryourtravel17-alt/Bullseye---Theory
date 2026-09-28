@@ -128,6 +128,7 @@ function lessonVisual(){
 }
 function cinematicBrandIntro(){
   if(document.getElementById("bt-cinematic-intro"))return;
+  if(!document.getElementById("course"))return;
   var hero=document.querySelector("main .hero"); if(!hero)return;
   var intro=document.createElement("section");intro.id="bt-cinematic-intro";intro.className="bt-cinema";
   intro.innerHTML=`
