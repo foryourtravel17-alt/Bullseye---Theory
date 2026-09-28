@@ -48,7 +48,15 @@ async function init(){
   const {data:progressRows}=await sb.from("lesson_progress").select("lesson_number,completed,progress_percent").eq("user_id",user.id);
   const completed=new Map((progressRows||[]).map(row=>[row.lesson_number,row]));
   const completedCount=(progressRows||[]).filter(row=>row.completed).length;
-  const pct=Math.round((completedCount/lessons.length)*100);\n  document.getElementById("progressText").textContent=completedCount+" / "+lessons.length+" lessons";\n  document.getElementById("progressFill").style.width=pct+"%";\n  document.getElementById("completionPct").textContent=pct+"%";\n  document.getElementById("doneStat").textContent=completedCount+" / "+lessons.length;\n  document.getElementById("statusStat").textContent=active?"Active":"Pending";\n  const next=lessons.find(l=>!completed.get(Number(l[0]))?.completed);\n  if(active && next){ document.getElementById("continueBox").style.display="flex"; document.getElementById("continueTitle").textContent="Lesson "+next[0]+" — "+next[1]; document.getElementById("continueDesc").textContent=completedCount===0?"Start with the foundations and build forward step by step.":"Pick up where you left off and keep building your process."; document.getElementById("continueBtn").href=next[3]; }\n  if(active && !next){ document.getElementById("continueBox").style.display="flex"; document.getElementById("continueEyebrow").textContent="COURSE COMPLETE"; document.getElementById("continueTitle").textContent="All 10 lessons completed"; document.getElementById("continueDesc").textContent="Review your lessons, quizzes and notes to reinforce the process."; document.getElementById("continueBtn").textContent="REVIEW LESSON 1 →"; document.getElementById("continueBtn").href="lesson-1.html"; }
+  const pct=Math.round((completedCount/lessons.length)*100);
+  document.getElementById("progressText").textContent=completedCount+" / "+lessons.length+" lessons";
+  document.getElementById("progressFill").style.width=pct+"%";
+  document.getElementById("completionPct").textContent=pct+"%";
+  document.getElementById("doneStat").textContent=completedCount+" / "+lessons.length;
+  document.getElementById("statusStat").textContent=active?"Active":"Pending";
+  const next=lessons.find(l=>!completed.get(Number(l[0]))?.completed);
+  if(active && next){ document.getElementById("continueBox").style.display="flex"; document.getElementById("continueTitle").textContent="Lesson "+next[0]+" — "+next[1]; document.getElementById("continueDesc").textContent=completedCount===0?"Start with the foundations and build forward step by step.":"Pick up where you left off and keep building your process."; document.getElementById("continueBtn").href=next[3]; }
+  if(active && !next){ document.getElementById("continueBox").style.display="flex"; document.getElementById("continueEyebrow").textContent="COURSE COMPLETE"; document.getElementById("continueTitle").textContent="All 10 lessons completed"; document.getElementById("continueDesc").textContent="Review your lessons, quizzes and notes to reinforce the process."; document.getElementById("continueBtn").textContent="REVIEW LESSON 1 →"; document.getElementById("continueBtn").href="lesson-1.html"; }
 
   const box=document.getElementById("lessons");
   box.innerHTML=lessons.map(l=>{
