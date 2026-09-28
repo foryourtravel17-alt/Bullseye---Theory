@@ -170,3 +170,62 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9989;b
 @media(prefers-reduced-motion:reduce){
   .bt-cinema-stage::after{animation:none!important}
 }
+
+
+/* FINAL CINEMATIC PHASE POLISH */
+.bt-cinema .btc-scene{will-change:transform,filter}
+.bt-cinema .btc-bullform{
+  animation:btBullFinal 6.8s cubic-bezier(.16,.8,.2,1) infinite!important;
+  transform-origin:center;
+}
+.bt-cinema .btc-targetform{
+  animation:btTargetFinal 6.8s cubic-bezier(.16,.8,.2,1) infinite!important;
+}
+.bt-cinema .btc-symbolform{
+  animation:btCryptoFinal 6.8s cubic-bezier(.16,.8,.2,1) infinite!important;
+}
+.bt-cinema .btc-trajectory{
+  animation:btTrajectoryFinal 6.8s cubic-bezier(.2,.8,.2,1) infinite!important;
+}
+.bt-cinema .btc-wordmark{
+  animation:btWordFinal 6.8s cubic-bezier(.16,.8,.2,1) infinite;
+}
+@keyframes btBullFinal{
+  0%,7%{opacity:0;transform:translate3d(-280px,55px,0) scale(.46) rotate(-12deg);filter:blur(16px)}
+  18%{opacity:1;transform:translate3d(-80px,8px,0) scale(.72) rotate(-3deg);filter:blur(1px)}
+  34%{opacity:1;transform:translate3d(8px,0,0) scale(1);filter:blur(0)}
+  45%{opacity:1;transform:translate3d(70px,-4px,0) scale(.98);filter:blur(0)}
+  52%{opacity:.65;transform:translate3d(105px,-8px,0) scale(.86);filter:blur(2px)}
+  60%{opacity:0;transform:translate3d(125px,-14px,0) scale(.64);filter:blur(10px)}
+  100%{opacity:0;transform:translate3d(125px,-14px,0) scale(.64);filter:blur(10px)}
+}
+@keyframes btTargetFinal{
+  0%,38%{opacity:0;transform:scale(.25) rotate(-28deg);filter:blur(12px)}
+  48%{opacity:.35;transform:scale(.72) rotate(-8deg);filter:blur(2px)}
+  56%{opacity:1;transform:scale(1.04) rotate(0);filter:blur(0)}
+  66%{opacity:.92;transform:scale(1) rotate(90deg)}
+  76%{opacity:.45;transform:scale(.9) rotate(180deg)}
+  84%,100%{opacity:0;transform:scale(.65) rotate(230deg)}
+}
+@keyframes btCryptoFinal{
+  0%,53%{opacity:0;transform:scale(.28) translateY(24px);filter:blur(14px)}
+  61%{opacity:1;transform:scale(1.08) translateY(0);filter:blur(0)}
+  70%{opacity:.9;transform:scale(1) translateY(-4px)}
+  80%{opacity:.28;transform:scale(1.18) translateY(-18px);filter:blur(3px)}
+  88%,100%{opacity:0;transform:scale(.7) translateY(-36px);filter:blur(10px)}
+}
+@keyframes btTrajectoryFinal{
+  0%,20%{stroke-dashoffset:420;opacity:.05}
+  48%{stroke-dashoffset:130;opacity:.25}
+  68%{stroke-dashoffset:0;opacity:.85}
+  84%{stroke-dashoffset:-130;opacity:.18}
+  100%{stroke-dashoffset:-420;opacity:.04}
+}
+@keyframes btWordFinal{
+  0%,68%{opacity:0;transform:translate(-50%,16px) scale(.92);filter:blur(14px)}
+  78%{opacity:.5;transform:translate(-50%,4px) scale(.98);filter:blur(3px)}
+  88%,100%{opacity:1;transform:translate(-50%,0) scale(1);filter:blur(0)}
+}
+@media(prefers-reduced-motion:reduce){
+  .bt-cinema .btc-bullform,.bt-cinema .btc-targetform,.bt-cinema .btc-symbolform,.bt-cinema .btc-trajectory,.bt-cinema .btc-wordmark{animation:none!important}
+}
