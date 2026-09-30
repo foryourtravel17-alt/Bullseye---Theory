@@ -85,8 +85,7 @@
       setTimeout(sync,700); setTimeout(sync,1800); setInterval(sync,4000);
     }
   }
-})();
-(function(){
+
   const heroChart=document.querySelector('.chart');
   if(heroChart && !heroChart.querySelector('.bt-market-core')){
     const core=document.createElement('div');
@@ -97,20 +96,94 @@
         <span class="ticker">EUR/USD <b>FX</b></span>
         <span class="ticker">BTC/USD <b>CRYPTO</b></span>
       </div>
+
+      <svg class="market-candles" viewBox="0 0 600 240" preserveAspectRatio="none" aria-hidden="true">
+        <g>
+          <line x1="35" y1="195" x2="35" y2="160"/><rect x="30" y="171" width="10" height="18"/>
+          <line x1="75" y1="174" x2="75" y2="132"/><rect x="70" y="143" width="10" height="24"/>
+          <line x1="115" y1="155" x2="115" y2="102"/><rect x="110" y="118" width="10" height="25"/>
+          <line x1="155" y1="132" x2="155" y2="88"/><rect x="150" y="97" width="10" height="22"/>
+          <line x1="195" y1="151" x2="195" y2="108"/><rect x="190" y="119" width="10" height="21" class="downrect"/>
+          <line x1="235" y1="130" x2="235" y2="74"/><rect x="230" y="84" width="10" height="26"/>
+          <line x1="275" y1="112" x2="275" y2="52"/><rect x="270" y="65" width="10" height="29"/>
+          <line x1="315" y1="101" x2="315" y2="48"/><rect x="310" y="59" width="10" height="25"/>
+          <line x1="355" y1="116" x2="355" y2="57" class="down"/><rect class="downrect" x="350" y="70" width="10" height="24"/>
+          <line x1="395" y1="90" x2="395" y2="36"/><rect x="390" y="47" width="10" height="26"/>
+          <line x1="435" y1="78" x2="435" y2="28"/><rect x="430" y="38" width="10" height="24"/>
+          <line x1="475" y1="66" x2="475" y2="20"/><rect x="470" y="29" width="10" height="22"/>
+          <line x1="515" y1="82" x2="515" y2="34" class="down"/><rect class="downrect" x="510" y="46" width="10" height="20"/>
+          <line x1="555" y1="56" x2="555" y2="8"/><rect x="550" y="20" width="10" height="25"/>
+        </g>
+      </svg>
+
+      <svg class="dubai-skyline" viewBox="0 0 600 180" preserveAspectRatio="none" aria-hidden="true">
+        <g fill="#040607">
+          <rect x="0" y="108" width="64" height="72"/><rect x="48" y="86" width="48" height="94"/>
+          <rect x="92" y="122" width="48" height="58"/><rect x="135" y="76" width="45" height="104"/>
+          <rect x="176" y="98" width="58" height="82"/><rect x="230" y="70" width="55" height="110"/>
+          <rect x="281" y="52" width="48" height="128"/><rect x="323" y="32" width="42" height="148"/>
+          <rect x="360" y="82" width="66" height="98"/><rect x="417" y="60" width="54" height="120"/>
+          <rect x="464" y="100" width="62" height="80"/><rect x="518" y="72" width="44" height="108"/><rect x="558" y="112" width="42" height="68"/>
+          <path d="M344 32 L344 3 L351 32Z" fill="#e4b957" fill-opacity=".30"/>
+        </g>
+        <g fill="#e4b957" opacity=".34">
+          <rect x="330" y="42" width="3" height="12"/><rect x="356" y="55" width="3" height="14"/><rect x="286" y="69" width="3" height="10"/>
+          <rect x="100" y="133" width="3" height="10"/><rect x="446" y="73" width="3" height="12"/><rect x="532" y="85" width="3" height="10"/>
+        </g>
+      </svg>
+
       <div class="bull-visual">
         <div class="bull-glow"></div><div class="bull-ring"></div><div class="bull-ring r2"></div><div class="bull-ring r3"></div>
-        <div class="fire"></div>
-        <svg class="bull-svg" viewBox="0 0 240 240" aria-label="Bullseye bull mark" role="img">
-          <defs><linearGradient id="btBullGold" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#fff0ad"/><stop offset=".35" stop-color="#e4b957"/><stop offset="1" stop-color="#8f6b25"/></linearGradient></defs>
-          <path d="M54 77 C36 63 28 45 37 31 C48 44 61 48 75 46 C88 35 101 29 120 29 C139 29 152 35 165 46 C179 48 192 44 203 31 C212 45 204 63 186 77 C190 91 189 111 181 127 C173 144 159 155 145 163 L155 187 L120 172 L85 187 L95 163 C81 155 67 144 59 127 C51 111 50 91 54 77 Z" fill="url(#btBullGold)" opacity=".96"/>
-          <path d="M59 78 C43 69 37 58 38 47 M181 78 C197 69 203 58 202 47" fill="none" stroke="#f7e6a0" stroke-width="6" stroke-linecap="round"/>
-          <path d="M78 91 Q91 80 104 91 M136 91 Q149 80 162 91" fill="none" stroke="#101719" stroke-width="7" stroke-linecap="round"/>
-          <circle cx="91" cy="93" r="3.5" fill="#101719"/><circle cx="149" cy="93" r="3.5" fill="#101719"/>
-          <path d="M112 104 L108 133 L120 141 L132 133 L128 104" fill="#101719"/>
-          <path d="M96 151 Q120 166 144 151" fill="none" stroke="#101719" stroke-width="5" stroke-linecap="round"/>
+        <div class="crosshair"></div>
+        <svg class="bull-svg" viewBox="0 0 360 360" role="img" aria-label="Metallic bull with fiery eyes">
+          <defs>
+            <linearGradient id="btMetal" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#fff2b5"/><stop offset=".18" stop-color="#f2cd69"/><stop offset=".38" stop-color="#a97521"/><stop offset=".55" stop-color="#ffe38a"/><stop offset=".78" stop-color="#9a6b1b"/><stop offset="1" stop-color="#4b3210"/>
+            </linearGradient>
+            <linearGradient id="btHorn" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#fff2b8"/><stop offset=".35" stop-color="#dba947"/><stop offset=".7" stop-color="#7b5416"/><stop offset="1" stop-color="#2b1b08"/>
+            </linearGradient>
+            <radialGradient id="btFace" cx="48%" cy="34%" r="70%">
+              <stop offset="0" stop-color="#ffe79a"/><stop offset=".27" stop-color="#d2a33d"/><stop offset=".62" stop-color="#8e6118"/><stop offset="1" stop-color="#3c280c"/>
+            </radialGradient>
+            <linearGradient id="btFire" x1="0" y1="1" x2="1" y2="0">
+              <stop offset="0" stop-color="#ff3b00"/><stop offset=".45" stop-color="#ff9e19"/><stop offset=".75" stop-color="#fff3a0"/><stop offset="1" stop-color="#fff"/>
+            </linearGradient>
+            <filter id="btGlow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="btEyeGlow"><feGaussianBlur stdDeviation="4" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+
+          <ellipse cx="180" cy="190" rx="112" ry="126" fill="url(#btFace)" stroke="#e4b957" stroke-width="2"/>
+          <path d="M86 132 C50 124 24 101 18 68 C47 78 72 75 96 58 C111 42 130 31 150 27 L141 63 C119 73 103 91 92 110Z" fill="url(#btHorn)" stroke="#f2d883" stroke-width="3"/>
+          <path d="M274 132 C310 124 336 101 342 68 C313 78 288 75 264 58 C249 42 230 31 210 27 L219 63 C241 73 257 91 268 110Z" fill="url(#btHorn)" stroke="#f2d883" stroke-width="3"/>
+          <path d="M104 93 Q130 66 153 64 L165 99 L153 130 Q122 119 104 93Z" fill="#805717" opacity=".75"/>
+          <path d="M256 93 Q230 66 207 64 L195 99 L207 130 Q238 119 256 93Z" fill="#805717" opacity=".75"/>
+
+          <path d="M110 150 Q137 127 162 149" fill="none" stroke="#16120a" stroke-width="15" stroke-linecap="round"/>
+          <path d="M198 149 Q223 127 250 150" fill="none" stroke="#16120a" stroke-width="15" stroke-linecap="round"/>
+
+          <g filter="url(#btEyeGlow)">
+            <path d="M113 159 Q137 142 159 159 Q136 176 113 159Z" fill="#140904" stroke="url(#btFire)" stroke-width="5"/>
+            <path d="M201 159 Q223 142 247 159 Q224 176 201 159Z" fill="#140904" stroke="url(#btFire)" stroke-width="5"/>
+            <path d="M122 158 Q138 149 151 159 Q138 167 122 158Z" fill="#fff6b0"/>
+            <path d="M209 159 Q224 149 238 158 Q225 167 209 159Z" fill="#fff6b0"/>
+            <path d="M108 158 L86 142 M109 164 L82 163 M251 158 L274 142 M251 164 L278 163" stroke="#ff6b16" stroke-width="4" stroke-linecap="round" opacity=".9"/>
+          </g>
+
+          <path d="M163 169 L152 241 L180 258 L208 241 L197 169 Q180 159 163 169Z" fill="#2a1c08" stroke="#d7aa4a" stroke-width="2"/>
+          <ellipse cx="180" cy="249" rx="55" ry="30" fill="#6c4914" stroke="#e3b957" stroke-width="2"/>
+          <ellipse cx="158" cy="248" rx="10" ry="8" fill="#160f06"/><ellipse cx="202" cy="248" rx="10" ry="8" fill="#160f06"/>
+          <path d="M143 280 Q180 302 217 280" fill="none" stroke="#171006" stroke-width="8" stroke-linecap="round"/>
+
+          <path d="M180 28 L171 83 L180 102 L189 83Z" fill="#fff0a4" filter="url(#btGlow)"/>
+          <path d="M112 205 Q180 235 248 205" fill="none" stroke="rgba(255,244,178,.28)" stroke-width="5"/>
+          <path d="M105 226 Q180 252 255 226" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="2"/>
         </svg>
         <span class="symbol s1">₿</span><span class="symbol s2">$</span><span class="symbol s3">€</span><span class="symbol s4">¥</span>
       </div>
+
+      <div class="price-card pc1"><b>XAUUSD</b><span>GOLD · STUDY</span></div>
+      <div class="price-card pc2"><b>BTCUSD</b><span>CRYPTO · STUDY</span></div>
       <div class="hud-label"><span>STRUCTURE / LIQUIDITY / DISCIPLINE</span><b>● EDUCATIONAL MODE</b></div>
     `;
     heroChart.appendChild(core);
