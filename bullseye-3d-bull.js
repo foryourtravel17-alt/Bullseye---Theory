@@ -26,10 +26,10 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.m
   scene.fog = new THREE.FogExp2(0x020506, 0.012);
 
   const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
-  camera.position.set(0, 0.15, 13.4);
+  camera.position.set(0, 0.05, 14.2);
 
   const root = new THREE.Group();
-  root.position.set(0, -0.25, 0);
+  root.position.set(0, -0.18, 0);
   scene.add(root);
 
   const gold = new THREE.MeshPhysicalMaterial({
@@ -65,9 +65,8 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.m
   }
 
   // Distinct bovine silhouette: wide brow, tapered cheeks, long muzzle.
-  sphere([1.72,2.05,1.18],[0,.38,.05],gold,48);
-  sphere([1.18,1.18,.98],[-1.05,-.05,.28],goldLight,40);
-  sphere([1.18,1.18,.98],[1.05,-.05,.28],goldLight,40);
+  sphere([1.58,1.92,1.10],[0,.42,.02],gold,48);
+  sphere([1.34,1.20,.92],[0,-.22,.28],gold,44);
   sphere([1.18,.72,.86],[0,-1.18,.78],goldLight,44);
   sphere([.92,.54,.68],[0,-1.60,1.10],bronze,40);
 
@@ -141,7 +140,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.m
   const spire=new THREE.Mesh(new THREE.ConeGeometry(.11,1.8,8),new THREE.MeshBasicMaterial({color:0xe4b957}));
   spire.position.set(4.1,3.85,-2.2); skyline.add(spire);
 
-  const chartGroup=new THREE.Group(); chartGroup.position.z=-1.8; scene.add(chartGroup);
+  const chartGroup=new THREE.Group(); chartGroup.position.z=-3.4; scene.add(chartGroup);
   for(let i=0;i<16;i++){
     const x=-7+i*.9, low=-2.1+Math.random()*.4, high=low+1.1+Math.random()*2.4, up=Math.random()>.3;
     const lm=new THREE.LineBasicMaterial({color:up?0x82ff5c:0xe4b957,transparent:true,opacity:.42});
@@ -175,7 +174,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.m
     const t=clock.getElapsedTime();
     root.rotation.y += (mx*.08-root.rotation.y)*.035;
     root.rotation.x += (-my*.035-root.rotation.x)*.035;
-    root.position.y=-.25+Math.sin(t*1.1)*.025;
+    root.position.y=-.18+Math.sin(t*1.1)*.025;
     rings.rotation.z=t*.035;
     eyeGlowL.intensity=5+Math.sin(t*9)*1.6;
     eyeGlowR.intensity=5+Math.sin(t*9+1.3)*1.6;
