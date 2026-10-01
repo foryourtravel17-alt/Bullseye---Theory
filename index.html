@@ -9,18 +9,24 @@
 <link rel="stylesheet" href="bullseye-v3.css?v=20261002-4">
 </head>
 <body>
-<header class="v3-nav">
-  <a class="v3-logo" href="#top">BULLSEYE <span>THEORY</span></a>
+<header class="v3-nav v5-nav">
+  <a class="v5-brand" href="#top" aria-label="Bullseye Theory home">
+    <span class="v5-brand-mark" aria-hidden="true"><i></i><b></b><em></em></span>
+    <span>BULLSEYE <strong>THEORY</strong></span>
+  </a>
   <nav class="v3-navlinks" aria-label="Primary">
-    <a href="#method">METHOD</a><a href="#curriculum">CURRICULUM</a><a href="#experience">EXPERIENCE</a><a href="#faq">FAQ</a>
+    <a href="#top">HOME</a><a href="#method">COURSE</a><a href="#experience">TOOLS</a><a href="#method">ABOUT</a><a href="#faq">CONTACT</a>
   </nav>
-  <a class="v3-btn v3-primary" href="auth.html">STUDENT LOGIN →</a>
+  <a class="v3-btn v3-primary v5-login" href="auth.html">STUDENT LOGIN <span>→</span></a>
+  <button class="v5-menu" aria-label="Open menu"><span></span><span></span><span></span></button>
 </header>
 
 <main id="top">
-<section class="v3-hero v4-hero">
+<section class="v3-hero v4-hero v5-hero">
   <div class="v4-bg" aria-hidden="true"></div>
+  <div class="v5-atmosphere" aria-hidden="true"></div>
   <div class="v4-scan" aria-hidden="true"></div>
+
   <div class="v4-market-ticker">
     <div><b>◈</b><span>XAUUSD</span><strong>2354.80</strong><i>+0.42%</i></div>
     <div><b>€</b><span>EURUSD</span><strong>1.0876</strong><i>+0.31%</i></div>
@@ -29,22 +35,65 @@
     <div><b>Ξ</b><span>ETHUSD</span><strong>3541.26</strong><i>+1.36%</i></div>
     <div><b>$</b><span>DXY</span><strong>104.28</strong><i>+0.18%</i></div>
   </div>
-  <div class="v4-quote q1"><span>XAUUSD</span><b>2354.80</b><i>+0.42% ↗</i></div>
-  <div class="v4-quote q2"><span>BTCUSD</span><b>68324.12</b><i>+2.14% ↗</i></div>
-  <div class="v4-quote q3"><span>EURUSD</span><b>1.0876</b><i>+0.31% ↗</i></div>
+
+  <div class="v5-bull-stage" aria-hidden="true">
+    <div class="v5-bull-glow"></div>
+    <svg class="v5-bull" viewBox="0 0 900 820" role="img" aria-label="">
+      <defs>
+        <linearGradient id="hornGold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0a0"/><stop offset=".35" stop-color="#d69b2f"/><stop offset=".7" stop-color="#70400d"/><stop offset="1" stop-color="#f5ce64"/></linearGradient>
+        <linearGradient id="hideGold" x1=".2" y1="0" x2=".8" y2="1"><stop stop-color="#f6d36b"/><stop offset=".18" stop-color="#7c4a18"/><stop offset=".42" stop-color="#151311"/><stop offset=".72" stop-color="#3e2813"/><stop offset="1" stop-color="#e0ad4b"/></linearGradient>
+        <radialGradient id="face" cx=".5" cy=".38" r=".65"><stop stop-color="#3b3020"/><stop offset=".42" stop-color="#11100e"/><stop offset="1" stop-color="#030405"/></radialGradient>
+        <linearGradient id="fire" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#ff7a00"/><stop offset=".5" stop-color="#ffd45c"/><stop offset="1" stop-color="#fff7b0"/></linearGradient>
+        <filter id="bullGlow"><feGaussianBlur stdDeviation="9"/></filter>
+      </defs>
+      <ellipse cx="450" cy="720" rx="280" ry="45" fill="#ffb52e" opacity=".22" filter="url(#bullGlow)"/>
+      <path d="M285 205 C190 160 100 92 48 115 C80 205 144 275 265 300" fill="none" stroke="url(#hornGold)" stroke-width="54" stroke-linecap="round"/>
+      <path d="M615 205 C710 160 800 92 852 115 C820 205 756 275 635 300" fill="none" stroke="url(#hornGold)" stroke-width="54" stroke-linecap="round"/>
+      <path d="M270 238 C295 145 370 88 450 86 C530 88 605 145 630 238 L670 520 C640 635 565 700 450 716 C335 700 260 635 230 520Z" fill="url(#face)" stroke="url(#hideGold)" stroke-width="10"/>
+      <path d="M318 250 C352 184 398 155 450 154 C502 155 548 184 582 250 C548 226 512 212 450 212 C388 212 352 226 318 250Z" fill="#060708" opacity=".75"/>
+      <path d="M286 330 C335 286 385 286 420 324 C386 370 337 382 286 330Z" fill="#050506" stroke="#9b671f" stroke-width="6"/>
+      <path d="M614 330 C565 286 515 286 480 324 C514 370 563 382 614 330Z" fill="#050506" stroke="#9b671f" stroke-width="6"/>
+      <path d="M325 331 C350 311 382 314 407 331 C379 348 350 349 325 331Z" fill="#ffb321" opacity=".5"/>
+      <path d="M575 331 C550 311 518 314 493 331 C521 348 550 349 575 331Z" fill="#ffb321" opacity=".5"/>
+      <path d="M334 325 C360 313 389 316 407 332 C382 329 359 333 339 343Z" fill="url(#fire)" filter="url(#bullGlow)"/>
+      <path d="M566 325 C540 313 511 316 493 332 C518 329 541 333 561 343Z" fill="url(#fire)" filter="url(#bullGlow)"/>
+      <path d="M334 325 C360 313 389 316 407 332 C382 329 359 333 339 343" fill="none" stroke="#ff8b00" stroke-width="9" stroke-linecap="round"/>
+      <path d="M566 325 C540 313 511 316 493 332 C518 329 541 333 561 343" fill="none" stroke="#ff8b00" stroke-width="9" stroke-linecap="round"/>
+      <path d="M340 350 C322 378 334 393 359 406 M560 350 C578 378 566 393 541 406" fill="none" stroke="#ffb52e" stroke-width="5" stroke-linecap="round"/>
+      <path d="M358 402 C383 375 411 364 450 366 C489 364 517 375 542 402 L555 555 C522 607 489 636 450 642 C411 636 378 607 345 555Z" fill="url(#face)" stroke="#6f4818" stroke-width="6"/>
+      <path d="M375 455 C402 428 421 418 450 420 C479 418 498 428 525 455 L510 565 C487 594 468 607 450 610 C432 607 413 594 390 565Z" fill="#17120e" stroke="#a56d24" stroke-width="5"/>
+      <ellipse cx="450" cy="486" rx="65" ry="47" fill="#08090a" stroke="#d39a38" stroke-width="4"/>
+      <ellipse cx="425" cy="488" rx="11" ry="8" fill="#d8b267"/><ellipse cx="475" cy="488" rx="11" ry="8" fill="#d8b267"/>
+      <path d="M389 535 Q450 565 511 535" fill="none" stroke="#e2b44f" stroke-width="8" stroke-linecap="round"/>
+      <path d="M370 555 Q450 620 530 555" fill="none" stroke="#6b4519" stroke-width="9"/>
+      <path d="M292 450 C215 490 185 610 230 700 M608 450 C685 490 715 610 670 700" fill="none" stroke="url(#hideGold)" stroke-width="70" stroke-linecap="round"/>
+      <path d="M330 530 C305 600 310 690 350 730 M570 530 C595 600 590 690 550 730" fill="none" stroke="#0a0a0a" stroke-width="75" stroke-linecap="round"/>
+      <g fill="none" stroke="url(#fire)" stroke-linecap="round">
+        <path d="M300 690 C260 650 290 610 270 575" stroke-width="8"/><path d="M350 720 C330 665 370 635 350 585" stroke-width="6"/>
+        <path d="M600 690 C640 650 610 610 630 575" stroke-width="8"/><path d="M550 720 C570 665 530 635 550 585" stroke-width="6"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="v5-reticle"><div></div><i></i><b></b></div>
+
+  <div class="v5-quote q1"><span>XAUUSD</span><b>2354.80</b><i>+0.42% ↗</i></div>
+  <div class="v5-quote q2"><span>BTCUSD</span><b>68324.12</b><i>+2.14% ↗</i></div>
+
   <div class="v4-chart" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-  <div class="v4-reticle" aria-hidden="true"><div></div><i></i></div>
-  <div class="v4-hero-copy">
+
+  <div class="v4-hero-copy v5-hero-copy">
     <div class="v3-kicker">THE BULLSEYE SYSTEM / TRADING EDUCATION</div>
     <h1>READ THE MARKET.<br><em>BUILD THE PROCESS.</em></h1>
-    <p class="v3-sub">Learn market structure, price action, risk management and trading psychology through a structured education system — not signals, hype or easy-money promises.</p>
-    <div class="v3-actions"><a class="v3-btn v3-primary" href="auth.html">ENTER STUDENT AREA →</a><a class="v3-btn v3-ghost" href="#curriculum">EXPLORE CURRICULUM</a></div>
+    <p class="v3-sub">Structured education for market structure, price action, risk management and trading psychology — built for learning, practice and review.</p>
+    <div class="v3-actions"><a class="v3-btn v3-primary" href="auth.html">ENTER STUDENT AREA <span>→</span></a><a class="v3-btn v3-ghost" href="#curriculum">EXPLORE CURRICULUM</a></div>
   </div>
-  <div class="v4-bottom-strip">
-    <span><b>◫</b> STRUCTURE <small>Read the bigger picture</small></span>
-    <span><b>◌</b> LIQUIDITY <small>Understand the flow</small></span>
-    <span><b>▥</b> DISCIPLINE <small>Execute with patience</small></span>
-    <span><b>◇</b> EDUCATIONAL MODE <small>Learn. Practice. Review.</small></span>
+
+  <div class="v5-bottom-strip">
+    <span><b>⌬</b><strong>STRUCTURE</strong><small>Read the bigger picture</small></span>
+    <span><b>◌</b><strong>LIQUIDITY</strong><small>Understand the flow</small></span>
+    <span><b>▥</b><strong>DISCIPLINE</strong><small>Execute with patience</small></span>
+    <span><b>◇</b><strong>EDUCATIONAL MODE</strong><small>Learn. Practice. Review.</small></span>
   </div>
 </section>
 
