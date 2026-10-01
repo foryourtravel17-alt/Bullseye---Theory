@@ -83,7 +83,21 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.m
     return m;
   }
   const head=bullHeadShape(gold);
-  head.scale.set(1,1.03,1);
+  // Wider forehead + tapered lower face: unmistakable bovine silhouette.
+  head.scale.set(1.18,1.10,1.12);
+  head.rotation.x=-0.035;
+  
+  // Sculpted cheek planes to break the mask/pig silhouette.
+  const cheekGeo=new THREE.CapsuleGeometry(.48,.92,6,12);
+  const cheekL=new THREE.Mesh(cheekGeo,gold);
+  cheekL.scale.set(.72,.96,.72);
+  cheekL.position.set(-.72,-.28,.28);
+  cheekL.rotation.z=-.18;
+  root.add(cheekL);
+  const cheekR=cheekL.clone();
+  cheekR.position.x=.72;
+  cheekR.rotation.z=.18;
+  root.add(cheekR);
 
   // Compact pointed ears.
   const earGeo=new THREE.ConeGeometry(.30,.78,5,1);
