@@ -1,0 +1,29 @@
+(() => {
+const ready=fn=>document.readyState==="loading"?document.addEventListener("DOMContentLoaded",fn,{once:true}):fn();
+ready(()=>{
+ document.body.classList.add("bt-godmode");
+ const noise=document.createElement("div");noise.className="bt-god-noise";document.body.appendChild(noise);
+ const progress=document.createElement("div");progress.className="bt-god-progress";document.body.appendChild(progress);
+ const cursor=document.createElement("div");cursor.className="bt-god-cursor";document.body.appendChild(cursor);
+ const hero=document.querySelector(".bt-hero-preview")||document.querySelector("main .hero");
+ if(hero){
+  const intro=document.createElement("section");intro.className="bt-god-intro";
+  intro.innerHTML='<canvas aria-hidden="true"></canvas><div class="bt-god-ui"><span class="a">BULLSEYE THEORY / VISUAL ENGINE</span><span class="b">SYSTEM 01 · PRECISION</span><span class="c">MARKET / STRUCTURE / RISK</span><span class="d">STATUS / EDUCATIONAL MODE</span></div><div class="bt-god-title"><small>READ THE MARKET · BUILD THE PROCESS</small><h2>BULLSEYE <span>THEORY</span></h2><p>STRUCTURE · DISCIPLINE · PRECISION</p></div><div class="bt-god-scroll">SCROLL TO ENTER<i></i></div>';
+  hero.parentNode.insertBefore(intro,hero);
+  const canvas=intro.querySelector("canvas"),ctx=canvas.getContext("2d");let W=0,H=0,dpr=1,particles=[],t0=performance.now(),TAU=Math.PI*2;
+  function resize(){const r=intro.getBoundingClientRect();W=r.width;H=r.height;dpr=Math.min(devicePixelRatio||1,2);canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+"px";canvas.style.height=H+"px";ctx.setTransform(dpr,0,0,dpr,0,0);build()}
+  function build(){particles=[];const cx=W*.5,cy=H*.5,s=Math.min(W,H)*.32,n=Math.min(2300,Math.max(900,Math.floor(W*H/700)));for(let i=0;i<n;i++){const a=Math.random()*TAU,r=Math.pow(Math.random(),.55)*s,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*.72;particles.push({x,y,bx:x,by:y,a:Math.random()*.8+.15,r:Math.random()*1.6+.35,ang:a,rad:r,seed:Math.random()*10,ring:Math.random()<.16})}}
+  function draw(now){const t=(now-t0)/1000;ctx.clearRect(0,0,W,H);const cx=W*.5,cy=H*.5,s=Math.min(W,H)*.32,bg=ctx.createRadialGradient(cx,cy,0,cx,cy,s*1.5);bg.addColorStop(0,"rgba(32,80,59,.18)");bg.addColorStop(.45,"rgba(4,18,18,.08)");bg.addColorStop(1,"rgba(0,0,0,0)");ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);particles.forEach((p,i)=>{const pulse=.7+.3*Math.sin(t*2.1+p.seed);let x=p.bx+Math.cos(t*.32+p.ang*2.5)*8*pulse,y=p.by+Math.sin(t*.28+p.seed)*7;if(p.ring){const rr=p.rad+s*.08*Math.sin(t*.55+p.seed);x=cx+Math.cos(p.ang+t*.05)*rr;y=cy+Math.sin(p.ang+t*.05)*rr*.72}ctx.globalAlpha=p.a*(.5+.5*Math.sin(t*1.4+p.seed));ctx.fillStyle=i%11===0?"#e4b957":i%7===0?"#8fe8ff":"#a8ff61";ctx.beginPath();ctx.arc(x,y,p.r*(.8+.35*pulse),0,TAU);ctx.fill()});ctx.globalAlpha=.45;ctx.strokeStyle="#a8ff61";ctx.lineWidth=1;[s*.32,s*.43,s*.54].forEach((r,i)=>{ctx.globalAlpha=.35-i*.07;ctx.beginPath();ctx.arc(cx,cy,r,0,TAU);ctx.stroke()});ctx.globalAlpha=.16;ctx.beginPath();ctx.moveTo(cx-s*.65,cy);ctx.lineTo(cx+s*.65,cy);ctx.moveTo(cx,cy-s*.65);ctx.lineTo(cx,cy+s*.65);ctx.stroke();ctx.globalAlpha=1;requestAnimationFrame(draw)}
+  new ResizeObserver(resize).observe(intro);resize();requestAnimationFrame(draw);intro.addEventListener("click",()=>hero.scrollIntoView({behavior:"smooth"}));
+ }
+ const strip=document.createElement("div");strip.className="bt-god-marquee";strip.innerHTML='<div class="bt-god-marquee-track"><span><b>01</b> MARKET STRUCTURE</span><span><b>02</b> PRICE ACTION</span><span><b>03</b> RISK MANAGEMENT</span><span><b>04</b> TRADING PSYCHOLOGY</span><span><b>05</b> DISCIPLINE</span><span><b>06</b> PROCESS OVER IMPULSE</span><span><b>01</b> MARKET STRUCTURE</span><span><b>02</b> PRICE ACTION</span><span><b>03</b> RISK MANAGEMENT</span><span><b>04</b> TRADING PSYCHOLOGY</span><span><b>05</b> DISCIPLINE</span><span><b>06</b> PROCESS OVER IMPULSE</span></div>';
+ const sys=document.querySelector(".bt-system-preview");if(sys)sys.parentNode.insertBefore(strip,sys);
+ addEventListener("scroll",()=>{const h=document.documentElement.scrollHeight-innerHeight;progress.style.transform="scaleX("+(h>0?scrollY/h:0)+")"},{passive:true});
+ document.querySelectorAll("section,article,.bt-panel,.bt-lessons,.bt-principles").forEach((el,i)=>{if(i<2)return;el.classList.add("bt-god-reveal");if(el.tagName==="ARTICLE")el.classList.add("bt-god-sweep","bt-god-tilt")});
+ const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add("bt-visible")}),{threshold:.12});document.querySelectorAll(".bt-god-reveal").forEach(e=>io.observe(e));
+ document.querySelectorAll(".bt-god-tilt").forEach(card=>{card.addEventListener("pointermove",e=>{const r=card.getBoundingClientRect(),x=e.clientX-(r.left+r.width/2),y=e.clientY-(r.top+r.height/2);card.style.setProperty("--mx",(x/r.width*100+50)+"%");card.style.setProperty("--my",(y/r.height*100+50)+"%");card.style.transform="perspective(900px) rotateX("+(-y/r.height*6).toFixed(2)+"deg) rotateY("+(x/r.width*8).toFixed(2)+"deg) translateY(-4px)"});card.addEventListener("pointerleave",()=>card.style.transform="")});
+ document.querySelectorAll("a.btn,.bt-login,.ghost").forEach(el=>{el.addEventListener("pointerenter",()=>cursor.classList.add("bt-hot"));el.addEventListener("pointerleave",()=>{cursor.classList.remove("bt-hot");el.style.transform=""});el.addEventListener("pointermove",e=>{const r=el.getBoundingClientRect(),x=e.clientX-(r.left+r.width/2),y=e.clientY-(r.top+r.height/2);el.style.transform="translate("+(x*.08).toFixed(1)+"px,"+(y*.08).toFixed(1)+"px)"})});
+ addEventListener("pointermove",e=>{cursor.style.left=e.clientX+"px";cursor.style.top=e.clientY+"px"},{passive:true});
+ if(matchMedia("(prefers-reduced-motion: reduce)").matches)document.body.classList.add("bt-god-reduced");
+});
+})();
