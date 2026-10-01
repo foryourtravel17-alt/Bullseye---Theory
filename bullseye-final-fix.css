@@ -177,3 +177,117 @@
   opacity:1!important;
   z-index:100!important;
 }
+
+
+/* ===== RESPONSIVE COURSE GRID / TOUCH-SAFE STUDENT UI ===== */
+.bt-course-preview{
+  align-items:start!important;
+}
+.bt-course-copy{
+  position:relative!important;
+  z-index:3!important;
+}
+.bt-course-copy > .btn{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  margin-top:8px!important;
+  margin-bottom:28px!important;
+  position:relative!important;
+  z-index:4!important;
+}
+.bt-lessons{
+  position:relative!important;
+  z-index:2!important;
+  width:100%!important;
+  margin-top:18px!important;
+  display:grid!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:14px!important;
+  align-items:stretch!important;
+  overflow:visible!important;
+}
+.bt-lessons article,
+.bt-lessons article:nth-child(n){
+  transform:none!important;
+  min-width:0!important;
+  min-height:300px!important;
+  height:auto!important;
+  padding:20px 16px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:space-between!important;
+}
+.bt-lessons article b{
+  display:block!important;
+  line-height:1.35!important;
+  overflow-wrap:normal!important;
+  word-break:normal!important;
+}
+.bt-lessons article em{
+  margin-top:28px!important;
+}
+@media(max-width:1050px){
+  .bt-course-preview{
+    display:block!important;
+  }
+  .bt-course-copy{
+    margin-bottom:8px!important;
+  }
+  .bt-lessons{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:14px!important;
+    overflow:visible!important;
+    padding-bottom:0!important;
+  }
+}
+@media(max-width:600px){
+  .bt-course-preview{
+    padding-top:54px!important;
+    padding-bottom:54px!important;
+  }
+  .bt-course-copy > .btn{
+    width:100%!important;
+    min-height:54px!important;
+    margin-top:12px!important;
+    margin-bottom:30px!important;
+    border-radius:12px!important;
+  }
+  .bt-lessons{
+    grid-template-columns:1fr!important;
+    gap:14px!important;
+    margin-top:0!important;
+  }
+  .bt-lessons article,
+  .bt-lessons article:nth-child(n){
+    min-height:210px!important;
+    height:auto!important;
+    padding:20px!important;
+    border-radius:14px!important;
+  }
+  .bt-lessons small{
+    font-size:13px!important;
+  }
+  .bt-lessons b{
+    font-size:14px!important;
+    letter-spacing:1.2px!important;
+  }
+  .bt-lessons em{
+    font-size:34px!important;
+    margin-top:24px!important;
+  }
+}
+@media(min-width:601px) and (max-width:1050px){
+  .bt-course-copy > .btn{
+    margin-bottom:32px!important;
+  }
+  .bt-lessons article{
+    min-height:250px!important;
+  }
+}
+/* Keep interactive controls comfortably tappable and prevent accidental overlap. */
+.bt-course-copy a.btn,
+.bt-course-copy a.ghost,
+.bt-lessons article{
+  touch-action:manipulation!important;
+}
