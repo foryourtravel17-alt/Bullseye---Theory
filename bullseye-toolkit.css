@@ -1,0 +1,66 @@
+/* Bullseye Theory — automated visual toolkit layer
+   Motion-style interactions + procedural SVG atmosphere + palette tokens.
+   No external runtime dependency. */
+:root{
+  --bt-obsidian:#0B0E14;
+  --bt-obsidian-2:#10151D;
+  --bt-lime:#39FF14;
+  --bt-gold:#C5A059;
+  --bt-offwhite:#F4F6F2;
+  --bt-muted:#8F9AA5;
+  --bt-grid:rgba(197,160,89,.16);
+  --bt-lime-soft:rgba(57,255,20,.10);
+}
+.bt-toolkit-bg{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0;opacity:.75}
+.bt-toolkit-bg svg{width:100%;height:100%;display:block}
+.bt-toolkit-bg .bt-noise{opacity:.18}
+.bt-toolkit-bg .bt-flow{stroke-dasharray:5 14;animation:btTkFlow 7s linear infinite}
+.bt-toolkit-bg .bt-node{animation:btTkPulse 2.8s ease-in-out infinite}
+.bt-toolkit-bg .bt-node:nth-child(2){animation-delay:.7s}.bt-toolkit-bg .bt-node:nth-child(3){animation-delay:1.4s}
+@keyframes btTkFlow{to{stroke-dashoffset:-190}}
+@keyframes btTkPulse{0%,100%{opacity:.18;transform:scale(.85)}50%{opacity:.75;transform:scale(1.1)}}
+
+.bt-toolkit-corner{position:absolute;inset:18px;pointer-events:none;border:1px solid transparent;z-index:4}
+.bt-toolkit-corner:before,.bt-toolkit-corner:after{content:"";position:absolute;width:34px;height:34px;border-color:rgba(197,160,89,.55);border-style:solid}
+.bt-toolkit-corner:before{left:0;top:0;border-width:1px 0 0 1px}.bt-toolkit-corner:after{right:0;bottom:0;border-width:0 1px 1px 0}
+.bt-toolkit-readout{position:absolute;left:24px;bottom:24px;z-index:5;font:800 8px/1.3 Inter,Arial,sans-serif;letter-spacing:1.8px;color:rgba(244,246,242,.52)}
+.bt-toolkit-readout b{color:var(--bt-lime);font-weight:900}
+
+.bt-motion{transition:transform .42s cubic-bezier(.16,1,.3,1),border-color .42s ease,box-shadow .42s ease}
+.bt-motion:hover{transform:translateY(-6px)}
+.bt-motion:active{transform:translateY(-2px) scale(.99)}
+.bt-motion-focus{position:relative;overflow:hidden}
+.bt-motion-focus:after{content:"";position:absolute;top:-20%;bottom:-20%;left:-30%;width:22%;background:linear-gradient(90deg,transparent,rgba(57,255,20,.15),transparent);transform:skewX(-18deg);transition:left .9s cubic-bezier(.16,1,.3,1);pointer-events:none}
+.bt-motion-focus:hover:after{left:120%}
+
+.bt-toolkit .bt-hero-copy,.bt-toolkit .bt-hero-visual{position:relative;z-index:2}
+.bt-toolkit .bt-hero-copy .bt-eyebrow{color:var(--bt-gold)!important}
+.bt-toolkit .bt-hero-copy h1 .bt-line:first-child{color:var(--bt-offwhite)!important}
+.bt-toolkit .bt-hero-copy h1 .bt-line:last-child{color:var(--bt-gold)!important}
+.bt-toolkit .bt-hero-copy .btn{box-shadow:0 0 0 rgba(57,255,20,0);transition:transform .35s cubic-bezier(.16,1,.3,1),box-shadow .35s ease}
+.bt-toolkit .bt-hero-copy .btn:hover{box-shadow:0 0 32px rgba(57,255,20,.16)}
+.bt-toolkit .bt-hero-copy .ghost{border-color:rgba(197,160,89,.55)!important}
+
+.bt-toolkit .bt-value-strip{position:relative;z-index:2}
+.bt-toolkit .bt-value-strip>div{transition:background .3s ease,transform .3s cubic-bezier(.16,1,.3,1)}
+.bt-toolkit .bt-value-strip>div:hover{background:rgba(57,255,20,.025);transform:translateY(-2px)}
+.bt-toolkit .bt-value-strip .bt-live{color:var(--bt-lime)!important}
+
+.bt-toolkit .bt-system-preview,.bt-toolkit .bt-course-preview,.bt-toolkit .bt-extra{position:relative}
+.bt-toolkit .bt-system-preview:before,.bt-toolkit .bt-course-preview:before,.bt-toolkit .bt-extra:before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(to right,var(--bt-grid) 1px,transparent 1px),linear-gradient(to bottom,var(--bt-grid) 1px,transparent 1px);
+  background-size:80px 80px;mask-image:linear-gradient(90deg,transparent,black 18%,black 82%,transparent);opacity:.18;
+}
+.bt-toolkit .bt-flow article,.bt-toolkit .bt-lessons article,.bt-toolkit .bt-principles article{position:relative;z-index:1;transition:transform .45s cubic-bezier(.16,1,.3,1),border-color .35s ease,box-shadow .35s ease}
+.bt-toolkit .bt-flow article:hover,.bt-toolkit .bt-lessons article:hover,.bt-toolkit .bt-principles article:hover{transform:translateY(-7px);border-color:rgba(57,255,20,.38)!important;box-shadow:0 20px 60px rgba(0,0,0,.22)}
+.bt-toolkit .bt-lessons article:nth-child(2):hover{transform:translateY(-19px)}.bt-toolkit .bt-lessons article:nth-child(3):hover{transform:translateY(-31px)}.bt-toolkit .bt-lessons article:nth-child(4):hover{transform:translateY(-43px)}.bt-toolkit .bt-lessons article:nth-child(5):hover{transform:translateY(-55px)}
+
+@media(max-width:600px){
+  .bt-toolkit-corner{inset:12px}.bt-toolkit-readout{left:17px;bottom:17px;font-size:7px}
+  .bt-toolkit .bt-system-preview:before,.bt-toolkit .bt-course-preview:before,.bt-toolkit .bt-extra:before{background-size:55px 55px;opacity:.12}
+}
+@media(prefers-reduced-motion:reduce){
+  .bt-toolkit-bg .bt-flow,.bt-toolkit-bg .bt-node{animation:none!important}
+  .bt-motion,.bt-toolkit .bt-flow article,.bt-toolkit .bt-lessons article,.bt-toolkit .bt-principles article{transition:none!important}
+}
