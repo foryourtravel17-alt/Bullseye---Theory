@@ -520,3 +520,37 @@ body.bt-premium{
     margin-top:8px!important;
   }
 }
+
+
+/* STRUCTURAL HEADING LOCK — HTML <br> controls the intended line sequence. */
+.bt-locked-heading{
+  overflow:visible!important;
+}
+.bt-locked-heading span{
+  display:inline-block!important;
+  white-space:nowrap!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  hyphens:none!important;
+}
+.bt-course-copy .bt-locked-heading span:last-child{
+  color:#e4b957!important;
+}
+.bt-system-copy .bt-locked-heading span{
+  color:#e4b957!important;
+}
+@media(max-width:600px){
+  .bt-course-copy .bt-locked-heading{
+    font-size:clamp(29px,8.6vw,44px)!important;
+    line-height:1.04!important;
+    letter-spacing:-1.5px!important;
+  }
+  .bt-system-copy .bt-locked-heading{
+    font-size:clamp(43px,13.5vw,56px)!important;
+    line-height:.94!important;
+    letter-spacing:-2.2px!important;
+  }
+  .bt-locked-heading br{
+    display:block!important;
+  }
+}
