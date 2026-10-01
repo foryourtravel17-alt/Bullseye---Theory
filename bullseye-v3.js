@@ -97,7 +97,7 @@
 
 // V4 cinematic hero motion
 (()=>{
-  const hero=document.querySelector(".v4-hero"), bg=document.querySelector(".v4-bg"), ret=document.querySelector(".v4-reticle");
+  const hero=document.querySelector(".v4-hero"), bg=document.querySelector(".v4-bg"), ret=document.querySelector(".v5-reticle"), bull=document.querySelector(".v5-bull-stage");
   if(!hero||!bg||!ret)return;
   let raf=0,tx=0,ty=0;
   hero.addEventListener("pointermove",e=>{
@@ -106,7 +106,7 @@
     tx=((e.clientX-r.left)/r.width-.5)*8; ty=((e.clientY-r.top)/r.height-.5)*5;
     cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{
       bg.style.transform="scale(1.035) translate("+tx+"px,"+ty+"px)";
-      ret.style.transform="translate(calc(-50% + "+(tx*.7)+"px),calc(-50% + "+(ty*.7)+"px))";
+      ret.style.transform="translate(calc(-50% + "+(tx*.7)+"px),calc(-50% + "+(ty*.7)+"px))"; if(bull) bull.style.transform="translate(calc(-50% + "+(tx*.42)+"px),calc(-50% + "+(ty*.28)+"px))";
     });
   });
 })();
