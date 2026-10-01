@@ -1,0 +1,121 @@
+/* Bullseye final visual + typography lock — intentionally last in cascade. */
+.bt-system-preview,
+.bt-course-preview{
+  min-width:0!important;
+}
+
+@media (max-width:1050px){
+  .bt-system-preview,
+  .bt-course-preview{
+    display:block!important;
+    width:100%!important;
+    max-width:100%!important;
+  }
+  .bt-system-copy,
+  .bt-course-copy{
+    display:block!important;
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+  }
+}
+
+.bt-system-copy .bt-locked-heading,
+.bt-course-copy .bt-locked-heading{
+  display:block!important;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  overflow:visible!important;
+  white-space:normal!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+}
+
+.bt-system-copy .bt-locked-heading > span,
+.bt-course-copy .bt-locked-heading > span{
+  display:block!important;
+  width:auto!important;
+  max-width:none!important;
+  min-width:0!important;
+  white-space:nowrap!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  hyphens:none!important;
+  text-wrap:nowrap!important;
+}
+
+.bt-system-copy .bt-locked-heading > br,
+.bt-course-copy .bt-locked-heading > br{
+  display:block!important;
+  height:0!important;
+  line-height:0!important;
+}
+
+@media(max-width:600px){
+  .bt-system-copy .bt-locked-heading{
+    font-size:clamp(42px,13.2vw,58px)!important;
+    line-height:.96!important;
+    letter-spacing:-2.1px!important;
+  }
+  .bt-course-copy .bt-locked-heading{
+    font-size:clamp(31px,9.2vw,46px)!important;
+    line-height:1.02!important;
+    letter-spacing:-1.4px!important;
+  }
+}
+
+/* Make the hero bull occupy the visual like the supplied premium reference. */
+.bt-final-bull{
+  position:absolute!important;
+  z-index:8!important;
+  left:50%!important;
+  top:54%!important;
+  width:min(88%,620px)!important;
+  height:auto!important;
+  transform:translate(-50%,-50%)!important;
+  filter:drop-shadow(0 30px 45px rgba(0,0,0,.68)) drop-shadow(0 0 32px rgba(228,185,87,.22))!important;
+  pointer-events:none!important;
+  overflow:visible!important;
+}
+.bt-final-bull svg{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  overflow:visible!important;
+}
+.bt-final-bull .bt-bull-metal{
+  fill:url(#btGoldFace)!important;
+  stroke:rgba(255,225,138,.22)!important;
+  stroke-width:1.2!important;
+}
+.bt-final-bull .bt-bull-shadow{
+  fill:url(#btGoldShadow)!important;
+}
+.bt-final-bull .bt-bull-dark{
+  fill:#160f06!important;
+}
+.bt-final-bull .bt-bull-hot{
+  fill:#ff8d23!important;
+  filter:drop-shadow(0 0 10px rgba(255,129,27,.9))!important;
+}
+.bt-final-bull .bt-bull-horn{
+  fill:url(#btHornMetal)!important;
+  stroke:#8c641c!important;
+  stroke-width:1.1!important;
+}
+.bt-final-bull .bt-bull-cut{
+  fill:none!important;
+  stroke:rgba(92,54,11,.62)!important;
+  stroke-width:2!important;
+  stroke-linecap:round!important;
+}
+@media(max-width:600px){
+  .bt-final-bull{
+    width:96%!important;
+    top:55%!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .bt-final-bull{animation:none!important}
+}
