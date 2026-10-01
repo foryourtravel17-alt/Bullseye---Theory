@@ -421,3 +421,26 @@ body.bt-premium{
   .bt-system-copy h2{font-size:clamp(48px,15vw,58px)!important;letter-spacing:-2.4px!important}
   .bt-hero-copy h1 .bt-line,.bt-system-copy h2 .bt-line{white-space:nowrap!important;display:block!important}
 }
+
+
+/* FINAL WORD-INTEGRITY + MOBILE VISUAL FOCUS */
+.bt-course-copy h2 .bt-line{
+  display:block!important;
+  white-space:nowrap!important;
+  word-break:keep-all!important;
+  overflow-wrap:normal!important;
+  hyphens:none!important;
+  text-wrap:nowrap!important;
+}
+.bt-course-copy h2 .bt-line:last-child{color:#e4b957!important}
+.bt-course-copy h2 .bt-line:first-child{color:#f5f2eb!important}
+.bt-hero-visual .bt-side-quote{display:none!important}
+.bt-hero-visual .bt-market-bottom{display:none!important}
+.bt-hero-visual .bt-3d-layer-label{bottom:22px!important}
+@media(max-width:600px){
+  .bt-course-copy h2 .bt-line{white-space:nowrap!important;display:block!important}
+  .bt-course-copy h2{font-size:clamp(34px,10.5vw,48px)!important;line-height:1!important;letter-spacing:-1.4px!important}
+  .bt-hero-visual .bt-market-pills{left:12px!important;right:auto!important;top:18px!important;gap:5px!important}
+  .bt-hero-visual .bt-market-pills span{font-size:6.5px!important;padding:7px 8px!important}
+  .bt-hero-visual .bt-3d-layer-label{left:16px!important;bottom:16px!important}
+}
