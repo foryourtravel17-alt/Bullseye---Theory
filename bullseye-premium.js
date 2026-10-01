@@ -2,7 +2,7 @@
   const path=location.pathname.split('/').pop()||'index.html';
   document.body.classList.add('bt-premium');
 
-  if(path==='index.html'||path===''){
+  if(false && (path==='index.html'||path===''){
     const hero=document.querySelector('.hero');
     if(hero && !document.querySelector('.bt-command')){
       const command=document.createElement('section');
