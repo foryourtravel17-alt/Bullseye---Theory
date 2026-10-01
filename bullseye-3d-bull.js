@@ -64,53 +64,72 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.m
     root.add(mesh); return mesh;
   }
 
-  // CLEAN BULL SILHOUETTE — no circular cheek/mask geometry.
-  // Main skull: broad forehead tapering into a real bovine muzzle.
-  sphere([1.48,1.72,0.88],[0,.34,.02],gold,48);
-  sphere([1.08,.72,.72],[0,-.86,.72],goldLight,44);
-  sphere([.90,.48,.58],[0,-1.34,1.05],bronze,40);
+  // REBUILT BULL HEAD — a single continuous silhouette, avoiding the
+  // circular/ball-like face that appeared in the previous iterations.
+  function bullHeadShape(material){
+    const s=new THREE.Shape();
+    s.moveTo(-1.42,.92);
+    s.bezierCurveTo(-1.15,1.52,-.58,1.82,0,1.86);
+    s.bezierCurveTo(.58,1.82,1.15,1.52,1.42,.92);
+    s.bezierCurveTo(1.34,.28,1.12,-.30,.82,-.72);
+    s.bezierCurveTo(.62,-1.05,.42,-1.28,0,-1.38);
+    s.bezierCurveTo(-.42,-1.28,-.62,-1.05,-.82,-.72);
+    s.bezierCurveTo(-1.12,-.30,-1.34,.28,-1.42,.92);
+    const g=new THREE.ExtrudeGeometry(s,{depth:.92,bevelEnabled:true,bevelSegments:5,steps:2,bevelSize:.12,bevelThickness:.10});
+    g.center();
+    const m=new THREE.Mesh(g,material);
+    m.position.set(0,.12,.10);
+    root.add(m);
+    return m;
+  }
+  const head=bullHeadShape(gold);
+  head.scale.set(1,1.03,1);
 
-  // Ears — compact, pointed and clearly behind the horns.
-  const earGeo = new THREE.ConeGeometry(.34,.92,5,1);
-  const earL = new THREE.Mesh(earGeo,gold);
-  earL.position.set(-1.38,.92,-.20); earL.rotation.set(.15,.12,-.72); root.add(earL);
-  const earR = earL.clone();
+  // Compact pointed ears.
+  const earGeo=new THREE.ConeGeometry(.30,.78,5,1);
+  const earL=new THREE.Mesh(earGeo,goldLight);
+  earL.position.set(-1.38,1.08,-.16); earL.rotation.set(.10,.12,-.72); root.add(earL);
+  const earR=earL.clone();
   earR.position.x=1.38; earR.rotation.z=.72; root.add(earR);
 
-  // Classic upward-curved bull horns.
-  tube([[-1.05,1.02,-.10],[-1.65,1.22,-.08],[-2.15,1.62,-.04],[-2.48,2.20,.00],[-2.32,2.72,.04]],.20,goldLight);
-  tube([[1.05,1.02,-.10],[1.65,1.22,-.08],[2.15,1.62,-.04],[2.48,2.20,.00],[2.32,2.72,.04]],.20,goldLight);
-  tube([[-1.08,1.03,-.05],[-1.63,1.22,-.04],[-2.10,1.58,-.02]],.31,bronze);
-  tube([[1.08,1.03,-.05],[1.63,1.22,-.04],[2.10,1.58,-.02]],.31,bronze);
+  // Strong classic bull horns.
+  tube([[-1.04,1.18,-.08],[-1.62,1.38,-.06],[-2.15,1.78,-.02],[-2.48,2.34,.02],[-2.30,2.90,.06]],.19,goldLight);
+  tube([[1.04,1.18,-.08],[1.62,1.38,-.06],[2.15,1.78,-.02],[2.48,2.34,.02],[2.30,2.90,.06]],.19,goldLight);
+  tube([[-1.05,1.18,-.05],[-1.62,1.38,-.04],[-2.10,1.75,-.01]],.30,bronze);
+  tube([[1.05,1.18,-.05],[1.62,1.38,-.04],[2.10,1.75,-.01]],.30,bronze);
 
-  // Brow planes — shallow, horizontal, unmistakably bovine.
-  tube([[-1.00,.62,.70],[-.50,.82,.88],[0,.86,.94],[.50,.82,.88],[1.00,.62,.70]],.13,goldLight);
+  // Brow ridge and narrow eye sockets.
+  tube([[-.98,.72,.70],[-.50,.88,.82],[0,.92,.88],[.50,.88,.82],[.98,.72,.70]],.12,goldLight);
+  const socketL=sphere([.40,.13,.10],[-.66,.34,.64],dark,28);
+  const socketR=sphere([.40,.13,.10],[.66,.34,.64],dark,28);
+  const eyeL=sphere([.075,.045,.035],[-.66,.34,.76],eyeMat,20);
+  const eyeR=sphere([.075,.045,.035],[.66,.34,.76],eyeMat,20);
 
-  // Narrow eye sockets + tiny glowing pupils.
-  sphere([.40,.20,.16],[-.68,.24,.86],dark,32);
-  sphere([.40,.20,.16],[.68,.24,.86],dark,32);
-  const eyeL=sphere([.075,.055,.045],[-.68,.24,1.01],eyeMat,24);
-  const eyeR=sphere([.075,.055,.045],[.68,.24,1.01],eyeMat,24);
+  // Long central bridge and compact bovine muzzle.
+  tube([[0,.55,.72],[0,.05,.86],[0,-.48,1.02],[0,-.84,1.12]],.17,goldLight);
+  const muzzle=new THREE.Mesh(new THREE.CylinderGeometry(.48,.62,.72,32),goldLight);
+  muzzle.rotation.x=Math.PI/2;
+  muzzle.position.set(0,-1.02,1.05);
+  muzzle.scale.z=.72;
+  root.add(muzzle);
+  const nose=new THREE.Mesh(new THREE.CylinderGeometry(.40,.48,.18,32),bronze);
+  nose.rotation.x=Math.PI/2;
+  nose.position.set(0,-1.10,1.38);
+  nose.scale.z=.65;
+  root.add(nose);
+  const nostrilL=sphere([.11,.065,.045],[-.23,-1.12,1.51],dark,20);
+  const nostrilR=sphere([.11,.065,.045],[.23,-1.12,1.51],dark,20);
 
-  // Short nose bridge and broad muzzle.
-  tube([[0,.46,.86],[0,.02,.98],[0,-.42,1.10],[0,-.82,1.14]],.20,goldLight);
-  sphere([.78,.34,.48],[0,-1.20,1.30],goldLight,40);
-  sphere([.68,.28,.30],[0,-1.28,1.57],bronze,36);
-
-  const nostrilL=sphere([.13,.09,.07],[-.29,-1.28,1.82],dark,24);
-  const nostrilR=sphere([.13,.09,.07],[.29,-1.28,1.82],dark,24);
-  nostrilL.rotation.z=.10; nostrilR.rotation.z=-.10;
-
-  const eyeGlowL = new THREE.PointLight(0xff5a12,5.5,3.6); eyeGlowL.position.set(-.68,.24,1.48); root.add(eyeGlowL);
-  const eyeGlowR = new THREE.PointLight(0xff5a12,5.5,3.6); eyeGlowR.position.set(.68,.24,1.48); root.add(eyeGlowR);
+  const eyeGlowL = new THREE.PointLight(0xff5a12,5.5,3.6); eyeGlowL.position.set(-.66,.34,1.25); root.add(eyeGlowL);
+  const eyeGlowR = new THREE.PointLight(0xff5a12,5.5,3.6); eyeGlowR.position.set(.66,.34,1.25); root.add(eyeGlowR);
 
   // Fire streaming outward from both eyes.
   const fireCount=260, firePos=new Float32Array(fireCount*3), fireData=[];
   for(let i=0;i<fireCount;i++){
     const side=i%2?-1:1, t=Math.random(), spread=(Math.random()-.5);
     firePos[i*3]=side*(.82+t*2.35);
-    firePos[i*3+1]=.24+t*.28+spread*.20;
-    firePos[i*3+2]=1.02+t*.14+Math.random()*.12;
+    firePos[i*3+1]=.34+t*.24+spread*.16;
+    firePos[i*3+2]=.78+t*.13+Math.random()*.10;
     fireData.push({side,t,seed:Math.random()*50,spread});
   }
   const fireGeo=new THREE.BufferGeometry();
@@ -181,9 +200,9 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.m
     const p=fireGeo.attributes.position.array;
     for(let i=0;i<fireData.length;i++){
       const d=fireData[i], pulse=(Math.sin(t*9+d.seed)+1)/2;
-      p[i*3]=d.side*(.77+d.t*(2.25+.35*pulse));
-      p[i*3+1]=.24+d.t*.28+Math.sin(t*10+d.seed)*.07+d.spread*.16;
-      p[i*3+2]=1.02+d.t*.14+Math.cos(t*7+d.seed)*.06;
+      p[i*3]=d.side*(.75+d.t*(2.25+.35*pulse));
+      p[i*3+1]=.34+d.t*.24+Math.sin(t*10+d.seed)*.06+d.spread*.14;
+      p[i*3+2]=.78+d.t*.13+Math.cos(t*7+d.seed)*.05;
     }
     fireGeo.attributes.position.needsUpdate=true;
     fireMat.size=.045+.02*((Math.sin(t*9)+1)/2);
