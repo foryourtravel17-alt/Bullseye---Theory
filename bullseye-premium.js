@@ -135,71 +135,95 @@
       <div class="bull-visual">
         <div class="bull-glow"></div><div class="bull-ring"></div><div class="bull-ring r2"></div><div class="bull-ring r3"></div>
         <div class="crosshair"></div>
-        <svg class="bull-svg" viewBox="0 0 360 360" role="img" aria-label="Metallic bull with fiery eyes">
-          <defs>
-            <linearGradient id="btMetal" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#fff2b5"/><stop offset=".18" stop-color="#f2cd69"/><stop offset=".38" stop-color="#a97521"/><stop offset=".55" stop-color="#ffe38a"/><stop offset=".78" stop-color="#9a6b1b"/><stop offset="1" stop-color="#4b3210"/>
-            </linearGradient>
-            <linearGradient id="btHorn" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#fff2b8"/><stop offset=".35" stop-color="#dba947"/><stop offset=".7" stop-color="#7b5416"/><stop offset="1" stop-color="#2b1b08"/>
-            </linearGradient>
-            <radialGradient id="btFace" cx="48%" cy="34%" r="70%">
-              <stop offset="0" stop-color="#ffe79a"/><stop offset=".27" stop-color="#d2a33d"/><stop offset=".62" stop-color="#8e6118"/><stop offset="1" stop-color="#3c280c"/>
-            </radialGradient>
-            <linearGradient id="btFire" x1="0" y1="1" x2="1" y2="0">
-              <stop offset="0" stop-color="#ff3b00"/><stop offset=".45" stop-color="#ff9e19"/><stop offset=".75" stop-color="#fff3a0"/><stop offset="1" stop-color="#fff"/>
-            </linearGradient>
-            <filter id="btGlow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-            <filter id="btEyeGlow"><feGaussianBlur stdDeviation="4" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          </defs>
+        <svg class="bull-svg" viewBox="0 0 360 360" role="img" aria-label="Cinematic metallic bull with fiery eyes">
+  <defs>
+    <linearGradient id="btMetal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff3bd"/><stop offset=".16" stop-color="#d9a83e"/>
+      <stop offset=".38" stop-color="#6e4310"/><stop offset=".55" stop-color="#f4cc62"/>
+      <stop offset=".76" stop-color="#8b5a12"/><stop offset="1" stop-color="#2b1a06"/>
+    </linearGradient>
+    <linearGradient id="btHorn" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#3a250b"/><stop offset=".38" stop-color="#b77d20"/>
+      <stop offset=".7" stop-color="#ffe5a0"/><stop offset="1" stop-color="#fff8d8"/>
+    </linearGradient>
+    <radialGradient id="btFace" cx="50%" cy="28%" r="78%">
+      <stop offset="0" stop-color="#ffe9a2"/><stop offset=".24" stop-color="#c9962e"/>
+      <stop offset=".58" stop-color="#70460d"/><stop offset="1" stop-color="#211304"/>
+    </radialGradient>
+    <linearGradient id="btFire" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff2100"/><stop offset=".4" stop-color="#ff6411"/>
+      <stop offset=".72" stop-color="#ffc52d"/><stop offset="1" stop-color="#fff9c7"/>
+    </linearGradient>
+    <filter id="btGlow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="btEyeGlow"><feGaussianBlur stdDeviation="3.5" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
 
-          <ellipse cx="180" cy="190" rx="112" ry="126" fill="url(#btFace)" stroke="#e4b957" stroke-width="2"/>
-          <path d="M86 132 C50 124 24 101 18 68 C47 78 72 75 96 58 C111 42 130 31 150 27 L141 63 C119 73 103 91 92 110Z" fill="url(#btHorn)" stroke="#f2d883" stroke-width="3"/>
-          <path d="M274 132 C310 124 336 101 342 68 C313 78 288 75 264 58 C249 42 230 31 210 27 L219 63 C241 73 257 91 268 110Z" fill="url(#btHorn)" stroke="#f2d883" stroke-width="3"/>
-          <path d="M104 93 Q130 66 153 64 L165 99 L153 130 Q122 119 104 93Z" fill="#805717" opacity=".75"/>
-          <path d="M256 93 Q230 66 207 64 L195 99 L207 130 Q238 119 256 93Z" fill="#805717" opacity=".75"/>
+  <!-- large curved bull horns -->
+  <path d="M119 105 C83 105 51 92 35 70 C20 49 21 25 34 13 C36 43 53 58 74 61 C91 63 107 56 125 43 L139 69 C132 84 126 95 119 105Z" fill="url(#btHorn)" stroke="#f3d47e" stroke-width="3"/>
+  <path d="M241 105 C277 105 309 92 325 70 C340 49 339 25 326 13 C324 43 307 58 286 61 C269 63 253 56 235 43 L221 69 C228 84 234 95 241 105Z" fill="url(#btHorn)" stroke="#f3d47e" stroke-width="3"/>
 
-          <path d="M110 150 Q137 127 162 149" fill="none" stroke="#16120a" stroke-width="15" stroke-linecap="round"/>
-          <path d="M198 149 Q223 127 250 150" fill="none" stroke="#16120a" stroke-width="15" stroke-linecap="round"/>
+  <!-- ears -->
+  <path d="M105 93 C78 84 59 91 47 109 C67 118 88 117 108 106Z" fill="#8a5913" stroke="#d9ad50" stroke-width="2"/>
+  <path d="M255 93 C282 84 301 91 313 109 C293 118 272 117 252 106Z" fill="#8a5913" stroke="#d9ad50" stroke-width="2"/>
 
-          <g filter="url(#btEyeGlow)">
-            <path d="M113 159 Q137 142 159 159 Q136 176 113 159Z" fill="#140904" stroke="url(#btFire)" stroke-width="5"/>
-            <path d="M201 159 Q223 142 247 159 Q224 176 201 159Z" fill="#140904" stroke="url(#btFire)" stroke-width="5"/>
-            <path d="M122 158 Q138 149 151 159 Q138 167 122 158Z" fill="#fff6b0"/>
-            <path d="M209 159 Q224 149 238 158 Q225 167 209 159Z" fill="#fff6b0"/>
-            <path d="M108 158 L86 142 M109 164 L82 163 M251 158 L274 142 M251 164 L278 163" stroke="#ff6b16" stroke-width="4" stroke-linecap="round" opacity=".9"/>
-          </g>
+  <!-- anatomical bull head silhouette -->
+  <path d="M112 76 C132 54 154 46 180 46 C206 46 228 54 248 76
+           C263 95 267 122 261 151 C256 180 248 211 235 236
+           C225 255 211 270 198 281 C191 287 169 287 162 281
+           C149 270 135 255 125 236 C112 211 104 180 99 151
+           C93 122 97 95 112 76Z" fill="url(#btFace)" stroke="#d8aa49" stroke-width="3"/>
 
-          <path d="M163 169 L152 241 L180 258 L208 241 L197 169 Q180 159 163 169Z" fill="#2a1c08" stroke="#d7aa4a" stroke-width="2"/>
-          <ellipse cx="180" cy="249" rx="55" ry="30" fill="#6c4914" stroke="#e3b957" stroke-width="2"/>
-          <ellipse cx="158" cy="248" rx="10" ry="8" fill="#160f06"/><ellipse cx="202" cy="248" rx="10" ry="8" fill="#160f06"/>
-          <path d="M143 280 Q180 302 217 280" fill="none" stroke="#171006" stroke-width="8" stroke-linecap="round"/>
+  <!-- forehead planes -->
+  <path d="M180 53 L153 104 L164 139 L180 126 L196 139 L207 104Z" fill="#f5cf69" opacity=".46"/>
+  <path d="M124 91 C143 73 159 67 174 66 L157 119 L126 139 L109 119Z" fill="#3f2808" opacity=".32"/>
+  <path d="M236 91 C217 73 201 67 186 66 L203 119 L234 139 L251 119Z" fill="#3f2808" opacity=".32"/>
 
-          <path d="M180 28 L171 83 L180 102 L189 83Z" fill="#fff0a4" filter="url(#btGlow)"/>
-          <path d="M112 205 Q180 235 248 205" fill="none" stroke="rgba(255,244,178,.28)" stroke-width="5"/>
-          <path d="M105 226 Q180 252 255 226" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="2"/>
-        
-          <!-- animated eye fire -->
-          <g class="bt-eye-fire" fill="url(#btFire)" filter="url(#btEyeGlow)">
-            <path d="M115 154 C94 146 76 135 61 118 C78 128 91 129 106 126 C93 118 88 108 87 96 C105 112 119 122 132 128 C124 137 120 146 115 154Z"/>
-          </g>
-          <g class="bt-eye-fire fire2" fill="url(#btFire)" filter="url(#btEyeGlow)">
-            <path d="M245 154 C266 146 284 135 299 118 C282 128 269 129 254 126 C267 118 272 108 273 96 C255 112 241 122 228 128 C236 137 240 146 245 154Z"/>
-          </g>
-          <g class="bt-fire-core" fill="url(#btFire)" filter="url(#btGlow)">
-            <path d="M126 160 C116 151 109 140 112 128 C119 137 127 139 135 138 C130 130 132 121 138 114 C141 128 151 137 157 144 C150 151 140 157 126 160Z"/>
-            <path d="M234 160 C244 151 251 140 248 128 C241 137 233 139 225 138 C230 130 228 121 222 114 C219 128 209 137 203 144 C210 151 220 157 234 160Z"/>
-          </g>
-          <!-- animated market sparks -->
-          <g class="bt-spark" fill="#fff2a1">
-            <circle cx="83" cy="111" r="2"/><circle cx="277" cy="109" r="2"/>
-          </g>
-          <g class="bt-spark s2" fill="#ff8b1f">
-            <circle cx="99" cy="94" r="1.5"/><circle cx="261" cy="92" r="1.5"/>
-          </g>
-          <!-- currency / crypto marks embedded in the bull's nose -->
-          <text class="bt-nostril-symbol" x="158" y="252" text-anchor="middle" fill="#a8ff61" font-size="10" font-weight="900">₿</text>
-          <text class="bt-nostril-symbol s2" x="202" y="252" text-anchor="middle" fill="#e4b957" font-size="10" font-weight="900">$</text>
+  <!-- brow ridges and eyes -->
+  <path d="M112 145 Q137 122 164 143" fill="none" stroke="#171006" stroke-width="17" stroke-linecap="round"/>
+  <path d="M196 143 Q223 122 248 145" fill="none" stroke="#171006" stroke-width="17" stroke-linecap="round"/>
+  <g filter="url(#btEyeGlow)">
+    <path d="M116 153 Q139 137 160 154 Q139 171 116 153Z" fill="#090503" stroke="url(#btFire)" stroke-width="5"/>
+    <path d="M200 154 Q221 137 244 153 Q221 171 200 154Z" fill="#090503" stroke="url(#btFire)" stroke-width="5"/>
+    <ellipse cx="139" cy="153" rx="5" ry="3" fill="#fff7bd"/>
+    <ellipse cx="221" cy="153" rx="5" ry="3" fill="#fff7bd"/>
+  </g>
+
+  <!-- long animated flames from the eyes -->
+  <g class="bt-eye-fire" fill="url(#btFire)" filter="url(#btEyeGlow)">
+    <path d="M121 155 C101 153 82 143 66 125 C81 133 94 133 106 129 C94 119 90 107 91 95 C108 111 121 122 135 130 C129 139 125 148 121 155Z"/>
+  </g>
+  <g class="bt-eye-fire fire2" fill="url(#btFire)" filter="url(#btEyeGlow)">
+    <path d="M239 155 C259 153 278 143 294 125 C279 133 266 133 254 129 C266 119 270 107 269 95 C252 111 239 122 225 130 C231 139 235 148 239 155Z"/>
+  </g>
+  <g class="bt-fire-core" fill="url(#btFire)" filter="url(#btGlow)">
+    <path d="M131 158 C120 149 116 138 119 128 C126 137 134 140 142 138 C138 129 141 120 148 113 C150 127 159 137 164 144 C155 152 144 157 131 158Z"/>
+    <path d="M229 158 C240 149 244 138 241 128 C234 137 226 140 218 138 C222 129 219 120 212 113 C210 127 201 137 196 144 C205 152 216 157 229 158Z"/>
+  </g>
+
+  <!-- strong central muzzle bridge -->
+  <path d="M157 166 C151 186 150 207 153 224 C158 239 166 248 180 252
+           C194 248 202 239 207 224 C210 207 209 186 203 166
+           C190 157 170 157 157 166Z" fill="#4b3009" stroke="#c8942e" stroke-width="2"/>
+
+  <!-- broad bull muzzle -->
+  <path d="M135 218 C145 205 163 201 180 201 C197 201 215 205 225 218
+           C231 229 225 247 213 257 C202 266 191 270 180 270
+           C169 270 158 266 147 257 C135 247 129 229 135 218Z" fill="#8d6019" stroke="#e1b451" stroke-width="3"/>
+  <ellipse cx="157" cy="234" rx="11" ry="9" fill="#140d04"/>
+  <ellipse cx="203" cy="234" rx="11" ry="9" fill="#140d04"/>
+  <text class="bt-nostril-symbol" x="157" y="237" text-anchor="middle" fill="#a8ff61" font-size="8" font-weight="900">₿</text>
+  <text class="bt-nostril-symbol s2" x="203" y="237" text-anchor="middle" fill="#e4b957" font-size="8" font-weight="900">$</text>
+
+  <!-- jaw -->
+  <path d="M151 261 Q180 282 209 261 Q203 292 180 300 Q157 292 151 261Z" fill="#2a1906" stroke="#b77e21" stroke-width="2"/>
+  <path d="M160 278 Q180 288 200 278" fill="none" stroke="#f0c85c" stroke-width="3" opacity=".7"/>
+
+  <!-- central horn/forehead highlight -->
+  <path d="M180 48 L169 92 L180 111 L191 92Z" fill="#fff2ae" filter="url(#btGlow)" opacity=".92"/>
+
+  <!-- sparks -->
+  <g class="bt-spark" fill="#fff2a1"><circle cx="76" cy="112" r="2"/><circle cx="284" cy="110" r="2"/></g>
+  <g class="bt-spark s2" fill="#ff8b1f"><circle cx="95" cy="91" r="1.5"/><circle cx="265" cy="91" r="1.5"/></g>
 </svg>
         <span class="symbol s1">₿</span><span class="symbol s2">$</span><span class="symbol s3">€</span><span class="symbol s4">¥</span>
       </div>
