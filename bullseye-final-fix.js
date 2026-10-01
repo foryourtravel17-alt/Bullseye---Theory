@@ -11,7 +11,7 @@
       course.innerHTML='<span>11-Lesson</span><br><span>Trading Education</span>';
     }
 
-    const chart=document.querySelector('.bt-hero-visual .chart');
+    const chart=document.querySelector('.bt-hero-visual .chart') || document.querySelector('.hero .chart') || document.querySelector('.chart');
     if(!chart) return;
 
     let bull=chart.querySelector('.bt-final-bull');
@@ -51,4 +51,5 @@
   else run();
   setTimeout(run,100);
   setTimeout(run,700);
+  setTimeout(run,1500);
 })();
