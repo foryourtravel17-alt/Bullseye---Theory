@@ -166,3 +166,33 @@ body.bt-premium{
  .bt-market-core .pc1{left:1%;top:42%}.bt-market-core .pc2{right:1%;top:34%}
  .bt-market-core .ticker-row{gap:5px}
 }
+
+
+/* ===== CINEMATIC BULL / ANIMATED HERO v4 ===== */
+.bt-market-core .bull-visual{animation:btBullBreath 3.8s ease-in-out infinite}
+.bt-market-core .bull-svg{overflow:visible;animation:btBullFloat 5.2s ease-in-out infinite}
+.bt-market-core .bull-ring{animation:btRingPulse 3.6s ease-in-out infinite}
+.bt-market-core .bull-ring.r2{animation:btSpin 24s linear infinite,btRingPulse 3.6s ease-in-out infinite}
+.bt-market-core .market-candles{animation:btChartDrift 7s ease-in-out infinite}
+.bt-market-core .dubai-skyline{animation:btSkylinePulse 5s ease-in-out infinite}
+.bt-market-core .bt-eye-fire{transform-box:fill-box;transform-origin:center;animation:btEyeFire 0.72s ease-in-out infinite alternate}
+.bt-market-core .bt-eye-fire.fire2{animation-delay:-.21s}
+.bt-market-core .bt-fire-core{animation:btFireCore .42s ease-in-out infinite alternate}
+.bt-market-core .bt-nostril-symbol{animation:btSymbolPulse 1.7s ease-in-out infinite}
+.bt-market-core .bt-nostril-symbol.s2{animation-delay:-.8s}
+.bt-market-core .bt-spark{animation:btSpark 1.25s ease-in-out infinite}
+.bt-market-core .bt-spark.s2{animation-delay:-.55s}
+@keyframes btBullBreath{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.018)}}
+@keyframes btBullFloat{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-5px) rotate(.35deg)}}
+@keyframes btRingPulse{0%,100%{opacity:.72}50%{opacity:1;filter:drop-shadow(0 0 10px rgba(168,255,97,.18))}}
+@keyframes btChartDrift{0%,100%{transform:translateX(0);opacity:.68}50%{transform:translateX(-8px);opacity:.9}}
+@keyframes btSkylinePulse{0%,100%{opacity:.34}50%{opacity:.55}}
+@keyframes btEyeFire{0%{transform:scaleY(.88) scaleX(.94);opacity:.72}100%{transform:scaleY(1.14) scaleX(1.06);opacity:1}}
+@keyframes btFireCore{0%{transform:translateY(2px) scale(.9)}100%{transform:translateY(-2px) scale(1.08)}}
+@keyframes btSymbolPulse{0%,100%{opacity:.38;transform:scale(.92)}50%{opacity:1;transform:scale(1.08)}}
+@keyframes btSpark{0%{opacity:0;transform:translateY(8px) scale(.5)}45%{opacity:1}100%{opacity:0;transform:translateY(-16px) scale(1.15)}}
+@media(max-width:600px){
+ .bt-market-core .bull-visual{width:94%;top:57%}
+ .bt-market-core .bull-svg{width:80%;height:80%;left:10%;top:10%}
+ .bt-market-core .pc1{top:39%}.bt-market-core .pc2{top:31%}
+}
