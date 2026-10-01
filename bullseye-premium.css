@@ -270,3 +270,34 @@ body.bt-premium{
  .bt-market-topline b{font-size:13px}
  .bt-q-right{top:44%}
 }
+
+/* ===== TYPOGRAPHY + TRUE 3D-STYLE HERO v7 ===== */
+.bt-premium h1,.bt-premium h2,.bt-premium h3{
+  background:linear-gradient(115deg,#fff3b0 0%,#d49a2d 24%,#fff0a2 48%,#9b6512 72%,#f7d36d 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 10px 40px rgba(228,185,87,.08);
+}
+.bt-premium .hero h1 em{color:transparent}
+.bt-premium .section h2{max-width:100%;white-space:normal;overflow-wrap:normal;word-break:normal;text-wrap:balance}
+.bt-premium .hero h1{white-space:normal;overflow-wrap:normal;word-break:normal;text-wrap:balance}
+.bt-cinematic-stage{background:radial-gradient(circle at 50% 54%,rgba(168,255,97,.08),transparent 30%),radial-gradient(circle at 50% 45%,rgba(228,185,87,.10),transparent 42%),#020607}
+.bt-asset-wrap{inset:52px 0 0}
+.bt-hero-asset{object-fit:cover;object-position:center 50%;filter:saturate(1.08) contrast(1.16) brightness(.9);transform:scale(1.015);animation:btHeroFloat 7s ease-in-out infinite}
+@keyframes btHeroFloat{0%,100%{transform:scale(1.015) translate3d(0,0,0)}50%{transform:scale(1.035) translate3d(0,-5px,0)}}
+.bt-asset-vignette{background:linear-gradient(180deg,rgba(2,6,7,.72),rgba(2,6,7,.02) 28%,rgba(2,6,7,.04) 66%,rgba(2,6,7,.78)),linear-gradient(90deg,rgba(2,6,7,.50),transparent 24%,transparent 76%,rgba(2,6,7,.34))}
+.bt-market-bottom{font-size:10px}
+@media(max-width:600px){
+ .bt-premium .section{padding:68px 6%}
+ .bt-premium .section h2{font-size:clamp(31px,8.4vw,42px);line-height:1.06;letter-spacing:-1.5px;max-width:100%;text-wrap:balance}
+ .bt-premium .hero h1{font-size:clamp(42px,11.2vw,58px);line-height:.98;letter-spacing:-2.5px;max-width:100%;text-wrap:balance}
+ .bt-premium .hero h1 br{display:block}
+ .bt-premium .hero .chart{height:760px}
+ .bt-asset-wrap{inset:174px 0 45px}
+ .bt-hero-asset{object-position:center 53%;filter:saturate(1.04) contrast(1.18) brightness(.86);transform:scale(1.06)}
+ .bt-market-topline b{font-size:14px;letter-spacing:2px}
+ .bt-market-pills{top:102px}
+}
+@media(max-width:380px){
+ .bt-premium .section h2{font-size:30px}
+ .bt-premium .hero h1{font-size:40px}
+}
