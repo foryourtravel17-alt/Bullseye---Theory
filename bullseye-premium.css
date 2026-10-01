@@ -477,3 +477,22 @@ body.bt-premium{
   .bt-system-copy h2{font-size:clamp(44px,14vw,56px)!important}
   .bt-course-copy h2{font-size:clamp(34px,10.2vw,46px)!important}
 }
+
+
+/* MOBILE HEADER MUST NOT FLOAT OVER HERO CONTENT */
+@media(max-width:600px){
+  .bt-site-header{
+    position:relative!important;
+    top:auto!important;
+    z-index:1000!important;
+  }
+  .bt-hero-preview{
+    padding-top:28px!important;
+  }
+  .bt-hero-copy .actions{
+    margin-bottom:28px!important;
+  }
+  .bt-hero-visual{
+    margin-top:8px!important;
+  }
+}
