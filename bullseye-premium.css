@@ -357,3 +357,20 @@ body.bt-premium{
   .bt-premium .bt-side-quote{z-index:12}
   .bt-premium .bt-market-bottom{z-index:12}
 }
+
+@media(max-width:600px){
+  .bt-premium h1,.bt-premium h2,.bt-premium h3{
+    word-break:keep-all!important;
+    overflow-wrap:normal!important;
+    hyphens:none!important;
+  }
+  .bt-premium .section h2{
+    font-size:clamp(30px,8.5vw,40px)!important;
+    line-height:1.08!important;
+    letter-spacing:-1.2px!important;
+  }
+  .bt-premium #principles h2,
+  .bt-premium #system h2{
+    max-width:100%;
+  }
+}
