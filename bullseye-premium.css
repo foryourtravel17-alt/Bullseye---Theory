@@ -301,3 +301,59 @@ body.bt-premium{
  .bt-premium .section h2{font-size:30px}
  .bt-premium .hero h1{font-size:40px}
 }
+
+
+/* ===== TRUE WEBGL 3D BULL HERO v9 ===== */
+.bt-3d-bull-canvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  z-index:2;
+  pointer-events:none;
+}
+.bt-3d-layer-label{
+  position:absolute;
+  left:30px;
+  bottom:66px;
+  z-index:12;
+  color:rgba(168,255,97,.72);
+  font:800 7px/1 Inter,Arial,sans-serif;
+  letter-spacing:2px;
+  text-shadow:0 0 14px rgba(168,255,97,.18);
+}
+.bt-premium .bt-cinematic-stage:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:3;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 55%,transparent 30%,rgba(0,0,0,.12) 68%,rgba(0,0,0,.52) 100%),
+    linear-gradient(180deg,rgba(0,0,0,.16),transparent 22%,transparent 75%,rgba(0,0,0,.38));
+}
+.bt-premium .bt-market-topline,
+.bt-premium .bt-market-pills,
+.bt-premium .bt-side-quote,
+.bt-premium .bt-market-bottom,
+.bt-premium .bt-market-caption,
+.bt-premium .bt-3d-layer-label{pointer-events:none}
+.bt-premium h1,
+.bt-premium h2,
+.bt-premium h3{
+  word-break:keep-all;
+  overflow-wrap:normal;
+  hyphens:none;
+  text-wrap:balance;
+}
+.bt-premium .section h2{
+  max-width:900px;
+}
+@media(max-width:600px){
+  .bt-3d-layer-label{left:20px;bottom:55px;font-size:6px;letter-spacing:1.4px}
+  .bt-premium .bt-market-topline{z-index:12}
+  .bt-premium .bt-market-pills{z-index:12}
+  .bt-premium .bt-side-quote{z-index:12}
+  .bt-premium .bt-market-bottom{z-index:12}
+}
