@@ -402,3 +402,22 @@ body.bt-premium{
 .bt-site-header~footer{background:#030607;border-color:rgba(228,185,87,.16)!important}.bt-site-header~footer a{color:#e4b957!important}
 @media(max-width:900px){.bt-site-header{padding:0 5%!important}.bt-site-header nav{display:none!important}.bt-hero-preview{grid-template-columns:1fr!important;padding-top:20px!important;min-height:auto!important}.bt-hero-copy{padding:48px 0 0}.bt-hero-copy h1{font-size:clamp(43px,10vw,68px)!important}.bt-hero-visual{margin-top:-25px}.bt-hero-visual .chart{height:510px!important}.bt-value-strip{grid-template-columns:1fr 1fr!important}.bt-value-strip>div{padding:12px 10px}.bt-system-preview,.bt-course-preview{grid-template-columns:1fr!important}.bt-globe{right:50%;transform:translateX(50%)}.bt-globe-wrap{padding-top:410px}.bt-flow{grid-template-columns:1fr}.bt-flow>i{display:none}.bt-lessons{grid-template-columns:repeat(5,160px);overflow-x:auto;padding-bottom:10px}.bt-lessons article:nth-child(n){transform:none}.bt-course-preview{overflow:hidden}.bt-principles{grid-template-columns:1fr}}
 @media(max-width:600px){.bt-site-header{height:72px!important}.bt-site-header .logo{font-size:15px!important;letter-spacing:2px!important}.bt-logo-mark{font-size:29px}.bt-login{padding:9px 10px!important;font-size:9px!important}.bt-menu{font-size:23px}.bt-hero-preview{padding-left:5%!important;padding-right:5%!important}.bt-hero-copy h1{font-size:clamp(40px,11vw,58px)!important;letter-spacing:-2px!important}.bt-hero-copy p{font-size:14px!important}.bt-hero-copy .actions{flex-direction:column;align-items:stretch}.bt-hero-copy .actions a{text-align:center}.bt-hero-visual .chart{height:430px!important}.bt-hero-visual .bt-q-left{transform:scale(.78);transform-origin:left top}.bt-hero-visual .bt-q-right,.bt-hero-visual .bt-q-xau,.bt-hero-visual .bt-q-eur{transform:scale(.78)}.bt-value-strip{grid-template-columns:1fr 1fr!important}.bt-value-strip>div{gap:8px;padding:10px 6px}.bt-value-strip b{font-size:18px}.bt-value-strip span{font-size:8px;letter-spacing:1px}.bt-system-preview,.bt-course-preview,.bt-extra{padding:64px 5%!important}.bt-system-copy h2{font-size:54px!important}.bt-globe{width:300px;height:300px}.bt-globe-wrap{padding-top:320px}.bt-course-copy h2{font-size:40px!important}.bt-lessons{grid-template-columns:repeat(5,145px)}.bt-extra h2{font-size:38px}}
+
+/* WORD-INTEGRITY LOCK — never split a word or reorder headline lines */
+.bt-hero-copy h1 .bt-line,
+.bt-system-copy h2 .bt-line{
+  display:block!important;
+  white-space:nowrap!important;
+  word-break:keep-all!important;
+  overflow-wrap:normal!important;
+  hyphens:none!important;
+  text-wrap:nowrap!important;
+}
+.bt-hero-copy h1 .bt-line{font-size:1em!important}
+.bt-hero-copy h1 .bt-gold-line{color:#e4b957!important}
+.bt-system-copy h2 .bt-line{font-size:1em!important}
+@media(max-width:600px){
+  .bt-hero-copy h1{font-size:clamp(32px,9.5vw,58px)!important;letter-spacing:-1.8px!important}
+  .bt-system-copy h2{font-size:clamp(48px,15vw,58px)!important;letter-spacing:-2.4px!important}
+  .bt-hero-copy h1 .bt-line,.bt-system-copy h2 .bt-line{white-space:nowrap!important;display:block!important}
+}
