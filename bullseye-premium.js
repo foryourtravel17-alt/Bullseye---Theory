@@ -93,7 +93,7 @@
     core.innerHTML=`
       <div class="bt-cinematic-stage">
         <div class="bt-market-topline"><span>PRICE / TARGET</span><b>MARKET STUDY / <i>EDUCATIONAL</i></b></div>
-        <div class="bt-asset-wrap"><img class="bt-hero-asset" src="assets/bullseye-dubai-hero.svg" alt="Bullseye Theory cinematic Dubai market study" /><div class="bt-asset-vignette"></div><div class="bt-scan-beam"></div></div>
+        <div class="bt-3d-layer-label" aria-hidden="true">REAL-TIME 3D MARKET VISUAL / WEBGL</div>
         <div class="bt-market-pills"><span>XAU/USD <b>GOLD</b></span><span>EUR/USD <b>FX</b></span><span>BTC/USD <b>CRYPTO</b></span></div>
         <div class="bt-side-quote bt-q-left"><b>MARKET BOARD</b><span> XAUUSD <em>+0.42%</em></span><span>EURUSD <em>+0.28%</em></span><span>GBPUSD <em>+0.31%</em></span><span>BTCUSD <em>+1.24%</em></span><span>ETHUSD <em>+0.91%</em></span><span>DXY <em>+0.18%</em></span></div>
         <div class="bt-side-quote bt-q-right"><b>BTCUSD</b><strong>68324.12</strong><em>+2.14%</em></div>
