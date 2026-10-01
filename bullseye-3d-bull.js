@@ -102,7 +102,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.m
   sphere([.58,.32,.22],[-.73,.20,1.10],dark,36).rotation.z=-.10;
   sphere([.58,.32,.22],[.73,.20,1.10],dark,36).rotation.z=.10;
   const eyeL=sphere([.105,.075,.06],[-.73,.19,1.30],eyeMat,24);
-  const eyeR=sphere([.73,.19,1.30],[.105,.075,.06],eyeMat,24);
+  const eyeR=sphere([.105,.075,.06],[.73,.19,1.30],eyeMat,24);
 
   const eyeGlowL = new THREE.PointLight(0xff5a12,5.5,3.6); eyeGlowL.position.set(-.73,.18,1.9); root.add(eyeGlowL);
   const eyeGlowR = new THREE.PointLight(0xff5a12,5.5,3.6); eyeGlowR.position.set(.73,.18,1.9); root.add(eyeGlowR);
