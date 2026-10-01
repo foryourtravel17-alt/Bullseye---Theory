@@ -119,3 +119,61 @@
 @media(prefers-reduced-motion:reduce){
   .bt-final-bull{animation:none!important}
 }
+
+/* ===== ROOT FAILSAFE: WHOLE-WORD MOBILE TYPOGRAPHY ===== */
+.bt-system-preview .bt-system-copy,
+.bt-course-preview .bt-course-copy{
+  min-width:0!important;
+  width:100%!important;
+}
+.bt-system-preview .bt-system-copy .bt-locked-heading,
+.bt-course-preview .bt-course-copy .bt-locked-heading{
+  writing-mode:horizontal-tb!important;
+  text-orientation:mixed!important;
+  display:block!important;
+  position:relative!important;
+  width:max-content!important;
+  max-width:100%!important;
+  min-width:0!important;
+  white-space:normal!important;
+  word-break:keep-all!important;
+  overflow-wrap:normal!important;
+  hyphens:none!important;
+  text-align:left!important;
+}
+.bt-system-preview .bt-system-copy .bt-locked-heading > span,
+.bt-course-preview .bt-course-copy .bt-locked-heading > span{
+  display:block!important;
+  position:relative!important;
+  width:max-content!important;
+  max-width:100%!important;
+  min-width:0!important;
+  white-space:nowrap!important;
+  word-break:keep-all!important;
+  overflow-wrap:normal!important;
+  hyphens:none!important;
+  writing-mode:horizontal-tb!important;
+  text-orientation:mixed!important;
+  flex:none!important;
+}
+@media(max-width:600px){
+  .bt-system-preview .bt-system-copy .bt-locked-heading{
+    font-size:clamp(40px,12.5vw,56px)!important;
+    line-height:.94!important;
+  }
+  .bt-system-preview .bt-system-copy .bt-locked-heading > span{
+    font-size:inherit!important;
+  }
+}
+
+/* ===== ROOT FAILSAFE: BULL ALWAYS VISIBLE ===== */
+.bt-hero-visual .chart{
+  position:relative!important;
+  overflow:hidden!important;
+}
+.bt-hero-visual .chart > .bt-final-bull{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  z-index:100!important;
+}
