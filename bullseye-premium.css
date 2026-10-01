@@ -196,3 +196,77 @@ body.bt-premium{
  .bt-market-core .bull-svg{width:80%;height:80%;left:10%;top:10%}
  .bt-market-core .pc1{top:39%}.bt-market-core .pc2{top:31%}
 }
+
+/* ===== CINEMATIC DUBAI HERO v6 — reference-matched pass ===== */
+.bt-premium .hero{max-width:1440px;padding-left:3%;padding-right:3%;gap:28px}
+.bt-premium .hero>div:first-child{z-index:6}
+.bt-premium .hero .chart{border-color:rgba(228,185,87,.18);background:#020607;box-shadow:0 35px 120px rgba(0,0,0,.62),inset 0 1px rgba(255,255,255,.04)}
+.bt-cinematic-stage{position:absolute;inset:0;overflow:hidden;background:radial-gradient(circle at 50% 55%,rgba(168,255,97,.07),transparent 38%),#020607}
+.bt-asset-wrap{position:absolute;inset:54px 0 0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.bt-hero-asset{width:100%;height:100%;object-fit:cover;object-position:center 48%;display:block;filter:saturate(.96) contrast(1.08) brightness(.84)}
+.bt-asset-vignette{position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,6,7,.76) 0%,rgba(2,6,7,.04) 22%,rgba(2,6,7,.02) 58%,rgba(2,6,7,.70) 100%),linear-gradient(90deg,rgba(2,6,7,.46),transparent 28%,transparent 72%,rgba(2,6,7,.30));pointer-events:none}
+.bt-scan-beam{position:absolute;left:0;right:0;top:-20%;height:2px;background:linear-gradient(90deg,transparent,rgba(168,255,97,.65),transparent);box-shadow:0 0 22px rgba(168,255,97,.28);animation:btScan 6s linear infinite;opacity:.6}
+@keyframes btScan{0%{transform:translateY(0)}100%{transform:translateY(720px)}}
+.bt-market-topline{position:absolute;left:30px;right:30px;top:24px;z-index:8;display:flex;flex-direction:column;gap:10px}
+.bt-market-topline span{font:900 9px/1 Inter,Arial,sans-serif;letter-spacing:2.5px;color:#a6b7b1}
+.bt-market-topline b{font:500 18px/1 Inter,Arial,sans-serif;letter-spacing:4px;color:#f2f5f3}
+.bt-market-topline i{font-style:normal;color:var(--bt-lime)}
+.bt-market-pills{position:absolute;left:30px;top:96px;z-index:9;display:flex;gap:10px}
+.bt-market-pills span{padding:11px 14px;border:1px solid rgba(228,185,87,.36);border-radius:999px;background:rgba(1,5,7,.72);backdrop-filter:blur(10px);font:800 9px/1 Inter,Arial,sans-serif;letter-spacing:1.2px;color:#f0f4f2;box-shadow:0 10px 28px rgba(0,0,0,.25)}
+.bt-market-pills b{color:var(--bt-gold);margin-left:5px}
+.bt-side-quote{position:absolute;z-index:10;border:1px solid rgba(125,160,150,.22);border-radius:12px;background:rgba(3,8,10,.76);backdrop-filter:blur(12px);box-shadow:0 16px 40px rgba(0,0,0,.30);color:#c4d0cc}
+.bt-q-left{left:16px;top:42%;width:190px;padding:12px}
+.bt-q-left b{display:block;color:#dce5e1;font:900 9px/1 Inter,Arial,sans-serif;letter-spacing:1.5px;margin-bottom:7px}
+.bt-q-left span{display:block;padding:7px 0;border-top:1px solid rgba(125,160,150,.10);font:700 9px/1 Inter,Arial,sans-serif;letter-spacing:1px}
+.bt-q-left em,.bt-q-right em,.bt-q-xau em,.bt-q-eur em{font-style:normal;color:var(--bt-lime);float:right}
+.bt-q-right{right:16px;top:34%;padding:12px 14px;min-width:116px}
+.bt-q-right b,.bt-q-xau b,.bt-q-eur b{display:block;color:var(--bt-gold);font:800 9px/1 Inter,Arial,sans-serif;letter-spacing:1px}
+.bt-q-right strong,.bt-q-xau strong,.bt-q-eur strong{display:block;color:#fff;font:800 14px/1.25 Inter,Arial,sans-serif;margin-top:3px}
+.bt-q-right em,.bt-q-xau em,.bt-q-eur em{float:none;display:block;margin-top:3px}
+.bt-q-xau{left:70px;bottom:27%;padding:9px 12px}
+.bt-q-eur{right:18px;bottom:29%;padding:9px 12px}
+.bt-market-bottom{position:absolute;left:30px;right:30px;bottom:38px;z-index:11;display:flex;justify-content:space-between;align-items:center;font:800 9px/1 Inter,Arial,sans-serif;letter-spacing:2px;color:#9aaba5}
+.bt-market-bottom b{color:var(--bt-lime);letter-spacing:1.5px}
+.bt-market-caption{position:absolute;left:0;right:0;bottom:10px;z-index:11;text-align:center;font:700 8px/1 Inter,Arial,sans-serif;letter-spacing:3px;color:#d1d9d5}
+.bt-header-tagline{margin-left:22px;padding-left:22px;border-left:1px solid rgba(228,185,87,.28);color:#8b9a95;font:700 9px/1 Inter,Arial,sans-serif;letter-spacing:3px;white-space:nowrap}
+.bt-header-menu{display:none;border:0;background:transparent;color:var(--bt-gold);width:32px;height:32px;padding:6px}
+.bt-header-menu span{display:block;height:2px;background:currentColor;margin:5px 0}
+.bt-premium header .btn{background:transparent;color:var(--bt-lime);border:1px solid var(--bt-lime);box-shadow:0 0 18px rgba(168,255,97,.10);padding:13px 18px;border-radius:8px}
+.bt-premium header .btn:hover{background:rgba(168,255,97,.08)}
+@media(max-width:850px){
+ .bt-header-menu{display:block}
+ .bt-premium header{height:84px;padding:0 5%;position:sticky}
+ .bt-premium header nav{display:none}
+ .bt-premium .logo{font-size:14px;letter-spacing:2px}
+ .bt-header-tagline{display:none}
+ .bt-premium header .btn{padding:11px 13px;font-size:10px}
+}
+@media(max-width:600px){
+ .bt-premium .hero{display:grid;grid-template-columns:1fr;padding:0 0 30px;gap:0;min-height:auto}
+ .bt-premium .hero>div:first-child{display:none}
+ .bt-premium .hero .chart{order:-1;width:100%;height:760px;border-radius:0;border-left:0;border-right:0;border-top:0}
+ .bt-premium .chart>svg{display:none!important}
+ .bt-market-core{inset:0}
+ .bt-cinematic-stage{inset:0}
+ .bt-asset-wrap{inset:178px 0 46px}
+ .bt-hero-asset{object-fit:cover;object-position:center 47%;filter:saturate(.94) contrast(1.10) brightness(.78)}
+ .bt-market-topline{left:20px;right:20px;top:24px;gap:8px}
+ .bt-market-topline span{font-size:8px}
+ .bt-market-topline b{font-size:15px;letter-spacing:2.5px}
+ .bt-market-pills{left:20px;top:106px;gap:6px}
+ .bt-market-pills span{font-size:7px;padding:9px 10px}
+ .bt-q-left{display:none}
+ .bt-q-right{right:12px;top:46%;min-width:104px;padding:9px 11px}
+ .bt-q-xau{left:12px;bottom:25%;padding:8px 10px}
+ .bt-q-eur{right:12px;bottom:27%;padding:8px 10px}
+ .bt-market-bottom{left:20px;right:20px;bottom:28px;font-size:7px;letter-spacing:1.2px}
+ .bt-market-bottom b{font-size:7px}
+ .bt-market-caption{display:none}
+ .bt-scan-beam{animation-duration:7s}
+}
+@media(max-width:380px){
+ .bt-premium .hero .chart{height:700px}
+ .bt-market-pills span{padding:8px 7px;font-size:6.5px}
+ .bt-market-topline b{font-size:13px}
+ .bt-q-right{top:44%}
+}
