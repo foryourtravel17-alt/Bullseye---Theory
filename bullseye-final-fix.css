@@ -291,3 +291,51 @@
 .bt-lessons article{
   touch-action:manipulation!important;
 }
+
+
+/* ===== FINAL STUDENT-READABILITY PASS ===== */
+/* Desktop: keep the course copy and lesson cards readable instead of squeezing 5 cards into a narrow rail. */
+@media(min-width:1051px){
+  .bt-course-preview{
+    display:grid!important;
+    grid-template-columns:minmax(300px,.78fr) minmax(520px,1.22fr)!important;
+    gap:48px!important;
+    align-items:start!important;
+  }
+  .bt-course-copy{min-width:0!important}
+  .bt-lessons{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:16px!important;
+    margin-top:0!important;
+    align-content:start!important;
+  }
+  .bt-lessons article,
+  .bt-lessons article:nth-child(n){
+    min-height:220px!important;
+    padding:22px 20px!important;
+  }
+  .bt-lessons article b{font-size:14px!important;letter-spacing:1.35px!important}
+  .bt-lessons article em{font-size:38px!important;margin-top:22px!important}
+}
+/* Large screens get a little more breathing room without changing the information hierarchy. */
+@media(min-width:1400px){
+  .bt-course-preview{grid-template-columns:minmax(360px,.8fr) minmax(620px,1.2fr)!important;gap:64px!important}
+  .bt-lessons{gap:18px!important}
+}
+/* Tablet stays two-up; phone stays one-up. */
+@media(min-width:601px) and (max-width:1050px){
+  .bt-course-preview{display:block!important}
+  .bt-lessons{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:600px){
+  .bt-course-preview{display:block!important;overflow:visible!important}
+  .bt-course-copy{margin-bottom:0!important}
+  .bt-course-copy p{max-width:100%!important}
+  .bt-course-copy > .btn{display:flex!important;position:relative!important;z-index:10!important}
+  .bt-lessons{display:grid!important;grid-template-columns:1fr!important;position:relative!important;z-index:2!important}
+}
+/* Never let long labels force a card wider than its grid track. */
+.bt-lessons article small,
+.bt-lessons article b,
+.bt-lessons article em{min-width:0!important;max-width:100%!important}
+.bt-lessons article b{overflow-wrap:anywhere!important;word-break:normal!important}
