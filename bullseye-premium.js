@@ -178,7 +178,29 @@
           <path d="M180 28 L171 83 L180 102 L189 83Z" fill="#fff0a4" filter="url(#btGlow)"/>
           <path d="M112 205 Q180 235 248 205" fill="none" stroke="rgba(255,244,178,.28)" stroke-width="5"/>
           <path d="M105 226 Q180 252 255 226" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="2"/>
-        </svg>
+        
+          <!-- animated eye fire -->
+          <g class="bt-eye-fire" fill="url(#btFire)" filter="url(#btEyeGlow)">
+            <path d="M115 154 C94 146 76 135 61 118 C78 128 91 129 106 126 C93 118 88 108 87 96 C105 112 119 122 132 128 C124 137 120 146 115 154Z"/>
+          </g>
+          <g class="bt-eye-fire fire2" fill="url(#btFire)" filter="url(#btEyeGlow)">
+            <path d="M245 154 C266 146 284 135 299 118 C282 128 269 129 254 126 C267 118 272 108 273 96 C255 112 241 122 228 128 C236 137 240 146 245 154Z"/>
+          </g>
+          <g class="bt-fire-core" fill="url(#btFire)" filter="url(#btGlow)">
+            <path d="M126 160 C116 151 109 140 112 128 C119 137 127 139 135 138 C130 130 132 121 138 114 C141 128 151 137 157 144 C150 151 140 157 126 160Z"/>
+            <path d="M234 160 C244 151 251 140 248 128 C241 137 233 139 225 138 C230 130 228 121 222 114 C219 128 209 137 203 144 C210 151 220 157 234 160Z"/>
+          </g>
+          <!-- animated market sparks -->
+          <g class="bt-spark" fill="#fff2a1">
+            <circle cx="83" cy="111" r="2"/><circle cx="277" cy="109" r="2"/>
+          </g>
+          <g class="bt-spark s2" fill="#ff8b1f">
+            <circle cx="99" cy="94" r="1.5"/><circle cx="261" cy="92" r="1.5"/>
+          </g>
+          <!-- currency / crypto marks embedded in the bull's nose -->
+          <text class="bt-nostril-symbol" x="158" y="252" text-anchor="middle" fill="#a8ff61" font-size="10" font-weight="900">₿</text>
+          <text class="bt-nostril-symbol s2" x="202" y="252" text-anchor="middle" fill="#e4b957" font-size="10" font-weight="900">$</text>
+</svg>
         <span class="symbol s1">₿</span><span class="symbol s2">$</span><span class="symbol s3">€</span><span class="symbol s4">¥</span>
       </div>
 
