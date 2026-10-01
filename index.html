@@ -29,18 +29,57 @@
       <div class="v3-meta"><span>STRUCTURE</span><span>RISK FIRST</span><span>DISCIPLINE</span></div>
     </div>
     <div class="v3-visual" aria-label="Bullseye Theory visual">
-      <div class="v3-target" aria-hidden="true"></div>
+      <div class="v3-target" aria-hidden="true">
+        <div class="v3-target-inner"></div>
+        <div class="v3-target-cross"></div>
+      </div>
       <div class="v3-bull">
         <svg viewBox="0 0 500 500" role="img" aria-label="Abstract Bullseye Theory bull">
-          <path class="horn" d="M190 150C110 105 75 55 105 20C130 78 165 70 225 108M310 150C390 105 425 55 395 20C370 78 335 70 275 108"/>
+          <defs>
+            <linearGradient id="goldGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#fce893"/>
+              <stop offset="50%" stop-color="#e4b957"/>
+              <stop offset="100%" stop-color="#9a7726"/>
+            </linearGradient>
+            <linearGradient id="limeGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#d4ff9d"/>
+              <stop offset="100%" stop-color="#a8ff61"/>
+            </linearGradient>
+            <filter id="glowFilter" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="4" result="blur"/>
+              <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+            </filter>
+          </defs>
+          <!-- Outer Horns -->
+          <path class="horn" stroke="url(#goldGlow)" d="M190 150C110 105 75 55 105 20C130 78 165 70 225 108M310 150C390 105 425 55 395 20C370 78 335 70 275 108"/>
+          <!-- Horn accent telemetry lines -->
+          <path class="detail-accent" d="M125 42L150 78M375 42L350 78M142 30L172 70M358 30L328 70"/>
+          <!-- Head Base -->
           <path class="head" d="M150 145Q250 95 350 145L375 300Q355 395 250 430Q145 395 125 300Z"/>
-          <path class="detail" d="M160 205Q205 170 230 210M340 205Q295 170 270 210M250 160V385M165 290Q250 340 335 290M190 350Q250 380 310 350"/>
-          <ellipse class="eye" cx="195" cy="225" rx="8" ry="5"/><ellipse class="eye" cx="305" cy="225" rx="8" ry="5"/>
+          <!-- Geometric Grid Facets -->
+          <path class="detail" d="M160 205Q205 170 230 210M340 205Q295 170 270 210M250 120V385M165 290Q250 340 335 290M190 350Q250 380 310 350"/>
+          <path class="detail-accent" d="M250 120L190 170M250 120L310 170M250 210L160 205M250 210L340 205"/>
+          <!-- Target Reticle Overlay on Nose -->
+          <circle cx="250" cy="280" r="28" stroke="rgba(168,255,97,0.4)" stroke-dasharray="3,3" fill="none"/>
+          <circle cx="250" cy="280" r="14" stroke="rgba(228,185,87,0.6)" fill="none"/>
+          <circle cx="250" cy="280" r="4" fill="#e4b957" filter="url(#glowFilter)"/>
+          <!-- Laser Eyes -->
+          <ellipse class="eye" cx="195" cy="225" rx="8" ry="5"/>
+          <ellipse class="eye" cx="305" cy="225" rx="8" ry="5"/>
           <path class="fire" d="M188 219l-8-22 15 9 8-20 5 28zM312 219l8-22-15 9-8-20-5 28z"/>
-          <circle cx="250" cy="280" r="7" fill="#e4b957"/><path class="detail" d="M220 300Q250 318 280 300"/>
+          <!-- Mouth / Structure Curve -->
+          <path class="detail" d="M220 315Q250 330 280 315"/>
         </svg>
       </div>
-      <div class="v3-hud"><b>LOCKED ON TARGET</b><br>PROCESS OVER IMPULSE<br>RISK BEFORE REWARD</div>
+      <div class="v3-hud">
+        <div class="v3-hud-tag"><span class="v3-hud-pulse"></span> TELEMETRY: ONLINE</div>
+        <div class="v3-hud-main">LOCKED ON TARGET</div>
+        <div class="v3-hud-metrics">
+          <span>PROCESS: <b>100%</b></span>
+          <span>RISK: <b>STRICT</b></span>
+        </div>
+        <div class="v3-hud-sub">CONTEXT &gt; IMPULSE</div>
+      </div>
     </div>
   </div>
 </section>
@@ -55,55 +94,333 @@
   <div><p class="v3-copy">Bullseye Theory is designed around a repeatable learning loop. Understand the concept, study the chart, apply the idea in practice, then review the decision and the risk. The goal is a process you can understand and test — not a promise of outcomes.</p></div>
 </div>
 <div class="v3-container v3-steps v3-reveal">
-  <article class="v3-step"><small>01 / STUDY</small><h3>Understand the context</h3><p>Build the foundations before trying to interpret a live market.</p></article>
-  <article class="v3-step"><small>02 / PRACTICE</small><h3>Apply on charts</h3><p>Use examples and structured exercises to turn concepts into recognition.</p></article>
-  <article class="v3-step"><small>03 / REVIEW</small><h3>Refine the process</h3><p>Review decisions, invalidation and risk so mistakes become information.</p></article>
+  <article class="v3-step">
+    <div class="v3-step-badge">01 / STUDY</div>
+    <div class="v3-step-icon">
+      <svg viewBox="0 0 100 60" role="img" aria-label="Market Structure Chart Diagram">
+        <path d="M10 50 L30 35 L50 42 L80 15 L90 20" stroke="#a8ff61" stroke-width="2" fill="none"/>
+        <line x1="30" y1="35" x2="90" y2="35" stroke="#e4b957" stroke-width="1" stroke-dasharray="2,2"/>
+        <circle cx="80" cy="15" r="3" fill="#e4b957"/>
+        <text x="52" y="30" fill="#a8ff61" font-size="6" font-weight="bold">BOS / BREAK</text>
+      </svg>
+    </div>
+    <h3>Understand the context</h3>
+    <p>Build the foundations before trying to interpret a live market. Map high-probability market structure levels.</p>
+  </article>
+  <article class="v3-step">
+    <div class="v3-step-badge">02 / PRACTICE</div>
+    <div class="v3-step-icon">
+      <svg viewBox="0 0 100 60" role="img" aria-label="Backtest Practice Chart Diagram">
+        <rect x="15" y="20" width="8" height="25" fill="rgba(168,255,97,0.2)" stroke="#a8ff61" stroke-width="1.5"/>
+        <line x1="19" y1="12" x2="19" y2="48" stroke="#a8ff61" stroke-width="1"/>
+        <rect x="35" y="15" width="8" height="30" fill="rgba(228,185,87,0.2)" stroke="#e4b957" stroke-width="1.5"/>
+        <line x1="39" y1="8" x2="39" y2="52" stroke="#e4b957" stroke-width="1"/>
+        <rect x="55" y="25" width="8" height="18" fill="rgba(168,255,97,0.2)" stroke="#a8ff61" stroke-width="1.5"/>
+        <line x1="59" y1="18" x2="59" y2="48" stroke="#a8ff61" stroke-width="1"/>
+        <line x1="10" y1="40" x2="90" y2="20" stroke="#a8ff61" stroke-width="1.5" stroke-dasharray="3,2"/>
+      </svg>
+    </div>
+    <h3>Apply on charts</h3>
+    <p>Use examples and structured exercises to turn concepts into rapid recognition on real price action.</p>
+  </article>
+  <article class="v3-step">
+    <div class="v3-step-badge">03 / REVIEW</div>
+    <div class="v3-step-icon">
+      <svg viewBox="0 0 100 60" role="img" aria-label="Trade Journal Review Diagram">
+        <rect x="15" y="10" width="70" height="40" rx="4" fill="rgba(7,16,15,0.8)" stroke="rgba(168,255,97,0.3)" stroke-width="1"/>
+        <line x1="25" y1="22" x2="60" y2="22" stroke="#e4b957" stroke-width="2"/>
+        <line x1="25" y1="32" x2="75" y2="32" stroke="#a8ff61" stroke-width="1.5"/>
+        <line x1="25" y1="40" x2="50" y2="40" stroke="#71877f" stroke-width="1.5"/>
+        <circle cx="70" cy="22" r="3" fill="#a8ff61"/>
+      </svg>
+    </div>
+    <h3>Refine the process</h3>
+    <p>Review decisions, invalidation and risk so mistakes become quantifiable data to strengthen discipline.</p>
+  </article>
 </div></section>
 
 <section class="v3-section" id="curriculum"><div class="v3-container">
   <div class="v3-curriculum-head v3-reveal"><div><div class="v3-label">COURSE ARCHITECTURE</div><h2>11 LESSONS.<br><em>ONE PROCESS.</em></h2></div><p class="v3-copy">A structured path from trading foundations to market structure, price action, risk management and psychology.</p></div>
   <div class="v3-lessons">
-    <article class="v3-card v3-reveal"><div class="v3-num">LESSON 01</div><h3>Trading Foundations</h3><p>Core market language, instruments and the framework for learning.</p><div class="mark">01</div></article>
-    <article class="v3-card v3-reveal"><div class="v3-num">LESSON 02</div><h3>Market Structure</h3><p>Read highs, lows, direction and structural context.</p><div class="mark">02</div></article>
-    <article class="v3-card v3-reveal"><div class="v3-num">LESSON 03</div><h3>Trend & Direction</h3><p>Separate trend conditions from noise and isolated candles.</p><div class="mark">03</div></article>
-    <article class="v3-card v3-reveal"><div class="v3-num">LESSON 04</div><h3>Price Action</h3><p>Study movement, reaction and context rather than prediction.</p><div class="mark">04</div></article>
-    <article class="v3-card v3-reveal"><div class="v3-num">LESSON 05</div><h3>Risk Management</h3><p>Define invalidation, position risk and loss boundaries first.</p><div class="mark">05</div></article>
-    <article class="v3-card v3-reveal"><div class="v3-num">LESSON 06</div><h3>Trading Psychology</h3><p>Understand discipline, patience, impulse and decision pressure.</p><div class="mark">06</div></article>
-    <article class="v3-card v3-reveal"><div class="v3-num">LESSON 07</div><h3>Chart Reading</h3><p>Organise charts into clear, reviewable information.</p><div class="mark">07</div></article>
-    <article class="v3-card v3-reveal"><div class="v3-num">LESSON 08</div><h3>Market Context</h3><p>Combine timeframe, location and structure before a conclusion.</p><div class="mark">08</div></article>
-    <article class="v3-card v3-reveal"><div class="v3-num">LESSON 09</div><h3>Execution Framework</h3><p>Turn analysis into a checklist-based decision process.</p><div class="mark">09</div></article>
-    <article class="v3-card v3-reveal"><div class="v3-num">LESSON 10</div><h3>Review & Journal</h3><p>Capture decisions and review what actually happened.</p><div class="mark">10</div></article>
-    <article class="v3-card v3-reveal"><div class="v3-num">LESSON 11</div><h3>Complete Revision</h3><p>Connect the concepts into one repeatable study framework.</p><div class="mark">11</div></article>
+    <article class="v3-card v3-reveal">
+      <div class="v3-card-header">
+        <span class="v3-num">LESSON 01</span>
+        <span class="v3-card-tag">FOUNDATIONS</span>
+      </div>
+      <h3>Trading Foundations</h3>
+      <p>Core market language, order types, instruments and the foundational framework for systematic learning.</p>
+      <div class="v3-card-foot">
+        <span class="v3-card-metric">THEORY &bull; PDF + VIDEO</span>
+        <div class="mark">01</div>
+      </div>
+    </article>
+
+    <article class="v3-card v3-reveal">
+      <div class="v3-card-header">
+        <span class="v3-num">LESSON 02</span>
+        <span class="v3-card-tag">STRUCTURE</span>
+      </div>
+      <h3>Market Structure</h3>
+      <p>Identify swing highs, swing lows, trend direction and key structural shifts across timeframes.</p>
+      <div class="v3-card-foot">
+        <span class="v3-card-metric">BOS &bull; CHOCH &bull; SWINGS</span>
+        <div class="mark">02</div>
+      </div>
+    </article>
+
+    <article class="v3-card v3-reveal">
+      <div class="v3-card-header">
+        <span class="v3-num">LESSON 03</span>
+        <span class="v3-card-tag">DIRECTION</span>
+      </div>
+      <h3>Trend &amp; Direction</h3>
+      <p>Separate true directional expansion from ranging noise, traps, and isolated candle volatility.</p>
+      <div class="v3-card-foot">
+        <span class="v3-card-metric">EXPANSION &bull; RETRACE</span>
+        <div class="mark">03</div>
+      </div>
+    </article>
+
+    <article class="v3-card v3-reveal">
+      <div class="v3-card-header">
+        <span class="v3-num">LESSON 04</span>
+        <span class="v3-card-tag">PRICE ACTION</span>
+      </div>
+      <h3>Price Action</h3>
+      <p>Study raw momentum, key levels and market reaction in context rather than relying on lagging indicators.</p>
+      <div class="v3-card-foot">
+        <span class="v3-card-metric">CONTEXT &gt; INDICATORS</span>
+        <div class="mark">04</div>
+      </div>
+    </article>
+
+    <article class="v3-card v3-reveal">
+      <div class="v3-card-header">
+        <span class="v3-num">LESSON 05</span>
+        <span class="v3-card-tag">RISK CONTROL</span>
+      </div>
+      <h3>Risk Management</h3>
+      <p>Define invalidation levels, position sizing metrics and maximum loss boundaries before taking any position.</p>
+      <div class="v3-card-foot">
+        <span class="v3-card-metric">R:R &bull; INVALIDATION</span>
+        <div class="mark">05</div>
+      </div>
+    </article>
+
+    <article class="v3-card v3-reveal">
+      <div class="v3-card-header">
+        <span class="v3-num">LESSON 06</span>
+        <span class="v3-card-tag">PSYCHOLOGY</span>
+      </div>
+      <h3>Trading Psychology</h3>
+      <p>Master emotional control, patience, FOMO reduction, and executing under live market conditions.</p>
+      <div class="v3-card-foot">
+        <span class="v3-card-metric">DISCIPLINE &bull; STATE</span>
+        <div class="mark">06</div>
+      </div>
+    </article>
+
+    <article class="v3-card v3-reveal">
+      <div class="v3-card-header">
+        <span class="v3-num">LESSON 07</span>
+        <span class="v3-card-tag">ANALYSIS</span>
+      </div>
+      <h3>Chart Reading</h3>
+      <p>Organise multi-timeframe charts into clear, objective and reviewable visual information displays.</p>
+      <div class="v3-card-foot">
+        <span class="v3-card-metric">MTF &bull; MAPPING</span>
+        <div class="mark">07</div>
+      </div>
+    </article>
+
+    <article class="v3-card v3-reveal">
+      <div class="v3-card-header">
+        <span class="v3-num">LESSON 08</span>
+        <span class="v3-card-tag">CONTEXT</span>
+      </div>
+      <h3>Market Context</h3>
+      <p>Synthesize higher timeframe bias, key liquidity pools, and market location before drawing conclusions.</p>
+      <div class="v3-card-foot">
+        <span class="v3-card-metric">HTF BIAS &bull; LIQUIDITY</span>
+        <div class="mark">08</div>
+      </div>
+    </article>
+
+    <article class="v3-card v3-reveal">
+      <div class="v3-card-header">
+        <span class="v3-num">LESSON 09</span>
+        <span class="v3-card-tag">EXECUTION</span>
+      </div>
+      <h3>Execution Framework</h3>
+      <p>Convert technical analysis into a strict, rule-based, checklist-driven decision loop.</p>
+      <div class="v3-card-foot">
+        <span class="v3-card-metric">RULES &bull; CHECKLIST</span>
+        <div class="mark">09</div>
+      </div>
+    </article>
+
+    <article class="v3-card v3-reveal">
+      <div class="v3-card-header">
+        <span class="v3-num">LESSON 10</span>
+        <span class="v3-card-tag">METRICS</span>
+      </div>
+      <h3>Review &amp; Journal</h3>
+      <p>Capture trade data, measure performance metrics and conduct post-trade reviews to eliminate errors.</p>
+      <div class="v3-card-foot">
+        <span class="v3-card-metric">JOURNAL &bull; R-MULTIPLE</span>
+        <div class="mark">10</div>
+      </div>
+    </article>
+
+    <article class="v3-card v3-reveal v3-card-featured">
+      <div class="v3-card-header">
+        <span class="v3-num">LESSON 11</span>
+        <span class="v3-card-tag">SYNTHESIS</span>
+      </div>
+      <h3>Complete Revision</h3>
+      <p>Connect every lesson into one unified, repeatable and stress-tested trading framework.</p>
+      <div class="v3-card-foot">
+        <span class="v3-card-metric">FULL SYSTEM REVISION</span>
+        <div class="mark">11</div>
+      </div>
+    </article>
   </div>
 </div></section>
 
 <section class="v3-section" id="experience"><div class="v3-container">
   <div class="v3-label">LEARNING EXPERIENCE</div><h2 class="v3-reveal">FROM PDF<br>TO <em>CHART.</em></h2>
   <div class="v3-experience">
-    <div class="v3-frame v3-reveal"><div class="v3-screen"><div class="v3-label">RECORDED LESSON / STUDY MODE</div><h3>Learn the concept.</h3><p>Clear explanations, structured lessons and visual chart examples.</p><div class="line"></div></div></div>
-    <div class="v3-frame v3-reveal"><div class="v3-screen"><div class="v3-label">CHART REVIEW / PRACTICE MODE</div><h3>Build the process.</h3><p>Take the idea to the chart, define the context and review the decision.</p><div class="line"></div></div></div>
+    <!-- Frame 1: PDF & Video Reader -->
+    <div class="v3-frame v3-reveal">
+      <div class="v3-mockup-header">
+        <div class="v3-mockup-dots"><span></span><span></span><span></span></div>
+        <div class="v3-mockup-title">COURSE_READER_v3.pdf</div>
+        <div class="v3-mockup-badge">STUDY MODE</div>
+      </div>
+      <div class="v3-screen v3-screen-pdf">
+        <div class="v3-screen-badge">LESSON 02 &bull; STRUCTURE &amp; LIQUIDITY</div>
+        <h3>Learn the concept.</h3>
+        <p>Comprehensive PDF study guides, video breakdowns, and annotated market charts formatted for systematic retention.</p>
+
+        <!-- Interactive Mockup Content -->
+        <div class="v3-pdf-doc">
+          <div class="v3-pdf-line long"></div>
+          <div class="v3-pdf-line medium"></div>
+          <div class="v3-pdf-chart-mini">
+            <svg viewBox="0 0 200 60" role="img" aria-label="PDF Mini Chart Visual">
+              <path d="M10 45 L40 25 L70 38 L120 12 L150 28 L190 8" stroke="#a8ff61" stroke-width="1.5" fill="none"/>
+              <line x1="40" y1="25" x2="190" y2="25" stroke="#e4b957" stroke-width="1" stroke-dasharray="2,2"/>
+              <circle cx="120" cy="12" r="3" fill="#e4b957"/>
+            </svg>
+          </div>
+          <div class="v3-pdf-line short"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Frame 2: Trading Terminal Chart Practice -->
+    <div class="v3-frame v3-reveal">
+      <div class="v3-mockup-header">
+        <div class="v3-mockup-dots"><span></span><span></span><span></span></div>
+        <div class="v3-mockup-title">BULLSEYE_TERMINAL_x64</div>
+        <div class="v3-mockup-badge active">PRACTICE MODE</div>
+      </div>
+      <div class="v3-screen v3-screen-terminal">
+        <div class="v3-screen-badge gold">LIVE CHART PRACTICE</div>
+        <h3>Build the process.</h3>
+        <p>Take concepts directly to price action, mark structural levels, define risk parameters, and backtest systematically.</p>
+
+        <!-- Simulated Candlestick Terminal View -->
+        <div class="v3-terminal-hud">
+          <svg viewBox="0 0 240 90" role="img" aria-label="Candlestick Chart Practice Terminal">
+            <!-- Grid Lines -->
+            <line x1="0" y1="20" x2="240" y2="20" stroke="rgba(143,232,255,0.06)" stroke-width="1"/>
+            <line x1="0" y1="50" x2="240" y2="50" stroke="rgba(143,232,255,0.06)" stroke-width="1"/>
+            <line x1="0" y1="75" x2="240" y2="75" stroke="rgba(143,232,255,0.06)" stroke-width="1"/>
+
+            <!-- Invalidation Zone (Risk) -->
+            <rect x="130" y="55" width="90" height="25" fill="rgba(255,70,70,0.12)" stroke="rgba(255,70,70,0.4)" stroke-dasharray="2,2"/>
+            <text x="135" y="70" fill="rgba(255,100,100,0.8)" font-size="6" font-weight="bold">INVALIDATION / RISK</text>
+
+            <!-- Target Zone (Reward) -->
+            <rect x="130" y="10" width="90" height="35" fill="rgba(168,255,97,0.12)" stroke="rgba(168,255,97,0.4)" stroke-dasharray="2,2"/>
+            <text x="135" y="25" fill="#a8ff61" font-size="6" font-weight="bold">TARGET / REWARD (3.2R)</text>
+
+            <!-- Candlesticks -->
+            <!-- Candle 1 -->
+            <line x1="20" y1="30" x2="20" y2="65" stroke="#a8ff61" stroke-width="1"/>
+            <rect x="17" y="38" width="6" height="18" fill="#a8ff61"/>
+            <!-- Candle 2 -->
+            <line x1="40" y1="25" x2="40" y2="58" stroke="#e4b957" stroke-width="1"/>
+            <rect x="37" y="30" width="6" height="20" fill="#e4b957"/>
+            <!-- Candle 3 -->
+            <line x1="60" y1="20" x2="60" y2="50" stroke="#a8ff61" stroke-width="1"/>
+            <rect x="57" y="22" width="6" height="15" fill="#a8ff61"/>
+            <!-- Candle 4 (Breakout) -->
+            <line x1="80" y1="15" x2="80" y2="60" stroke="#a8ff61" stroke-width="1"/>
+            <rect x="77" y="18" width="6" height="32" fill="#a8ff61"/>
+            <!-- Candle 5 -->
+            <line x1="100" y1="10" x2="100" y2="40" stroke="#e4b957" stroke-width="1"/>
+            <rect x="97" y="15" width="6" height="12" fill="#e4b957"/>
+
+            <!-- Execution Line -->
+            <line x1="10" y1="48" x2="230" y2="48" stroke="#e4b957" stroke-width="1.2"/>
+            <circle cx="100" cy="48" r="3" fill="#e4b957"/>
+          </svg>
+        </div>
+      </div>
+    </div>
   </div>
 </div></section>
 
 <section class="v3-section"><div class="v3-container">
   <div class="v3-label">NON-NEGOTIABLES</div><h2 class="v3-reveal">PRECISION<br><em>OVER NOISE.</em></h2>
   <div class="v3-principles">
-    <article class="v3-principle v3-reveal"><b>01</b><h3>Context before conclusions</h3><p>Read trend, location, timeframe and surrounding price action together.</p></article>
-    <article class="v3-principle v3-reveal"><b>02</b><h3>Risk before reward</h3><p>Define invalidation and possible loss before considering an opportunity.</p></article>
-    <article class="v3-principle v3-reveal"><b>03</b><h3>Process over impulse</h3><p>Use written rules, patience and review instead of emotional decisions.</p></article>
+    <article class="v3-principle v3-reveal">
+      <div class="v3-principle-badge">CORE PRINCIPLE 01</div>
+      <h3>Context before conclusions</h3>
+      <p>Read trend, structural location, multi-timeframe bias and surrounding price action together before forming a directional hypothesis.</p>
+    </article>
+    <article class="v3-principle v3-reveal">
+      <div class="v3-principle-badge">CORE PRINCIPLE 02</div>
+      <h3>Risk before reward</h3>
+      <p>Define exact invalidation and maximum position risk before considering profit targets or potential reward multiples.</p>
+    </article>
+    <article class="v3-principle v3-reveal">
+      <div class="v3-principle-badge">CORE PRINCIPLE 03</div>
+      <h3>Process over impulse</h3>
+      <p>Execute strict, written checklist rules with patience and post-trade journal reviews instead of emotional, impulse decisions.</p>
+    </article>
   </div>
 </div></section>
 
 <section class="v3-section"><div class="v3-container">
-  <div class="v3-price v3-reveal"><div><div class="v3-label">BULLSEYE THEORY / COURSE</div><h2>START WITH<br>THE <em>PROCESS.</em></h2><small>PDF + RECORDED VIDEO · EDUCATIONAL USE ONLY</small></div><div><strong>₹999</strong><a class="v3-btn v3-primary" href="auth.html">ENTER STUDENT AREA →</a></div></div>
+  <div class="v3-price v3-reveal">
+    <div>
+      <div class="v3-label">BULLSEYE THEORY / COMPLETE COURSE</div>
+      <h2>START WITH<br>THE <em>PROCESS.</em></h2>
+      <p style="color:var(--muted);font-size:13px;margin:12px 0 20px;max-width:520px">Gain full access to all 11 structured lessons, downloadable PDF guides, recorded video breakdowns, and chart exercises.</p>
+      <div class="v3-price-tags">
+        <span>PDF GUIDES</span>
+        <span>VIDEO BREAKDOWNS</span>
+        <span>NO PROMISED PROFITS</span>
+        <span>STRICT RISK FRAMING</span>
+      </div>
+    </div>
+    <div class="v3-price-box">
+      <div class="v3-price-val">₹999</div>
+      <div class="v3-price-sub">ONE-TIME ENROLLMENT &bull; LIFETIME ACCESS</div>
+      <a class="v3-btn v3-primary v3-btn-lg" href="auth.html">ENTER STUDENT AREA &rarr;</a>
+    </div>
+  </div>
 </div></section>
 
-<section class="v3-section" id="faq"><div class="v3-container"><div class="v3-label">FAQ</div><h2>KEEP IT<br><em>SIMPLE.</em></h2>
+<section class="v3-section" id="faq"><div class="v3-container"><div class="v3-label">FREQUENTLY ASKED QUESTIONS</div><h2>KEEP IT<br><em>SIMPLE.</em></h2>
 <div class="v3-faq">
-<details class="v3-reveal"><summary>Is Bullseye Theory financial advice?</summary><p>No. It is educational material designed to explain trading concepts and structured decision-making.</p></details>
-<details class="v3-reveal"><summary>Does the course promise profits?</summary><p>No. There are no guaranteed returns or profit promises. Markets involve risk and outcomes vary.</p></details>
-<details class="v3-reveal"><summary>What is included?</summary><p>The course is designed around PDF lessons and recorded educational videos, with chart-focused examples.</p></details>
-<details class="v3-reveal"><summary>Who is it for?</summary><p>Beginners and developing traders who want a structured framework for studying markets and risk.</p></details>
+<details class="v3-reveal"><summary><span>Is Bullseye Theory financial advice or a signal service?</span><span class="v3-faq-icon">+</span></summary><p>No. Bullseye Theory is strictly educational material. We do not provide financial advice, trading signals, copy-trading services, or direct investment recommendations.</p></details>
+<details class="v3-reveal"><summary><span>Does the course promise profits or guaranteed returns?</span><span class="v3-faq-icon">+</span></summary><p>No. We do not promise profits or guaranteed returns. Trading involves risk of loss. The course focuses purely on technical analysis, market structure, and risk management concepts.</p></details>
+<details class="v3-reveal"><summary><span>What materials are included with enrollment?</span><span class="v3-faq-icon">+</span></summary><p>Enrollment includes full access to 11 core lessons, comprehensive PDF study modules, recorded video breakdowns, and real-world chart exercise examples.</p></details>
+<details class="v3-reveal"><summary><span>Who is this educational framework designed for?</span><span class="v3-faq-icon">+</span></summary><p>It is designed for beginners and developing traders who want a structured, disciplined, and rule-based approach to understanding price action and managing risk.</p></details>
 </div>
 </div></section>
 
