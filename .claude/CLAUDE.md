@@ -11,3 +11,7 @@ Workflow:
 6. Run an accessibility/responsive review before declaring the work finished.
 
 Do not layer patches indefinitely. If the composition is wrong, replace the composition.
+
+
+## AI design skill trial
+For the isolated design experiment, use `.claude/commands/bullseye-design-trial.md` on branch `ai-design-skills-trial-2026-10-03`. Do not deploy or merge this trial automatically. Keep the existing vanilla HTML/CSS/JS stack and Bullseye brand constraints.

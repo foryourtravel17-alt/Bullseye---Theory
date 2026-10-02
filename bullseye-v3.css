@@ -63,3 +63,89 @@
 
 /* V6 AI-DESIGN 3D HERO — Three.js scene + responsive art direction */
 .v6-bull-stage{overflow:visible!important;isolation:isolate;z-index:8!important}.v6-bull-canvas{position:absolute!important;inset:-12%!important;width:124%!important;height:124%!important;display:block!important;z-index:3!important;pointer-events:none}.v6-bull-stage .v5-bull-glow{z-index:0!important;opacity:.8}.v6-bull-fallback{position:absolute;inset:0;display:grid;place-items:center;color:rgba(228,185,87,.2);font:900 9px/1 Inter;letter-spacing:4px;z-index:1}.v6-3d-ready .v6-bull-fallback{display:none}.v6-3d-failed .v6-bull-canvas{display:none!important}.v6-3d-failed .v6-bull-fallback{display:grid}.v6-bull-stage:after{content:"";position:absolute;left:50%;bottom:2%;width:62%;height:8%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,rgba(228,185,87,.28),transparent 70%);filter:blur(18px);z-index:0}.bullseye-3d-ready .v5-reticle{opacity:.92}.bullseye-3d-ready .v5-bull-stage{filter:drop-shadow(0 28px 42px rgba(0,0,0,.82))}@media(max-width:850px){.v6-bull-stage{top:35%!important;width:100vw!important;height:48vh!important;min-height:330px!important}.v6-bull-canvas{inset:-18%!important;width:136%!important;height:136%!important}.v6-bull-stage:after{bottom:3%;width:70%}}@media(prefers-reduced-motion:reduce){.v6-bull-canvas{animation:none}}
+
+
+/* FINAL DESIGN-SKILL POLISH — targeted, responsive, accessible */
+:root{
+  --content-max:1180px;
+  --focus:rgba(168,255,97,.92);
+}
+html{scroll-padding-top:84px}
+body{min-width:320px}
+img,svg,canvas{max-width:100%}
+button,a{ -webkit-tap-highlight-color:transparent }
+a:focus-visible,button:focus-visible,summary:focus-visible{
+  outline:2px solid var(--focus);
+  outline-offset:4px;
+}
+.v3-container{width:min(var(--content-max),100%);padding-inline:0}
+.v3-section h2,.v5-hero-copy h1{text-wrap:balance}
+.v3-copy,.v3-card p,.v3-step p,.v3-principle p,.v3-faq p{text-wrap:pretty}
+
+/* The cinematic hero must grow with its content; never let the CTA collide with the lower HUD strip. */
+.v5-hero{
+  height:auto!important;
+  min-height:100svh!important;
+  padding-bottom:112px!important;
+}
+.v5-hero-copy{padding-bottom:18px}
+.v5-bottom-strip{bottom:14px}
+.v5-hero .v3-actions .v3-btn{transition:transform .22s ease,box-shadow .22s ease,background-color .22s ease}
+.v5-hero .v3-actions .v3-btn:hover{transform:translateY(-2px)}
+.v5-hero .v3-actions .v3-btn:active{transform:translateY(1px) scale(.985)}
+.v3-btn{transition:transform .22s ease,box-shadow .22s ease,background-color .22s ease,border-color .22s ease}
+.v3-btn:active{transform:translateY(1px) scale(.985)}
+
+/* Mobile navigation drawer */
+.v5-mobile-nav{position:fixed;inset:0;z-index:100}
+.v5-mobile-nav-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.66);backdrop-filter:blur(8px)}
+.v5-mobile-panel{
+  position:absolute;right:0;top:0;height:100%;width:min(86vw,360px);
+  padding:88px 22px 24px;background:linear-gradient(180deg,#07110f,#020607);
+  border-left:1px solid rgba(228,185,87,.22);
+  box-shadow:-24px 0 70px rgba(0,0,0,.58);
+  overflow:auto;
+}
+.v5-mobile-head{
+  display:flex;align-items:center;justify-content:space-between;
+  color:#f4f5ef;font:900 13px/1 Inter,system-ui;letter-spacing:1.6px;
+  padding-bottom:18px;border-bottom:1px solid rgba(168,255,97,.12);
+}
+.v5-mobile-head strong{color:var(--lime)}
+.v5-mobile-close{
+  width:40px;height:40px;border:1px solid rgba(228,185,87,.3);
+  background:rgba(255,255,255,.025);color:#f4f5ef;font-size:25px;line-height:1;
+}
+.v5-mobile-links{display:grid;gap:7px;margin-top:20px}
+.v5-mobile-links a{
+  min-height:48px;display:flex;align-items:center;padding:0 14px;
+  border:1px solid transparent;color:#b6c4be;text-decoration:none;
+  font:900 10px/1 Inter,system-ui;letter-spacing:1.8px;
+}
+.v5-mobile-links a:not(.v3-btn):hover{border-color:rgba(168,255,97,.18);background:rgba(168,255,97,.05);color:#fff}
+.v5-mobile-links .v3-btn{margin-top:12px}
+body.v5-menu-open{overflow:hidden}
+.v5-menu[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.v5-menu[aria-expanded="true"] span:nth-child(2){opacity:0}
+.v5-menu[aria-expanded="true"] span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.v5-menu span{transition:transform .2s ease,opacity .2s ease}
+
+/* Avoid tilt fighting touch scrolling and keep hover effects for real pointers only. */
+@media(hover:hover) and (pointer:fine){
+  .v3-card{will-change:transform}
+}
+@media(max-width:850px){
+  .v5-hero{min-height:auto!important;padding-bottom:24px!important}
+  .v5-hero-copy{padding-bottom:0}
+  .v5-bottom-strip{bottom:auto}
+  .v3-section{padding-block:82px}
+  .v3-price{gap:26px}
+  .v3-price-box{align-items:flex-start;text-align:left}
+}
+@media(min-width:851px){
+  .v5-mobile-nav{display:none!important}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important}
+  .v3-btn,.v5-menu span{transition:none!important}
+}
