@@ -8,7 +8,7 @@
   if (window.Lenis && !reduced) {
     try {
       window.bullseyeLenis = new Lenis({
-        autoRaf: true,
+        autoRaf: false,
         anchors: true,
         allowNestedScroll: true,
         stopInertiaOnNavigate: true,
