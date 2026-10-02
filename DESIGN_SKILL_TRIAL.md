@@ -1,5 +1,7 @@
 # Bullseye Theory — AI Design Skill Trial
 
+> Workers Builds smoke test: GitHub `main` push should trigger the connected Cloudflare production deployment.
+
 Purpose: test modern frontend-design skills against the existing Bullseye Theory site without changing the production `main` branch.
 
 ## What the uploaded video is showing
