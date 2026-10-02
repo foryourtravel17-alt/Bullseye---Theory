@@ -18,8 +18,25 @@
     <a href="#top">HOME</a><a href="#method">COURSE</a><a href="#experience">TOOLS</a><a href="#method">ABOUT</a><a href="#faq">CONTACT</a>
   </nav>
   <a class="v3-btn v3-primary v5-login" href="auth.html">STUDENT LOGIN <span>→</span></a>
-  <button class="v5-menu" aria-label="Open menu"><span></span><span></span><span></span></button>
+  <button class="v5-menu" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
 </header>
+<div class="v5-mobile-nav" id="mobile-nav" hidden>
+  <div class="v5-mobile-nav-backdrop" data-menu-close></div>
+  <aside class="v5-mobile-panel" aria-label="Mobile navigation">
+    <div class="v5-mobile-head">
+      <span>BULLSEYE <strong>THEORY</strong></span>
+      <button type="button" class="v5-mobile-close" aria-label="Close navigation menu" data-menu-close>×</button>
+    </div>
+    <nav class="v5-mobile-links" aria-label="Mobile primary">
+      <a href="#top">HOME</a>
+      <a href="#method">COURSE</a>
+      <a href="#experience">TOOLS</a>
+      <a href="#method">ABOUT</a>
+      <a href="#faq">CONTACT</a>
+      <a class="v3-btn v3-primary" href="auth.html">STUDENT LOGIN <span>→</span></a>
+    </nav>
+  </aside>
+</div>
 
 <main id="top">
 <section class="v3-hero v4-hero v5-hero">
@@ -408,6 +425,15 @@
 </main>
 
 <footer class="v3-footer"><div>BULLSEYE <span style="color:#a8ff61">THEORY</span></div><div><a href="legal.html">Legal</a> · <a href="privacy.html">Privacy</a> · <a href="disclaimer.html">Disclaimer</a></div></footer>
+<script>
+(()=>{const menu=document.querySelector('.v5-menu'),drawer=document.getElementById('mobile-nav');if(!menu||!drawer)return;
+const close=()=>{drawer.hidden=true;menu.setAttribute('aria-expanded','false');document.body.classList.remove('v5-menu-open')};
+const open=()=>{drawer.hidden=false;menu.setAttribute('aria-expanded','true');document.body.classList.add('v5-menu-open');drawer.querySelector('a')?.focus()};
+menu.addEventListener('click',()=>drawer.hidden?open():close());
+drawer.addEventListener('click',e=>{if(e.target.closest('[data-menu-close]')||e.target.closest('a'))close()});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&!drawer.hidden){close();menu.focus()}});
+})();
+</script>
 <script src="bullseye-v3.js?v=20261002-5"></script>\n<script type="module" src="bullseye-3d-hero.js?v=20261002-2"></script>
 </body>
 </html>
