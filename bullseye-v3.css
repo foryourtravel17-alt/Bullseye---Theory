@@ -61,13 +61,5 @@
  .v5-bottom-strip{position:relative;left:auto;bottom:auto;transform:none;width:94%;margin:28px auto 0;grid-template-columns:repeat(2,1fr);border-radius:8px}.v5-bottom-strip span{padding:11px 9px}.v5-bottom-strip span:nth-child(2){border-right:0}.v5-bottom-strip b{font-size:15px;margin-right:5px}.v5-bottom-strip strong{font-size:7px;letter-spacing:1px}.v5-bottom-strip small{margin:5px 0 0 22px;font-size:6.5px}
 }
 
-/* V6 3D HERO — design-system-guided cinematic centerpiece */
-.v6-bull-stage{z-index:8!important;overflow:visible!important;}
-.v6-bull-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;filter:drop-shadow(0 24px 42px rgba(0,0,0,.7));}
-.v6-bull-fallback{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:800 9px/1 Inter,system-ui;letter-spacing:3px;color:rgba(228,185,87,.5);opacity:0;pointer-events:none;}
-.v6-3d-failed .v6-bull-fallback{opacity:1;}
-.bullseye-3d-ready .v5-bull-glow{opacity:.8;}
-@media(max-width:850px){
-  .v6-bull-stage{width:98vw!important;height:48vh!important;min-height:330px!important;top:35%!important;}
-  .v6-bull-canvas{filter:drop-shadow(0 18px 28px rgba(0,0,0,.82));}
-}
+/* V6 AI-DESIGN 3D HERO — Three.js scene + responsive art direction */
+.v6-bull-stage{overflow:visible!important;isolation:isolate;z-index:8!important}.v6-bull-canvas{position:absolute!important;inset:-12%!important;width:124%!important;height:124%!important;display:block!important;z-index:3!important;pointer-events:none}.v6-bull-stage .v5-bull-glow{z-index:0!important;opacity:.8}.v6-bull-fallback{position:absolute;inset:0;display:grid;place-items:center;color:rgba(228,185,87,.2);font:900 9px/1 Inter;letter-spacing:4px;z-index:1}.v6-3d-ready .v6-bull-fallback{display:none}.v6-3d-failed .v6-bull-canvas{display:none!important}.v6-3d-failed .v6-bull-fallback{display:grid}.v6-bull-stage:after{content:"";position:absolute;left:50%;bottom:2%;width:62%;height:8%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,rgba(228,185,87,.28),transparent 70%);filter:blur(18px);z-index:0}.bullseye-3d-ready .v5-reticle{opacity:.92}.bullseye-3d-ready .v5-bull-stage{filter:drop-shadow(0 28px 42px rgba(0,0,0,.82))}@media(max-width:850px){.v6-bull-stage{top:35%!important;width:100vw!important;height:48vh!important;min-height:330px!important}.v6-bull-canvas{inset:-18%!important;width:136%!important;height:136%!important}.v6-bull-stage:after{bottom:3%;width:70%}}@media(prefers-reduced-motion:reduce){.v6-bull-canvas{animation:none}}
