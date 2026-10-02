@@ -29,3 +29,10 @@ Build Bullseye Theory as a premium, cinematic trading-education landing page. Th
 
 ## Visual direction
 Think premium trading terminal + cinematic film title sequence + high-end finance landing page. Use SVG/CSS/canvas for charts, targets, grids and abstract market visuals. The bull is a brand focal point, not a gambling symbol.
+
+## AI design workflow
+- Read design-system/bullseye/MASTER.md before major UI changes.
+- Use UI/UX Pro Max for structured design-system reasoning and responsive UX guidance.
+- Use Anthropic frontend-design principles for distinctive visual direction and to avoid generic AI aesthetics.
+- Use browser screenshots/DevTools feedback at 375px, 768px and 1440px before declaring visual work finished.
+- If the composition is wrong, replace the composition rather than adding another overlay patch.
