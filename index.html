@@ -20,6 +20,7 @@
   <a class="v3-btn v3-primary v5-login" href="auth.html">STUDENT LOGIN <span>→</span></a>
   <button class="v5-menu" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
 </header>
+<div class="v5-scroll-progress" aria-hidden="true"><span></span></div>
 <div class="v5-mobile-nav" id="mobile-nav" hidden>
   <div class="v5-mobile-nav-backdrop" data-menu-close></div>
   <aside class="v5-mobile-panel" aria-label="Mobile navigation">
@@ -434,7 +435,11 @@ drawer.addEventListener('click',e=>{if(e.target.closest('[data-menu-close]')||e.
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!drawer.hidden){close();menu.focus()}});
 })();
 </script>
+<script src="https://unpkg.com/lenis@1.3.26/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/ScrollTrigger.min.js"></script>
 <script src="bullseye-v3.js?v=20261002-5"></script>
+<script src="bullseye-motion.js?v=20261003-1"></script>
 <script type="module" src="bullseye-3d-hero.js?v=20261002-2"></script>
 </body>
 </html>
