@@ -42,3 +42,6 @@
 @media(max-width:900px){.bx-intel-head{grid-template-columns:1fr;gap:22px}.bx-intel-grid{grid-template-columns:1fr}.bx-core-panel{min-height:430px}.bx-protocols{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.bx-intel{padding:78px 0}.bx-intel-title{font-size:clamp(44px,13.5vw,70px)}.bx-core-panel{min-height:360px}.bx-core-scene{width:88vw}.bx-core-node{font-size:6px;padding:6px 7px}.bx-protocol-panel{padding:14px}.bx-protocols{grid-template-columns:1fr}.bx-protocol{min-height:118px}.bx-pipeline{grid-template-columns:1fr 1fr}.bx-pipeline-step:nth-child(2){border-right:0}.bx-pipeline-step:nth-child(-n+2){border-bottom:1px solid rgba(255,255,255,.07)}.bx-pipeline-step:after{display:none}.bx-automation-label{align-items:flex-start;flex-direction:column;gap:7px}}
 @media(prefers-reduced-motion:reduce){.bx-core-scene,.bx-core-disc{animation:none!important}.bx-protocol{transition:none!important}}
+
+/* HERO CLEANUP: keep the branded bull as the sole hero focal; no remote photo dependency. */
+.v5-hero .v4-bg{background-image:radial-gradient(circle at 50% 38%,rgba(168,255,97,.055),transparent 24%),radial-gradient(circle at 50% 70%,rgba(228,185,87,.045),transparent 32%),linear-gradient(180deg,#020404 0%,#030605 55%,#020303 100%)!important;background-size:100% 100%!important;background-position:center!important;filter:none!important}
