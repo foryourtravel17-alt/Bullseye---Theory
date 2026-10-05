@@ -1,0 +1,20 @@
+/* Hero bull replacement: removes the photographic building/background and the external 3D model. */
+.v5-hero .v4-bg{display:none!important;background:none!important}
+.v5-hero .v4-scan{opacity:.55}
+.v5-hero{background:
+  radial-gradient(circle at 63% 33%,rgba(168,255,97,.07),transparent 22%),
+  radial-gradient(circle at 62% 60%,rgba(228,185,87,.08),transparent 30%),
+  #020304!important}
+.bx-hero-bull{position:absolute;z-index:6;left:58%;top:43%;width:min(720px,58vw);height:min(650px,68vh);transform:translate(-50%,-50%);pointer-events:none;filter:drop-shadow(0 28px 34px rgba(0,0,0,.82))}
+.bx-bull-svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 18px rgba(168,255,97,.09))}
+.bx-bull-rings{position:absolute;inset:8%;border:1px solid rgba(168,255,97,.15);border-radius:50%;box-shadow:0 0 60px rgba(168,255,97,.06),inset 0 0 40px rgba(228,185,87,.025);animation:bx-ring-pulse 4.8s ease-in-out infinite}
+.bx-bull-rings:before,.bx-bull-rings:after{content:"";position:absolute;inset:13%;border:1px solid rgba(228,185,87,.12);border-radius:50%}
+.bx-bull-rings:after{inset:30%;border-style:dashed;border-color:rgba(168,255,97,.18)}
+@keyframes bx-ring-pulse{50%{transform:scale(1.035);opacity:.75}}
+.bx-bull-caption{position:absolute;left:50%;bottom:7%;transform:translateX(-50%);font:800 8px/1 Inter;letter-spacing:2px;color:rgba(190,206,198,.55);white-space:nowrap}
+@media(max-width:850px){
+  .bx-hero-bull{left:50%;top:31%;width:98vw;height:47vh;min-height:330px}
+  .bx-bull-caption{bottom:5%;font-size:7px}
+  .v4-hero-copy{padding-top:54vh!important}
+}
+@media(prefers-reduced-motion:reduce){.bx-bull-rings{animation:none}}
