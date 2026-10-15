@@ -35,6 +35,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+      - name: Show Node and npm versions
+        run: node --version && npm --version
       - name: Validate site and educational market pack
         run: npm run build
       - name: Explain review boundary
