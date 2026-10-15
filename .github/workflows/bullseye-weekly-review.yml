@@ -21,6 +21,12 @@ on:
       - "scripts/validate-site-links.mjs"
       - "package.json"
       - ".github/workflows/bullseye-weekly-review.yml"
+      - "*.html"
+      - "**/*.html"
+      - "*.js"
+      - "**/*.js"
+      - "*.css"
+      - "**/*.css"
   schedule:
     # Monday and Thursday at 10:00 IST (04:30 UTC).
     - cron: "30 4 * * 1,4"
