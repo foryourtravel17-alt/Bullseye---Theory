@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "Bullseye Theory educational website and Market Lab",
   "scripts": {
-    "build": "node scripts/validate-market-briefs.mjs",
-    "test": "node scripts/validate-market-briefs.mjs"
+    "build": "node scripts/validate-market-briefs.mjs && node scripts/validate-site-links.mjs",
+    "test": "npm run build"
   }
 }
