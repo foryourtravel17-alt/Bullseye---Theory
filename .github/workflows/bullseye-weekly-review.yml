@@ -8,6 +8,12 @@ on:
       - "scripts/validate-site-links.mjs"
       - "package.json"
       - ".github/workflows/bullseye-weekly-review.yml"
+      - "*.html"
+      - "**/*.html"
+      - "*.js"
+      - "**/*.js"
+      - "*.css"
+      - "**/*.css"
   pull_request:
     paths:
       - "market-briefs.json"
