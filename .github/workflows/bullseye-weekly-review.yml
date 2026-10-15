@@ -5,6 +5,8 @@ on:
     paths:
       - "market-briefs.json"
       - "scripts/validate-market-briefs.mjs"
+      - "scripts/validate-site-links.mjs"
+      - "package.json"
       - ".github/workflows/bullseye-weekly-review.yml"
   pull_request:
     paths:
