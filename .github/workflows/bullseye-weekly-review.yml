@@ -33,8 +33,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - name: Validate scenario pack
-        run: node scripts/validate-market-briefs.mjs
+      - name: Validate site and educational market pack
+        run: npm run build
       - name: Explain review boundary
         run: |
           echo "Scheduled validation passed."
