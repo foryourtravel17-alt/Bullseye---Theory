@@ -1,0 +1,43 @@
+name: Bullseye Market Lab Review Guard
+
+on:
+  push:
+    paths:
+      - "market-briefs.json"
+      - "scripts/validate-market-briefs.mjs"
+      - ".github/workflows/bullseye-weekly-review.yml"
+  pull_request:
+    paths:
+      - "market-briefs.json"
+      - "scripts/validate-market-briefs.mjs"
+      - ".github/workflows/bullseye-weekly-review.yml"
+  schedule:
+    # Monday and Thursday at 10:00 IST (04:30 UTC).
+    - cron: "30 4 * * 1,4"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bullseye-market-lab-review
+  cancel-in-progress: true
+
+jobs:
+  validate-educational-market-pack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Validate scenario pack
+        run: node scripts/validate-market-briefs.mjs
+      - name: Explain review boundary
+        run: |
+          echo "Scheduled validation passed."
+          echo "This workflow validates schema and demo labels only."
+          echo "It does not fetch live prices, generate forecasts, or publish market commentary."
+          echo "A human/AI-assisted review must verify sources and update review dates before any real dated market content is published."
