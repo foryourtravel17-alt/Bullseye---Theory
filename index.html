@@ -51,14 +51,32 @@
   <div class="v5-atmosphere" aria-hidden="true"></div>
   <div class="v4-scan" aria-hidden="true"></div>
 
-  <div class="v4-market-ticker">
-    <div><b>◈</b><span>XAUUSD</span><strong>2354.80</strong><i>+0.42%</i></div>
-    <div><b>€</b><span>EURUSD</span><strong>1.0876</strong><i>+0.31%</i></div>
-    <div><b>£</b><span>GBPUSD</span><strong>1.2654</strong><i>+0.28%</i></div>
-    <div><b>₿</b><span>BTCUSD</span><strong>68324.12</strong><i>+2.14%</i></div>
-    <div><b>Ξ</b><span>ETHUSD</span><strong>3541.26</strong><i>+1.36%</i></div>
-    <div><b>$</b><span>DXY</span><strong>104.28</strong><i>+0.18%</i></div>
-  </div>
+  <section class="v4-market-ticker" aria-label="Indicative market ticker">
+    <div class="tradingview-widget-container" style="width:100%;min-height:46px">
+      <div class="tradingview-widget-container__widget"></div>
+      <div class="tradingview-widget-copyright" style="font-size:10px;color:#98a39e;padding:4px 10px">
+        Indicative third-party quotes · may be delayed · not exchange-grade data.
+        <a href="https://www.tradingview.com/" rel="noopener noreferrer" target="_blank" style="color:inherit">TradingView</a>
+      </div>
+    </div>
+    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+    {
+      "symbols": [
+        {"proName":"OANDA:XAUUSD","title":"Gold"},
+        {"proName":"FX:EURUSD","title":"EUR/USD"},
+        {"proName":"FX:GBPUSD","title":"GBP/USD"},
+        {"proName":"BINANCE:BTCUSDT","title":"Bitcoin"},
+        {"proName":"BINANCE:ETHUSDT","title":"Ethereum"},
+        {"proName":"TVC:DXY","title":"US Dollar Index"}
+      ],
+      "showSymbolLogo": true,
+      "isTransparent": true,
+      "displayMode": "adaptive",
+      "colorTheme": "dark",
+      "locale": "en"
+    }
+    </script>
+  </section>
 
   <div class="v5-bull-stage bx-hero-bull" aria-hidden="true">
     <div class="v5-bull-glow"></div>
