@@ -132,7 +132,13 @@ create policy "Students can view their own certificate"
 on public.certificates for select to authenticated
 using ((select auth.uid()) = user_id or public.is_admin());
 
-grant select, update on public.profiles to authenticated;
+grant select on public.profiles to authenticated;
+
+-- Students may edit only their display name. They must never be able to change
+-- role/is_admin and escalate privileges through a self-profile update.
+revoke update on public.profiles from anon, authenticated;
+revoke update (id, role, is_admin) on public.profiles from anon, authenticated;
+grant update (full_name) on public.profiles to authenticated;
 grant select, update on public.course_access to authenticated;
 grant select, insert, update on public.lesson_progress to authenticated;
 grant select, insert on public.quiz_attempts to authenticated;
