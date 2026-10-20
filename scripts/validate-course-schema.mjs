@@ -21,7 +21,9 @@ const authSql = read("supabase/auth-foundation.sql");
 
 for (let lesson = 1; lesson <= 11; lesson += 1) {
   const page = read("lesson-" + lesson + ".html");
-  check(page.includes("lesson_number:" + lesson), "Lesson " + lesson + " must persist its lesson number");
+  const usesNumberLiteral = page.includes("lesson_number:" + lesson);
+  const usesPageConstant = page.includes("lesson_number:lesson") && page.includes(",lesson=" + lesson + ";");
+  check(usesNumberLiteral || usesPageConstant, "Lesson " + lesson + " must persist its own lesson number");
   check(page.includes("quiz_attempts"), "Lesson " + lesson + " must record quiz attempts");
   check(page.includes("lesson_progress"), "Lesson " + lesson + " must persist progress");
   check(page.includes("onConflict:"), "Lesson " + lesson + " must use a progress upsert conflict key");
