@@ -5,9 +5,45 @@
 </style></head><body>
 <header class="top"><a class="brand" href="index.html">◎ BULLSEYE <b>THEORY</b></a><nav aria-label="Primary"><a href="index.html">Home</a><a href="dashboard.html">Course</a><a href="#scenarios">Scenario Lab</a><a href="#risk">Risk Lab</a><a href="#journal">Journal</a><a href="membership.html">Membership</a></nav><span class="pill">EDUCATION MODE</span></header>
 <main class="wrap">
-<section class="hero"><div><div class="eyebrow">BULLSEYE / MARKET LAB</div><h1>Read the structure.<br><em>Respect the risk.</em></h1><p>A practical workspace for conditional market scenarios, position-sizing practice and disciplined trade reviews. Think in scenarios—not certainty.</p></div><div class="asof"><small>CONTENT REVIEW DATE</small><strong id="reviewDate">16 OCT 2026 · DEMO PACK</strong><small>Market data: simulated · not live</small></div></section>
-<div class="alert" role="note"><strong>DEMO / EDUCATIONAL ONLY</strong> All values and instruments shown are fictional examples. Scenario cards describe what could happen if conditions occur; they are not forecasts, buy/sell calls, personalised investment advice or live market information.</div>
+<section class="hero"><div><div class="eyebrow">BULLSEYE / MARKET LAB</div><h1>Read the structure.<br><em>Respect the risk.</em></h1><p>A practical workspace for conditional market scenarios, position-sizing practice and disciplined trade reviews. Think in scenarios—not certainty.</p></div><div class="asof"><small>CONTENT REVIEW DATE</small><strong id="reviewDate">16 OCT 2026 · DEMO PACK</strong><small>Quotes: provider-supplied · delay may vary</small></div></section>
+<div class="alert" role="note"><strong>EDUCATIONAL / RISK NOTICE</strong> The Scenario Lab and sample watchlist are illustrative. The live quote strip is supplied by TradingView; availability and delay depend on provider/exchange entitlements. Bullseye factory observations below are shown only after Telegram approval and only while fresh. Nothing on this page is a forecast or a recommendation to buy, sell, or hold.</div>
 <section class="stats"><div class="stat"><small>WORKSPACE MODE</small><strong>Paper / Demo</strong><span>No broker connection</span></div><div class="stat"><small>RISK PLANNING</small><strong>Pre-trade</strong><span>Calculate before committing</span></div><div class="stat"><small>SCENARIO METHOD</small><strong>3 paths</strong><span>Bull · Base · Bear</span></div><div class="stat"><small>UPDATE POLICY</small><strong>2× / week</strong><span>Review required, not auto-live</span></div></section>
+
+<section id="live-market" class="section">
+  <div class="sectionhead"><div><div class="eyebrow">01 / PROVIDER QUOTES</div><h2>Live Market Tape</h2></div><p>Separate from Bullseye scenario generation</p></div>
+  <div class="panel" style="padding:0;overflow:hidden">
+    <div class="tradingview-widget-container" style="width:100%;min-height:72px">
+      <div class="tradingview-widget-container__widget"></div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+      {
+        "symbols": [
+          {"proName":"NSE:NIFTY","title":"NIFTY 50"},
+          {"proName":"NSE:BANKNIFTY","title":"BANK NIFTY"},
+          {"proName":"NSE:RELIANCE","title":"RELIANCE"},
+          {"proName":"OANDA:EURUSD","title":"EUR/USD"},
+          {"proName":"FX_IDC:USDINR","title":"USD/INR"},
+          {"proName":"COMEX:GC1!","title":"Gold Futures"},
+          {"proName":"BINANCE:BTCUSDT","title":"BTC/USDT"},
+          {"proName":"COINBASE:ETHUSD","title":"ETH/USD"}
+        ],
+        "showSymbolLogo": true,
+        "isTransparent": true,
+        "displayMode": "adaptive",
+        "colorTheme": "dark",
+        "locale": "en"
+      }
+      </script>
+    </div>
+  </div>
+  <p class="muted">Provider data can be delayed or unavailable for some instruments. Verify the timestamp and venue on the provider before relying on a quote.</p>
+</section>
+<section id="factory-feed" class="section">
+  <div class="sectionhead"><div><div class="eyebrow">02 / APPROVED FACTORY FEED</div><h2>Market Structure Reviews</h2></div><p>Approved + fresh only · no entry/target levels</p></div>
+  <p class="muted">This section reads the public factory state. Pending approvals, rejected drafts, expired items, and stale observations are intentionally hidden.</p>
+  <div id="factoryFeedStatus" class="empty" role="status" aria-live="polite">Checking for fresh, approved observations…</div>
+  <div class="cards" id="factoryFeedCards"></div>
+</section>
+
 <section id="scenarios" class="section"><div class="sectionhead"><div><div class="eyebrow">01 / CONDITIONAL OUTLOOK</div><h2>Scenario Lab</h2></div><p>Educational examples · no price targets</p></div><div class="cards" id="scenarioCards">
 <article class="scenario" style="--accent:#a8ff61"><span class="tag">BULLISH CONDITION</span><h3>Continuation after strength</h3><p>Study case: price holds above a previously observed swing area and participation expands. This is a condition to observe, not a prediction.</p><dl><div><dt>WHAT TO OBSERVE</dt><dd>Higher-high / higher-low structure and whether a breakout holds on a retest.</dd></div><div><dt>INVALIDATION IDEA</dt><dd>Price falls back into the prior range or the higher-low structure fails.</dd></div><div><dt>LEARNING QUESTION</dt><dd>Was the move confirmed, or did you react to one candle?</dd></div></dl></article>
 <article class="scenario" style="--accent:#e4b957"><span class="tag">RANGE / BASE CASE</span><h3>Two-sided consolidation</h3><p>Study case: price rotates inside a range without sustained acceptance beyond either boundary. Avoid forcing a directional story without evidence.</p><dl><div><dt>WHAT TO OBSERVE</dt><dd>Repeated reactions near range edges and weaker follow-through in the middle.</dd></div><div><dt>INVALIDATION IDEA</dt><dd>A confirmed expansion and sustained close outside the range.</dd></div><div><dt>LEARNING QUESTION</dt><dd>Is there a clear setup, or is patience the better lesson?</dd></div></dl></article>
@@ -27,6 +63,45 @@ if(Array.isArray(pack.scenarios)&&pack.scenarios.length){var wrap=$("scenarioCar
 if(Array.isArray(pack.sampleInstruments)&&pack.sampleInstruments.length){var rows=$("instrumentRows");rows.replaceChildren();pack.sampleInstruments.forEach(function(i){var tr=document.createElement("tr");var td1=document.createElement("td");td1.textContent=i.symbol;var small=document.createElement("small");small.textContent="Educational example";td1.append(small);var td2=document.createElement("td");td2.textContent=fmt(i.sampleValue);var td3=document.createElement("td");td3.textContent="Structure / context study";var td4=document.createElement("td");var badge=document.createElement("span");badge.className="sample";badge.textContent="SIMULATED";td4.append(badge);tr.append(td1,td2,td3,td4);rows.append(tr)})}
 }catch(e){console.warn("Market brief pack could not load; keeping built-in demo examples.",e)}}
 loadBriefs();
+async function loadFactoryFeed(){
+  var status=$("factoryFeedStatus"),wrap=$("factoryFeedCards");
+  if(!status||!wrap)return;
+  try{
+    var response=await fetch("https://raw.githubusercontent.com/foryourtravel17-alt/ai-trending-content-factory/main/data/state.json",{cache:"no-store"});
+    if(!response.ok)throw new Error("Factory state request failed");
+    var pack=await response.json();
+    var now=Date.now();
+    var records=Object.values(pack.signals||{}).filter(function(record){
+      var stamp=Date.parse(record&&record.signal&&record.signal.as_of||"");
+      var age=(now-stamp)/3600000;
+      var approved=record&&record.approval_status==="approved";
+      var blocked=["pending_approval","rejected","expired","publish_failed"].includes(record&&record.status);
+      return approved&&!blocked&&Number.isFinite(stamp)&&age>=-1&&age<=8;
+    }).sort(function(a,b){
+      return Date.parse(b.signal.as_of)-Date.parse(a.signal.as_of);
+    }).slice(0,6);
+    wrap.replaceChildren();
+    if(!records.length){
+      status.textContent="No fresh, approved factory observations are available yet. Pending drafts remain private until reviewed.";
+      return;
+    }
+    status.textContent="Showing "+records.length+" fresh observation"+(records.length===1?"":"s")+" that have passed Telegram approval.";
+    records.forEach(function(record){
+      var signal=record.signal||{},analysis=record.analyst||{};
+      var article=document.createElement("article");article.className="scenario";article.style.setProperty("--accent","#a8ff61");
+      var tag=document.createElement("span");tag.className="tag";tag.textContent="APPROVED STRUCTURE REVIEW";
+      var title=document.createElement("h3");title.textContent=(signal.label||signal.symbol||"Market")+" · Structure review";
+      var p=document.createElement("p");p.textContent=analysis.view||"An approved rule-based observation. Reassess the conditions as the market changes.";
+      var detail=document.createElement("p");detail.className="muted";detail.textContent="Observed at "+new Date(signal.as_of).toLocaleString()+" · "+(signal.symbol||"Instrument");
+      var caveat=document.createElement("p");caveat.className="muted";caveat.textContent=analysis.caveat||"Educational context only; conditions can change and the scenario can fail.";
+      article.append(tag,title,p,detail,caveat);wrap.append(article);
+    });
+  }catch(error){
+    wrap.replaceChildren();
+    status.textContent="Factory observations are temporarily unavailable. The educational scenario examples below remain available.";
+  }
+}
+loadFactoryFeed();
 function calc(){var c=Number($("capital").value),p=Number($("riskPct").value),e=Number($("entry").value),s=Number($("stop").value);if(![c,p,e,s].every(Number.isFinite)||c<=0||p<=0||p>100||e<=0||s<=0||e===s){$("shares").textContent="Check inputs";$("riskResult").textContent="Use positive values; risk must be above 0 and no more than 100%.";return}var budget=c*p/100,perUnit=Math.abs(e-s),units=Math.floor(budget/perUnit);$("shares").textContent=fmt(units)+" units";$("riskResult").textContent="Planned price risk ₹"+fmt(units*perUnit)+" of ₹"+fmt(budget)+" budget; excludes fees, slippage, gaps and liquidity."}$("calculate").addEventListener("click",calc);["capital","riskPct","entry","stop"].forEach(function(id){$(id).addEventListener("input",calc)});calc();
 var key="bullseye_market_lab_journal_v1";function load(){try{var v=JSON.parse(localStorage.getItem(key)||"[]");return Array.isArray(v)?v.filter(function(x){return x&&typeof x.symbol==="string"&&typeof x.notes==="string"}).slice(0,100):[]}catch(e){return []}}function save(items){try{localStorage.setItem(key,JSON.stringify(items.slice(0,100)));return true}catch(e){return false}}function render(){var list=$("journalList"),items=load();list.replaceChildren();if(!items.length){var empty=document.createElement("div");empty.className="empty";empty.textContent="No entries yet. Add your first practice review.";list.append(empty);return}items.forEach(function(item,index){var card=document.createElement("article");card.className="entry";var title=document.createElement("strong");title.textContent=item.symbol+" · "+item.setup;var date=document.createElement("p");date.textContent=item.date;var note=document.createElement("p");note.textContent=item.notes;var del=document.createElement("button");del.className="btn secondary";del.type="button";del.textContent="DELETE ENTRY";del.addEventListener("click",function(){var next=load();next.splice(index,1);save(next);render()});card.append(title,date,note,del);list.append(card)})}$("journalForm").addEventListener("submit",function(e){e.preventDefault();var items=load();items.unshift({symbol:$("symbol").value.trim(),setup:$("setup").value,notes:$("notes").value.trim(),date:new Date().toLocaleString()});if(!save(items)){alert("Browser storage unavailable. Try another browser.");return}$("journalForm").reset();render()});$("clearJournal").addEventListener("click",function(){if(confirm("Clear all local demo journal entries from this browser?")){localStorage.removeItem(key);render()}});render()})();
 </script></body></html>
