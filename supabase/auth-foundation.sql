@@ -69,5 +69,10 @@ execute function public.handle_new_student();
 revoke all on table public.profiles from anon;
 revoke all on table public.course_access from anon;
 
-grant select, update on table public.profiles to authenticated;
+-- Students may edit only their display name; they cannot elevate themselves
+-- by modifying role or is_admin. Keep this in sync with admin-production.sql.
+grant select on table public.profiles to authenticated;
+revoke update on table public.profiles from anon, authenticated;
+revoke update (id, role, is_admin) on table public.profiles from anon, authenticated;
+grant update (full_name) on table public.profiles to authenticated;
 grant select on table public.course_access to authenticated;
