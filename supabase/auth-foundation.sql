@@ -5,6 +5,7 @@
 -- This script does not drop your tables or delete student data.
 
 -- 1) Protect student-owned rows.
+alter table public.profiles add column if not exists is_admin boolean not null default false;
 alter table public.profiles enable row level security;
 alter table public.course_access enable row level security;
 
