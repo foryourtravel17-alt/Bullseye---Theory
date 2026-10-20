@@ -165,8 +165,18 @@ alter table public.reels_queue enable row level security;
 revoke all on table public.lessons, public.quizzes, public.quiz_questions, public.reels_queue
   from anon, authenticated;
 revoke all on table public.profiles, public.course_access, public.lesson_progress,
-  public.quiz_attempts, public.certificates, public.practical_submissions,
-  public.trading_journal from anon;
+  public.quiz_attempts, public.certificates from anon;
+
+do $optional_tables$
+begin
+  if pg_catalog.to_regclass('public.practical_submissions') is not null then
+    execute 'revoke all on table public.practical_submissions from anon';
+  end if;
+  if pg_catalog.to_regclass('public.trading_journal') is not null then
+    execute 'revoke all on table public.trading_journal from anon';
+  end if;
+end;
+$optional_tables$;
 
 -- Remove older duplicate policies that were found on the live schema. Keep the
 -- canonical policies created above, which apply the same ownership checks.
