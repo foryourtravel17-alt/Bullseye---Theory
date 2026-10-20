@@ -67,33 +67,30 @@ async function loadFactoryFeed(){
   var status=$("factoryFeedStatus"),wrap=$("factoryFeedCards");
   if(!status||!wrap)return;
   try{
-    var response=await fetch("https://raw.githubusercontent.com/foryourtravel17-alt/ai-trending-content-factory/main/data/state.json",{cache:"no-store"});
-    if(!response.ok)throw new Error("Factory state request failed");
+    var response=await fetch("https://raw.githubusercontent.com/foryourtravel17-alt/ai-trending-content-factory/main/data/approved_market_feed.json",{cache:"no-store"});
+    if(!response.ok)throw new Error("Sanitized approved feed request failed");
     var pack=await response.json();
     var now=Date.now();
-    var records=Object.values(pack.signals||{}).filter(function(record){
-      var stamp=Date.parse(record&&record.signal&&record.signal.as_of||"");
+    var records=(Array.isArray(pack.records)?pack.records:[]).filter(function(record){
+      var stamp=Date.parse(record&&record.as_of||"");
       var age=(now-stamp)/3600000;
-      var approved=record&&record.approval_status==="approved";
-      var blocked=["pending_approval","rejected","expired","publish_failed"].includes(record&&record.status);
-      return approved&&!blocked&&Number.isFinite(stamp)&&age>=-1&&age<=8;
+      return record&&record.approvalStatus==="approved"&&Number.isFinite(stamp)&&age>=-1&&age<=8;
     }).sort(function(a,b){
-      return Date.parse(b.signal.as_of)-Date.parse(a.signal.as_of);
+      return Date.parse(b.as_of)-Date.parse(a.as_of);
     }).slice(0,6);
     wrap.replaceChildren();
     if(!records.length){
-      status.textContent="No fresh, approved factory observations are available yet. Pending drafts remain private until reviewed.";
+      status.textContent="No fresh, approved factory observations are available yet. Pending drafts are not included in this public feed.";
       return;
     }
     status.textContent="Showing "+records.length+" fresh observation"+(records.length===1?"":"s")+" that have passed Telegram approval.";
     records.forEach(function(record){
-      var signal=record.signal||{},analysis=record.analyst||{};
       var article=document.createElement("article");article.className="scenario";article.style.setProperty("--accent","#a8ff61");
       var tag=document.createElement("span");tag.className="tag";tag.textContent="APPROVED STRUCTURE REVIEW";
-      var title=document.createElement("h3");title.textContent=(signal.label||signal.symbol||"Market")+" · Structure review";
-      var p=document.createElement("p");p.textContent=analysis.view||"An approved rule-based observation. Reassess the conditions as the market changes.";
-      var detail=document.createElement("p");detail.className="muted";detail.textContent="Observed at "+new Date(signal.as_of).toLocaleString()+" · "+(signal.symbol||"Instrument");
-      var caveat=document.createElement("p");caveat.className="muted";caveat.textContent=analysis.caveat||"Educational context only; conditions can change and the scenario can fail.";
+      var title=document.createElement("h3");title.textContent=(record.label||record.symbol||"Market")+" · "+(record.direction||"RULE-BASED")+" structure review";
+      var p=document.createElement("p");p.textContent=record.view||"An approved rule-based observation. Reassess the conditions as the market changes.";
+      var detail=document.createElement("p");detail.className="muted";detail.textContent="Observed at "+new Date(record.as_of).toLocaleString()+" · "+(record.symbol||"Instrument");
+      var caveat=document.createElement("p");caveat.className="muted";caveat.textContent=record.caveat||"Educational context only; conditions can change and the scenario can fail.";
       article.append(tag,title,p,detail,caveat);wrap.append(article);
     });
   }catch(error){
