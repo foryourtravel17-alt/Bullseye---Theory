@@ -61,10 +61,12 @@ alter table public.lesson_progress add column if not exists updated_at timestamp
 -- The live course tables use normalized lesson_id / quiz_id foreign keys, while
 -- the current lesson pages still submit lesson_number. Keep both safely in sync.
 alter table public.lesson_progress add column if not exists lesson_number integer;
+alter table public.lesson_progress add column if not exists lesson_id bigint references public.lessons(id);
 alter table public.quiz_attempts add column if not exists score integer not null default 0;
 alter table public.quiz_attempts add column if not exists passed boolean not null default false;
 alter table public.quiz_attempts add column if not exists attempted_at timestamptz not null default now();
 alter table public.quiz_attempts add column if not exists lesson_number integer;
+alter table public.quiz_attempts add column if not exists quiz_id bigint references public.quizzes(id);
 alter table public.certificates add column if not exists student_name text not null default '';
 alter table public.certificates add column if not exists certificate_id text;
 alter table public.certificates add column if not exists issued_at timestamptz not null default now();
@@ -75,9 +77,9 @@ language sql
 stable
 security definer
 set search_path = ''
-as $
+as $function$
   select coalesce((select is_admin from public.profiles where id = auth.uid()), false);
-$$;
+$function$;
 
 revoke all on function public.is_admin() from public;
 grant execute on function public.is_admin() to authenticated;
@@ -163,7 +165,8 @@ alter table public.reels_queue enable row level security;
 revoke all on table public.lessons, public.quizzes, public.quiz_questions, public.reels_queue
   from anon, authenticated;
 revoke all on table public.profiles, public.course_access, public.lesson_progress,
-  public.quiz_attempts, public.certificates from anon;
+  public.quiz_attempts, public.certificates, public.practical_submissions,
+  public.trading_journal from anon;
 
 -- Remove older duplicate policies that were found on the live schema. Keep the
 -- canonical policies created above, which apply the same ownership checks.
@@ -191,6 +194,17 @@ on conflict (lesson_id) do nothing;
 
 -- Backfill the compatibility key before making it mandatory.
 update public.lesson_progress lp
+set lesson_id = l.id
+from public.lessons l
+where lp.lesson_number = l.lesson_number and lp.lesson_id is null;
+
+update public.quiz_attempts qa
+set quiz_id = q.id
+from public.lessons l
+join public.quizzes q on q.lesson_id = l.id
+where qa.lesson_number = l.lesson_number and qa.quiz_id is null;
+
+update public.lesson_progress lp
 set lesson_number = l.lesson_number
 from public.lessons l
 where lp.lesson_id = l.id and lp.lesson_number is null;
@@ -201,7 +215,9 @@ from public.quizzes q
 join public.lessons l on l.id = q.lesson_id
 where qa.quiz_id = q.id and qa.lesson_number is null;
 
+alter table public.lesson_progress alter column lesson_id set not null;
 alter table public.lesson_progress alter column lesson_number set not null;
+alter table public.quiz_attempts alter column quiz_id set not null;
 alter table public.quiz_attempts alter column lesson_number set not null;
 
 -- Supabase upsert(onConflict: "user_id,lesson_number") needs a matching unique
@@ -214,7 +230,7 @@ returns trigger
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $function$
 declare
   resolved_id bigint;
   resolved_number integer;
@@ -242,14 +258,14 @@ begin
   end if;
   return new;
 end;
-$;
+$function$;
 
 create or replace function public.sync_quiz_attempt_legacy_number()
 returns trigger
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $function$
 declare
   resolved_quiz_id bigint;
   resolved_number integer;
@@ -283,7 +299,7 @@ begin
   end if;
   return new;
 end;
-$;
+$function$;
 
 revoke all on function public.sync_lesson_progress_legacy_number() from public, anon, authenticated;
 revoke all on function public.sync_quiz_attempt_legacy_number() from public, anon, authenticated;
@@ -318,7 +334,7 @@ returns text
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $function$
 declare
   cert_id text;
   student text;
@@ -363,7 +379,7 @@ begin
 
   return cert_id;
 end;
-$$;
+$function$;
 
 revoke all on function public.issue_certificate(uuid) from public;
 grant execute on function public.issue_certificate(uuid) to authenticated;
