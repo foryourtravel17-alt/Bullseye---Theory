@@ -53,9 +53,13 @@ alter table public.lesson_progress add column if not exists quiz_passed boolean 
 alter table public.lesson_progress add column if not exists progress_percent integer not null default 0;
 alter table public.lesson_progress add column if not exists completed_at timestamptz;
 alter table public.lesson_progress add column if not exists updated_at timestamptz not null default now();
+-- The live course tables use normalized lesson_id / quiz_id foreign keys, while
+-- the current lesson pages still submit lesson_number. Keep both safely in sync.
+alter table public.lesson_progress add column if not exists lesson_number integer;
 alter table public.quiz_attempts add column if not exists score integer not null default 0;
 alter table public.quiz_attempts add column if not exists passed boolean not null default false;
 alter table public.quiz_attempts add column if not exists attempted_at timestamptz not null default now();
+alter table public.quiz_attempts add column if not exists lesson_number integer;
 alter table public.certificates add column if not exists student_name text not null default '';
 alter table public.certificates add column if not exists certificate_id text;
 alter table public.certificates add column if not exists issued_at timestamptz not null default now();
@@ -65,8 +69,8 @@ returns boolean
 language sql
 stable
 security definer
-set search_path = public
-as $$
+set search_path = ''
+as $
   select coalesce((select is_admin from public.profiles where id = auth.uid()), false);
 $$;
 
@@ -144,14 +148,170 @@ grant select, insert, update on public.lesson_progress to authenticated;
 grant select, insert on public.quiz_attempts to authenticated;
 grant select on public.certificates to authenticated;
 
+-- These tables are only used by trusted database triggers in the current site.
+-- Remove browser-role access; SECURITY DEFINER trigger helpers below use fixed
+-- search_path and are explicitly not executable as RPC functions.
+alter table public.lessons enable row level security;
+alter table public.quizzes enable row level security;
+alter table public.quiz_questions enable row level security;
+alter table public.reels_queue enable row level security;
+revoke all on table public.lessons, public.quizzes, public.quiz_questions, public.reels_queue
+  from anon, authenticated;
+revoke all on table public.profiles, public.course_access, public.lesson_progress,
+  public.quiz_attempts, public.certificates from anon;
+
+-- Remove older duplicate policies that were found on the live schema. Keep the
+-- canonical policies created above, which apply the same ownership checks.
+drop policy if exists "Students can create their own lesson progress" on public.lesson_progress;
+drop policy if exists "Students can insert own lesson progress" on public.lesson_progress;
+drop policy if exists "Students can update own lesson progress" on public.lesson_progress;
+drop policy if exists "Students can update their own lesson progress" on public.lesson_progress;
+drop policy if exists "Students can view own lesson progress" on public.lesson_progress;
+drop policy if exists "Students can view their own lesson progress" on public.lesson_progress;
+drop policy if exists "Students can create their own quiz attempts" on public.quiz_attempts;
+
+-- A missing Lesson 11 and quiz records were confirmed in the live catalog.
+-- Preserve existing titles/content; create only missing rows.
+insert into public.lessons (lesson_number, title, description, is_published)
+values (11, 'Complete Course Revision',
+        'Integrate market structure, trend reading, support and resistance, risk management, psychology, and disciplined review into one repeatable educational process.',
+        true)
+on conflict (lesson_number) do nothing;
+
+insert into public.quizzes (lesson_id, title, passing_score, is_required)
+select l.id, 'Lesson ' || l.lesson_number || ' Quiz', 80, true
+from public.lessons l
+where l.lesson_number between 1 and 11
+on conflict (lesson_id) do nothing;
+
+-- Backfill the compatibility key before making it mandatory.
+update public.lesson_progress lp
+set lesson_number = l.lesson_number
+from public.lessons l
+where lp.lesson_id = l.id and lp.lesson_number is null;
+
+update public.quiz_attempts qa
+set lesson_number = l.lesson_number
+from public.quizzes q
+join public.lessons l on l.id = q.lesson_id
+where qa.quiz_id = q.id and qa.lesson_number is null;
+
+alter table public.lesson_progress alter column lesson_number set not null;
+alter table public.quiz_attempts alter column lesson_number set not null;
+
+-- Supabase upsert(onConflict: "user_id,lesson_number") needs a matching unique
+-- index even though the normalized table keeps its original (user_id,lesson_id) PK.
+create unique index if not exists lesson_progress_user_lesson_number_uidx
+  on public.lesson_progress(user_id, lesson_number);
+
+create or replace function public.sync_lesson_progress_legacy_number()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $
+declare
+  resolved_id bigint;
+  resolved_number integer;
+begin
+  if new.lesson_number is not null and new.lesson_id is null then
+    select l.id into resolved_id
+    from public.lessons l
+    where l.lesson_number = new.lesson_number and l.is_published = true;
+    new.lesson_id := resolved_id;
+  elsif new.lesson_id is not null and new.lesson_number is null then
+    select l.lesson_number into resolved_number
+    from public.lessons l
+    where l.id = new.lesson_id;
+    new.lesson_number := resolved_number;
+  elsif new.lesson_id is not null and new.lesson_number is not null then
+    if not exists (
+      select 1 from public.lessons l
+      where l.id = new.lesson_id and l.lesson_number = new.lesson_number
+    ) then
+      raise exception 'lesson_id and lesson_number do not match';
+    end if;
+  end if;
+  if new.lesson_id is null or new.lesson_number is null then
+    raise exception 'A valid lesson_number or lesson_id is required';
+  end if;
+  return new;
+end;
+$;
+
+create or replace function public.sync_quiz_attempt_legacy_number()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $
+declare
+  resolved_quiz_id bigint;
+  resolved_number integer;
+begin
+  if new.lesson_number is not null and new.quiz_id is null then
+    select q.id into resolved_quiz_id
+    from public.lessons l
+    join public.quizzes q on q.lesson_id = l.id
+    where l.lesson_number = new.lesson_number
+    order by q.id
+    limit 1;
+    new.quiz_id := resolved_quiz_id;
+  elsif new.quiz_id is not null and new.lesson_number is null then
+    select l.lesson_number into resolved_number
+    from public.quizzes q
+    join public.lessons l on l.id = q.lesson_id
+    where q.id = new.quiz_id;
+    new.lesson_number := resolved_number;
+  elsif new.quiz_id is not null and new.lesson_number is not null then
+    if not exists (
+      select 1
+      from public.quizzes q
+      join public.lessons l on l.id = q.lesson_id
+      where q.id = new.quiz_id and l.lesson_number = new.lesson_number
+    ) then
+      raise exception 'quiz_id and lesson_number do not match';
+    end if;
+  end if;
+  if new.quiz_id is null or new.lesson_number is null then
+    raise exception 'A valid lesson_number or quiz_id is required';
+  end if;
+  return new;
+end;
+$;
+
+revoke all on function public.sync_lesson_progress_legacy_number() from public, anon, authenticated;
+revoke all on function public.sync_quiz_attempt_legacy_number() from public, anon, authenticated;
+
+drop trigger if exists sync_lesson_progress_legacy_number on public.lesson_progress;
+create trigger sync_lesson_progress_legacy_number
+before insert or update of lesson_id, lesson_number on public.lesson_progress
+for each row execute function public.sync_lesson_progress_legacy_number();
+
+drop trigger if exists sync_quiz_attempt_legacy_number on public.quiz_attempts;
+create trigger sync_quiz_attempt_legacy_number
+before insert or update of quiz_id, lesson_number on public.quiz_attempts
+for each row execute function public.sync_quiz_attempt_legacy_number();
+
+-- Remove default PUBLIC execution from internal trigger functions. Existing
+-- triggers/event triggers continue to call them without exposing them as RPCs.
+revoke all on function public.handle_new_student() from public, anon, authenticated;
+do $
+begin
+  if to_regprocedure('public.rls_auto_enable()') is not null then
+    execute 'revoke all on function public.rls_auto_enable() from public, anon, authenticated';
+  end if;
+end;
+$;
+
 -- Secure certificate issuance: only an admin can issue, and only after
 -- active access plus all 11 lessons have passed their required quiz/completion state.
 create or replace function public.issue_certificate(target_user uuid)
 returns text
 language plpgsql
 security definer
-set search_path = public
-as $$
+set search_path = ''
+as $
 declare
   cert_id text;
   student text;
@@ -170,16 +330,23 @@ begin
     raise exception 'Course access is not active';
   end if;
 
-  if (select count(*) from public.lesson_progress
-      where user_id = target_user and lesson_number between 1 and 11
-        and completed = true and quiz_passed = true) < 11 then
+  if (
+    select count(distinct l.lesson_number)
+    from public.lesson_progress lp
+    join public.lessons l on l.lesson_number = lp.lesson_number
+    where lp.user_id = target_user
+      and l.lesson_number between 1 and 11
+      and l.is_published = true
+      and lp.completed = true
+      and lp.quiz_passed = true
+  ) < 11 then
     raise exception 'All 11 lessons and quizzes must be completed';
   end if;
 
   select coalesce(nullif(full_name,''), 'Student') into student
   from public.profiles where id = target_user;
 
-  cert_id := 'BT-' || upper(substr(replace(gen_random_uuid()::text,'-',''),1,12));
+  cert_id := 'BT-' || upper(substr(replace(pg_catalog.gen_random_uuid()::text,'-',''),1,12));
 
   insert into public.certificates(user_id, student_name, certificate_id)
   values(target_user, student, cert_id)
