@@ -6,7 +6,8 @@
   "scripts": {
     "validate:market": "node scripts/validate-market-briefs.mjs",
     "validate:site": "node scripts/validate-site-links.mjs",
-    "build": "npm run validate:market && npm run validate:site",
+    "validate:course": "node scripts/validate-course-schema.mjs",
+    "build": "npm run validate:market && npm run validate:site && npm run validate:course",
     "test": "npm run build"
   },
   "engines": {
