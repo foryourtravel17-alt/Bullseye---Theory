@@ -48,13 +48,13 @@ if (existsSync(terminalPath)) {
   if (!terminal.includes("approved_market_feed.json")) {
     errors.push("terminal.html must use the sanitized approved_market_feed.json endpoint");
   }
-  if (/data\\/state\\.json/i.test(terminal)) {
+  if (/data\/state\.json/i.test(terminal)) {
     errors.push("terminal.html must never read raw data/state.json");
   }
-  if (!/approvalStatus\\s*===\\s*["']approved["']/.test(terminal)) {
+  if (!/approvalStatus\s*===\s*["']approved["']/.test(terminal)) {
     errors.push("terminal.html must render only explicitly approved factory records");
   }
-  if (!/age\\s*<=\\s*8/.test(terminal)) {
+  if (!/age\s*<=\s*8/.test(terminal)) {
     errors.push("terminal.html must hide factory observations older than eight hours");
   }
 }
