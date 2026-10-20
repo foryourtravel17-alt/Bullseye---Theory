@@ -41,7 +41,7 @@ returns trigger
 language plpgsql
 security definer
 set search_path = ''
-as $$
+as $
 begin
   insert into public.profiles (id, full_name, role)
   values (
@@ -65,6 +65,9 @@ create trigger on_auth_user_created
 after insert on auth.users
 for each row
 execute function public.handle_new_student();
+
+-- This function is trigger-only; it must not be exposed as a callable RPC.
+revoke all on function public.handle_new_student() from public, anon, authenticated;
 
 -- 4) Give the signed-in browser only the permissions it needs.
 revoke all on table public.profiles from anon;
