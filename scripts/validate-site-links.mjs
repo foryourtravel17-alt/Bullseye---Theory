@@ -41,9 +41,27 @@ for (const page of pages) {
   }
 }
 
+// Guard the public Market Lab against accidentally reading internal factory state.
+const terminalPath = resolve(root, "terminal.html");
+if (existsSync(terminalPath)) {
+  const terminal = readFileSync(terminalPath, "utf8");
+  if (!terminal.includes("approved_market_feed.json")) {
+    errors.push("terminal.html must use the sanitized approved_market_feed.json endpoint");
+  }
+  if (/data\\/state\\.json/i.test(terminal)) {
+    errors.push("terminal.html must never read raw data/state.json");
+  }
+  if (!/approvalStatus\\s*===\\s*["']approved["']/.test(terminal)) {
+    errors.push("terminal.html must render only explicitly approved factory records");
+  }
+  if (!/age\\s*<=\\s*8/.test(terminal)) {
+    errors.push("terminal.html must hide factory observations older than eight hours");
+  }
+}
+
 if (errors.length) {
   console.error("Site validation failed:");
   for (const error of errors) console.error("- " + error);
   process.exit(1);
 }
-console.log("Site links OK: " + pages.length + " core pages and their local assets/references checked.");
+console.log("Site links and Market Lab feed safety OK: " + pages.length + " core pages and their local assets/references checked.");
