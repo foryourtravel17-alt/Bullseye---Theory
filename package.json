@@ -1,0 +1,15 @@
+{
+  "name": "bullseye-theory",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Bullseye Theory educational website and Market Lab",
+  "scripts": {
+    "validate:market": "node scripts/validate-market-briefs.mjs",
+    "validate:site": "node scripts/validate-site-links.mjs",
+    "build": "npm run validate:market && npm run validate:site",
+    "test": "npm run build"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -14,14 +14,37 @@ async function init(){
   ]);
   if(a.error){$("status").textContent="Could not load students: "+a.error.message;return}
   const names=new Map((pf.data||[]).map(x=>[x.id,x.full_name||"Student"]));
-  $("list").innerHTML=(a.data||[]).map(x=>{
-    const name=names.get(x.user_id)||"Student";
-    return '<div class="card"><h3>'+name+'</h3><p class="id">'+x.user_id+'</p><p>Active: <b>'+x.is_active+'</b> · Payment verified: <b>'+x.payment_verified+'</b></p><p>Expiry: '+(x.expires_at?new Date(x.expires_at).toLocaleString():"No expiry")+'</p><button onclick="activate(\''+x.user_id+'\')">ACTIVATE</button> <button onclick="deactivate(\''+x.user_id+'\')">DEACTIVATE</button> <button onclick="issueCertificate(\''+x.user_id+'\')">ISSUE CERTIFICATE</button></div>';
-  }).join("")||"<div class='card'>No student accounts yet.</div>";
+  const list=$("list");
+  list.replaceChildren();
+  const rows=a.data||[];
+  if(!rows.length){
+    const empty=document.createElement("div");empty.className="card";empty.textContent="No student accounts yet.";list.append(empty);return;
+  }
+  rows.forEach(function(x){
+    const userId=String(x.user_id||"");
+    const card=document.createElement("div");card.className="card";
+    const heading=document.createElement("h3");heading.textContent=names.get(userId)||"Student";
+    const id=document.createElement("p");id.className="id";id.textContent=userId;
+    const state=document.createElement("p");state.textContent="Active: "+Boolean(x.is_active)+" · Payment verified: "+Boolean(x.payment_verified);
+    const expiry=document.createElement("p");expiry.textContent="Expiry: "+(x.expires_at?new Date(x.expires_at).toLocaleString():"No expiry");
+    const actions=document.createElement("div");
+    function addButton(label,handler){
+      const button=document.createElement("button");button.type="button";button.textContent=label;
+      button.addEventListener("click",function(){handler(userId)});actions.append(button);
+    }
+    addButton("VERIFY PAYMENT + ACTIVATE",verifyPaymentAndActivate);
+    addButton("DEACTIVATE",deactivate);
+    addButton("ISSUE CERTIFICATE",issueCertificate);
+    card.append(heading,id,state,expiry,actions);list.append(card);
+  });
 }
-async function activate(id){
+async function verifyPaymentAndActivate(id){
+  const confirmed=confirm("Only continue after independently verifying this student's payment in your payment provider or account records. This will set payment_verified=true and activate course access. This page does not verify a transaction ID or receipt automatically. Continue?");
+  if(!confirmed)return;
   const {error}=await sb.from("course_access").update({is_active:true,payment_verified:true}).eq("user_id",id);
-  if(error){alert(error.message);return} location.reload();
+  if(error){alert("Could not update access: "+error.message);return}
+  alert("Course access marked active after your manual payment verification.");
+  location.reload();
 }
 async function deactivate(id){
   const {error}=await sb.from("course_access").update({is_active:false}).eq("user_id",id);
