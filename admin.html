@@ -32,16 +32,19 @@ async function init(){
       const button=document.createElement("button");button.type="button";button.textContent=label;
       button.addEventListener("click",function(){handler(userId)});actions.append(button);
     }
-    addButton("ACTIVATE",activate);
+    addButton("VERIFY PAYMENT + ACTIVATE",verifyPaymentAndActivate);
     addButton("DEACTIVATE",deactivate);
     addButton("ISSUE CERTIFICATE",issueCertificate);
     card.append(heading,id,state,expiry,actions);list.append(card);
   });
 }
-async function activate(id){
-  // Activation never marks payment as verified. Payment reconciliation remains a separate admin process.
-  const {error}=await sb.from("course_access").update({is_active:true}).eq("user_id",id);
-  if(error){alert(error.message);return} location.reload();
+async function verifyPaymentAndActivate(id){
+  const confirmed=confirm("Only continue after independently verifying this student's payment in your payment provider or account records. This will set payment_verified=true and activate course access. This page does not verify a transaction ID or receipt automatically. Continue?");
+  if(!confirmed)return;
+  const {error}=await sb.from("course_access").update({is_active:true,payment_verified:true}).eq("user_id",id);
+  if(error){alert("Could not update access: "+error.message);return}
+  alert("Course access marked active after your manual payment verification.");
+  location.reload();
 }
 async function deactivate(id){
   const {error}=await sb.from("course_access").update({is_active:false}).eq("user_id",id);
