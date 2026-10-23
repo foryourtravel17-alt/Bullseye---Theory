@@ -98,7 +98,7 @@ check(
   adminSql.includes("revoke all on function public.rls_auto_enable() from public, anon, authenticated"),
   "RLS event-trigger function must not be exposed as a callable RPC",
 );
-const normalizedAdminSql = adminSql.replace(/\\s+/g, " ").toLowerCase();
+const normalizedAdminSql = adminSql.replace(/\s+/g, " ").toLowerCase();
 check(
   normalizedAdminSql.includes(
     "revoke all on table public.profiles, public.course_access, public.lesson_progress, public.quiz_attempts, public.certificates from anon",
