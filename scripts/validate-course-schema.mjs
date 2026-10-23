@@ -99,9 +99,10 @@ check(
   "RLS event-trigger function must not be exposed as a callable RPC",
 );
 check(
-  adminSql.includes("public.practical_submissions,")
-    && adminSql.includes("public.trading_journal from anon"),
-  "SQL must revoke direct anon table grants on student-owned data",
+  /revoke all on table public\\.profiles, public\\.course_access, public\\.lesson_progress,\\s*public\\.quiz_attempts, public\\.certificates from anon/i.test(adminSql)
+    && /revoke all on table public\\.practical_submissions from anon/i.test(adminSql)
+    && /revoke all on table public\\.trading_journal from anon/i.test(adminSql),
+  "SQL must revoke direct anon table grants on core and optional student-owned data",
 );
 
 if (fail.length) {
