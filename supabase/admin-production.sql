@@ -88,7 +88,7 @@ drop policy if exists "Students can update their own profile" on public.profiles
 create policy "Students can update their own profile"
 on public.profiles for update to authenticated
 using ((select auth.uid()) = id or public.is_admin())
-with check ((select auth.uid()) = id or public.is_admin());
+with check (public.is_admin() or ((select auth.uid()) = id and is_admin = false and role = 'student'));
 
 drop policy if exists "Students can view their own course access" on public.course_access;
 create policy "Students can view their own course access"
@@ -132,14 +132,15 @@ create policy "Students can view their own certificate"
 on public.certificates for select to authenticated
 using ((select auth.uid()) = user_id or public.is_admin());
 
-grant select, update on public.profiles to authenticated;
+grant select on public.profiles to authenticated;
+grant update (full_name) on public.profiles to authenticated;
 grant select, update on public.course_access to authenticated;
 grant select, insert, update on public.lesson_progress to authenticated;
 grant select, insert on public.quiz_attempts to authenticated;
 grant select on public.certificates to authenticated;
 
 -- Secure certificate issuance: only an admin can issue, and only after
--- active access plus all 10 lessons have passed their required quiz/completion state.
+-- active access plus all 11 lessons have passed their required quiz/completion state.
 create or replace function public.issue_certificate(target_user uuid)
 returns text
 language plpgsql
@@ -165,9 +166,9 @@ begin
   end if;
 
   if (select count(*) from public.lesson_progress
-      where user_id = target_user and lesson_number between 1 and 10
+      where user_id = target_user and lesson_number between 1 and 11
         and completed = true and quiz_passed = true) < 10 then
-    raise exception 'All 10 lessons and quizzes must be completed';
+    raise exception 'All 11 lessons and quizzes must be completed';
   end if;
 
   select coalesce(nullif(full_name,''), 'Student') into student
