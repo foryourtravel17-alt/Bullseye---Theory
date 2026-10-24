@@ -49,14 +49,29 @@
   <div class="v5-atmosphere" aria-hidden="true"></div>
   <div class="v4-scan" aria-hidden="true"></div>
 
-  <div class="v4-market-ticker">
-    <div><b>◈</b><span>XAUUSD</span><strong>2354.80</strong><i>+0.42%</i></div>
-    <div><b>€</b><span>EURUSD</span><strong>1.0876</strong><i>+0.31%</i></div>
-    <div><b>£</b><span>GBPUSD</span><strong>1.2654</strong><i>+0.28%</i></div>
-    <div><b>₿</b><span>BTCUSD</span><strong>68324.12</strong><i>+2.14%</i></div>
-    <div><b>Ξ</b><span>ETHUSD</span><strong>3541.26</strong><i>+1.36%</i></div>
-    <div><b>$</b><span>DXY</span><strong>104.28</strong><i>+0.18%</i></div>
-  </div>
+  <section class="v4-market-ticker" aria-label="Live market quotes">
+    <div class="tradingview-widget-container" style="width:100%;overflow:hidden">
+      <div class="tradingview-widget-container__widget"></div>
+      <div class="tradingview-widget-copyright" style="font-size:10px;color:#91aaa1;padding:5px 12px">Market quotes by <a href="https://www.tradingview.com/markets/" target="_blank" rel="noopener noreferrer" style="color:#a8ff61">TradingView</a>. Quotes may be delayed; verify before making decisions.</div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+      {
+        "symbols": [
+          {"proName":"OANDA:XAUUSD","title":"Gold"},
+          {"proName":"FX:EURUSD","title":"EUR/USD"},
+          {"proName":"FX:GBPUSD","title":"GBP/USD"},
+          {"proName":"BITSTAMP:BTCUSD","title":"Bitcoin"},
+          {"proName":"COINBASE:ETHUSD","title":"Ethereum"},
+          {"proName":"TVC:DXY","title":"US Dollar Index"}
+        ],
+        "showSymbolLogo": true,
+        "isTransparent": true,
+        "displayMode": "adaptive",
+        "colorTheme": "dark",
+        "locale": "en"
+      }
+      </script>
+    </div>
+  </section>
 
   <div class="v5-bull-stage bx-hero-bull" aria-hidden="true">
     <div class="v5-bull-glow"></div>
@@ -111,8 +126,8 @@
 
   <div class="v5-reticle"><div></div><i></i><b></b></div>
 
-  <div class="v5-quote q1"><span>XAUUSD</span><b>2354.80</b><i>+0.42% ↗</i></div>
-  <div class="v5-quote q2"><span>BTCUSD</span><b>68324.12</b><i>+2.14% ↗</i></div>
+  <div class="v5-quote q1" aria-hidden="true"><span>MARKET DATA</span><b>LIVE FEED</b><i>TradingView ↗</i></div>
+  <div class="v5-quote q2" aria-hidden="true"><span>PRICE STATUS</span><b>EXTERNAL</b><i>Check timestamp ↗</i></div>
 
   <div class="v4-chart" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
 
