@@ -75,7 +75,7 @@ for rel in PAGES:
 membership = ROOT / "membership.html"
 if membership.is_file():
     text = membership.read_text(encoding="utf-8").lower()
-    for phrase in ("enrollment closed", "payments", "do not send money"):
+    for phrase in ("enrollment closed", "payment methods", "do not send money"):
         if phrase not in text:
             errors.append(f"membership.html: missing launch safety phrase: {phrase}")
 
