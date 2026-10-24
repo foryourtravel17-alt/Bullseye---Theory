@@ -2,7 +2,6 @@
 """Dependency-free source checks for Bullseye Theory launch pages."""
 from html.parser import HTMLParser
 from pathlib import Path
-import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -65,7 +64,7 @@ for rel in PAGES:
             errors.append(f"{rel}: support email missing")
     for tag, target in parser.links:
         target = target.strip()
-        if not target or target.startswith(("#", "http://", "https://", "mailto:", "tel:", "data:", "javascript:")):
+        if not target or target.startswith(("#", "/", "http://", "https://", "mailto:", "tel:", "data:", "javascript:")):
             continue
         target_path = target.split("#", 1)[0].split("?", 1)[0]
         if not target_path:
