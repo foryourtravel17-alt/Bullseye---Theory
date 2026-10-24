@@ -1,0 +1,31 @@
+name: Launch Page Checks
+
+on:
+  pull_request:
+    paths:
+      - "*.html"
+      - "scripts/check_launch_pages.py"
+      - ".github/workflows/launch-page-check.yml"
+  push:
+    branches: [main]
+    paths:
+      - "*.html"
+      - "scripts/check_launch_pages.py"
+      - ".github/workflows/launch-page-check.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  launch-page-check:
+    name: Validate launch pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Validate pages and local links
+        run: python scripts/check_launch_pages.py
