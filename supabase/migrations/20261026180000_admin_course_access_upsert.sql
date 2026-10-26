@@ -11,7 +11,7 @@ returns table (
 )
 language plpgsql
 security definer
-set search_path = public, auth
+set search_path = ''
 as $$
 begin
   if not public.is_admin() then
@@ -57,7 +57,7 @@ begin
   on conflict (user_id) do update
   set is_active = excluded.is_active,
       payment_verified = excluded.payment_verified,
-      activated_at = case when excluded.is_active then coalesce(course_access.activated_at, now()) else null end,
+      activated_at = case when excluded.is_active then coalesce(public.course_access.activated_at, now()) else null end,
       expires_at = excluded.expires_at,
       updated_at = now();
 end;
