@@ -65,9 +65,9 @@ returns boolean
 language sql
 stable
 security definer
-set search_path = public
-as $$
-  select coalesce((select is_admin from public.profiles where id = auth.uid()), false);
+set search_path = ''
+as $
+  select coalesce((select p.is_admin from public.profiles p where p.id = auth.uid()), false);
 $$;
 
 revoke all on function public.is_admin() from public;
@@ -145,8 +145,8 @@ create or replace function public.issue_certificate(target_user uuid)
 returns text
 language plpgsql
 security definer
-set search_path = public
-as $$
+set search_path = ''
+as $
 declare
   cert_id text;
   student text;
