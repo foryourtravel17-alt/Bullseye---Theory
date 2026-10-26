@@ -2,19 +2,78 @@
   "schemaVersion": 1,
   "product": "Bullseye Theory Market Lab",
   "mode": "educational_demo",
-  "lastReviewed": "2026-10-19",
-  "nextReviewDue": "2026-10-22",
+  "lastReviewed": "2026-10-26",
+  "nextReviewDue": "2026-10-29",
   "dataStatus": "simulated",
   "disclaimer": "Hypothetical learning scenarios only. Not live market data, investment research, personalised advice, or a recommendation to buy, sell, or hold any security.",
   "scenarios": [
-    {"id":"bullish-continuation","label":"Bullish condition","title":"Continuation after strength","hypothesis":"If price holds above a previously observed swing area and participation expands, continuation is one possible scenario to study.","observe":["Higher-high / higher-low structure","Whether a breakout holds on a retest","Broader timeframe context"],"invalidation":"Price falls back into the prior range or the higher-low structure fails.","question":"Was the move confirmed, or did you react to one candle?","status":"illustrative_not_a_forecast"},
-    {"id":"range-consolidation","label":"Range / base case","title":"Two-sided consolidation","hypothesis":"If price remains inside a defined range without sustained acceptance beyond either boundary, consolidation is one possible scenario to study.","observe":["Repeated reactions near range edges","Weaker follow-through in the middle","Volatility changes"],"invalidation":"A confirmed expansion and sustained close outside the range.","question":"Is there a clear setup, or is patience the better lesson?","status":"illustrative_not_a_forecast"},
-    {"id":"bearish-breakdown","label":"Bearish condition","title":"Failed support / lower high","hypothesis":"If price loses a previously observed support zone and a recovery forms a lower high, downside continuation is one possible scenario to study; the pattern can fail.","observe":["Breakdown and follow-through","Retest behaviour","Broader timeframe context"],"invalidation":"Price reclaims the broken area and restores prior structure.","question":"Where would the original thesis be demonstrably wrong?","status":"illustrative_not_a_forecast"}
+    {
+      "id": "bullish-continuation",
+      "label": "Bullish condition",
+      "title": "Continuation after strength",
+      "hypothesis": "If price holds above a previously observed swing area and participation expands, continuation is one possible scenario to study.",
+      "observe": [
+        "Higher-high / higher-low structure",
+        "Whether a breakout holds on a retest",
+        "Broader timeframe context"
+      ],
+      "invalidation": "Price falls back into the prior range or the higher-low structure fails.",
+      "question": "Was the move confirmed, or did you react to one candle?",
+      "status": "illustrative_not_a_forecast"
+    },
+    {
+      "id": "range-consolidation",
+      "label": "Range / base case",
+      "title": "Two-sided consolidation",
+      "hypothesis": "If price remains inside a defined range without sustained acceptance beyond either boundary, consolidation is one possible scenario to study.",
+      "observe": [
+        "Repeated reactions near range edges",
+        "Weaker follow-through in the middle",
+        "Volatility changes"
+      ],
+      "invalidation": "A confirmed expansion and sustained close outside the range.",
+      "question": "Is there a clear setup, or is patience the better lesson?",
+      "status": "illustrative_not_a_forecast"
+    },
+    {
+      "id": "bearish-breakdown",
+      "label": "Bearish condition",
+      "title": "Failed support / lower high",
+      "hypothesis": "If price loses a previously observed support zone and a recovery forms a lower high, downside continuation is one possible scenario to study; the pattern can fail.",
+      "observe": [
+        "Breakdown and follow-through",
+        "Retest behaviour",
+        "Broader timeframe context"
+      ],
+      "invalidation": "Price reclaims the broken area and restores prior structure.",
+      "question": "Where would the original thesis be demonstrably wrong?",
+      "status": "illustrative_not_a_forecast"
+    }
   ],
   "sampleInstruments": [
-    {"symbol":"NIFTY 50","sampleValue":24500,"unit":"index_points","status":"fictional_demo_only"},
-    {"symbol":"BANK NIFTY","sampleValue":52000,"unit":"index_points","status":"fictional_demo_only"},
-    {"symbol":"RELIANCE","sampleValue":1250,"unit":"INR","status":"fictional_demo_only"},
-    {"symbol":"USD/INR","sampleValue":83,"unit":"INR_per_USD","status":"fictional_demo_only"}
+    {
+      "symbol": "NIFTY 50",
+      "sampleValue": 24500,
+      "unit": "index_points",
+      "status": "fictional_demo_only"
+    },
+    {
+      "symbol": "BANK NIFTY",
+      "sampleValue": 52000,
+      "unit": "index_points",
+      "status": "fictional_demo_only"
+    },
+    {
+      "symbol": "RELIANCE",
+      "sampleValue": 1250,
+      "unit": "INR",
+      "status": "fictional_demo_only"
+    },
+    {
+      "symbol": "USD/INR",
+      "sampleValue": 83,
+      "unit": "INR_per_USD",
+      "status": "fictional_demo_only"
+    }
   ]
 }
