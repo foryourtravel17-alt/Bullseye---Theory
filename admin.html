@@ -54,5 +54,5 @@ $('save').addEventListener('click',async()=>{
  if(error){status('Access was not saved: '+error.message,true);return}
  status('Access updated successfully.');await loadStudents();
 });
-$('refresh').addEventListener('click',loadStudents());init();
+$('refresh').addEventListener('click',()=>loadStudents());init();
 </script></body></html>
