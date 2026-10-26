@@ -37,7 +37,7 @@ create or replace function public.admin_set_course_access(
 returns void
 language plpgsql
 security definer
-set search_path = public, auth
+set search_path = ''
 as $$
 begin
   if not public.is_admin() then
