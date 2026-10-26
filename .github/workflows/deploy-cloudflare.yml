@@ -27,3 +27,28 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
+
+      - name: Smoke-test deployed public pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://bullseye-theory.foryourtravel17.workers.dev"
+          check_page() {
+            local path="$1"
+            local expected="$2"
+            local body
+            body="$(curl --fail --silent --show-error --location --retry 5 --retry-delay 5 --retry-all-errors "$base/$path")"
+            if ! grep -Fqi "$expected" <<<"$body"; then
+              echo "::error::Smoke test failed for /$path: expected page marker not found"
+              return 1
+            fi
+            echo "PASS /$path"
+          }
+          check_page "index.html" "READ THE MARKET"
+          check_page "auth.html" "Student Login"
+          check_page "dashboard.html" "Student Dashboard"
+          check_page "admin.html" "BULLSEYE THEORY — ADMIN"
+          check_page "payment.html" "Choose your"
+          check_page "terms.html" "Terms of Use"
+          check_page "refund.html" "Refund Information"
+          check_page "membership.html" "ENROLLMENT CLOSED"
