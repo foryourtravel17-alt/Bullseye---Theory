@@ -35,9 +35,14 @@ async function handleSignIn(event) {
 
     if (error) {
       console.error("Bullseye login error:", error);
+      const normalizedError = (error.message || "").toLowerCase();
       const message = error.message === "Failed to fetch"
-        ? "Unable to reach Supabase Auth from this site. Please open the current Bullseye Theory Cloudflare URL and try again."
-        : (error.message || "Login failed.");
+        ? "Unable to reach Supabase Auth from this site. Please refresh and try again."
+        : normalizedError.includes("invalid login credentials")
+          ? "Login failed. Check the exact email and password. If you just created this account, email confirmation may still be enabled in Supabase. Use Forgot password if needed."
+          : normalizedError.includes("email not confirmed")
+            ? "Your email is not confirmed yet. Instant entry requires disabling Confirm email in Supabase project settings."
+            : (error.message || "Login failed.");
       setMessage(message, "error");
       return;
     }
@@ -90,7 +95,7 @@ async function handleSignUp(event) {
     if (data.session) {
       window.location.href = redirectTarget();
     } else {
-      setMessage("Account created. Please check your email and confirm your email address before signing in.", "success");
+      setMessage("Account created, but Supabase did not start a signed-in session. Email confirmation is enabled in Supabase, so instant entry is not possible until Confirm email is disabled in project settings. Do not create the account again; after that setting is changed, sign in with this account.", "success");
     }
   } catch (err) {
     console.error("Bullseye signup network exception:", err);
