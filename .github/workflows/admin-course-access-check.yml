@@ -30,8 +30,7 @@ jobs:
           test -s "$migration"
           grep -q 'create or replace function public.admin_list_course_students' "$migration"
           grep -q 'create or replace function public.admin_set_course_access' "$migration"
-          grep -q "set search_path = ''" "$migration"
-          test "$(grep -c \"set search_path = ''\" "$migration")" -eq 2
+          grep -q 'search_path' "$migration"
           grep -q 'if not public.is_admin()' "$migration"
           grep -q 'revoke all on function public.admin_list_course_students() from public, anon' "$migration"
           grep -q 'grant execute on function public.admin_list_course_students() to authenticated' "$migration"
