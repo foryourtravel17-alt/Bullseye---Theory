@@ -146,7 +146,7 @@ returns text
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $$
 declare
   cert_id text;
   student text;
