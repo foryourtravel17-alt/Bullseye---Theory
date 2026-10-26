@@ -60,8 +60,8 @@ create or replace function public.issue_certificate(target_user uuid)
 returns text
 language plpgsql
 security definer
-set search_path = public
-as $$
+set search_path = ''
+as $
 declare
   cert_id text;
   student text;
