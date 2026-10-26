@@ -15,7 +15,7 @@
 <button id="save">SAVE ACCESS</button><button class="secondary" id="refresh">REFRESH STUDENTS</button>
 <p class="muted">Saving can create an access record for a newly registered student. This does not process a payment or send a receipt.</p></section>
 <section><h2>Student access status</h2><div id="list"></div></section></main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script><script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js?v=20261026-3"></script><script>
 const sb=supabase.createClient(BULLSEYE_SUPABASE_URL,BULLSEYE_SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
 const $=id=>document.getElementById(id);let students=[];
 function status(message,error=false){$('status').textContent=message;$('status').classList.toggle('error',error)}
@@ -23,8 +23,11 @@ function el(tag,txt,cls){const n=document.createElement(tag);n.textContent=txt;i
 async function init(){
  const {data:{session},error}=await sb.auth.getSession();
  if(error||!session){location.href='auth.html';return}
- const {data:profile,error:pe}=await sb.from('profiles').select('is_admin').eq('id',session.user.id).maybeSingle();
- if(pe||!profile?.is_admin){status('Admin access not enabled for this account.',true);return}
+ $('status').textContent='Signed in: '+(session.user.email||'email unavailable')+' · Checking profile…';
+ const {data:profile,error:pe}=await sb.from('profiles').select('is_admin,role').eq('id',session.user.id).maybeSingle();
+ if(pe){status('Profile lookup failed: '+pe.message,true);return}
+ if(!profile){status('No profile row for signed-in user '+session.user.id+'. Log out and sign in again.',true);return}
+ if(!profile.is_admin && profile.role!=='admin'){status('This account is not marked admin: '+(session.user.email||'email unavailable')+'.',true);return}
  status('Admin access confirmed. Loading student accounts…');await loadStudents();
 }
 async function loadStudents(){
