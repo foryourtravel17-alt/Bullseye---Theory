@@ -36,7 +36,7 @@ jobs:
           test -s "$admin_sql"
           test -s "$lesson_migration"
 
-          # Fail on the malformed single-dollar PL/pgSQL opener seen in a prior draft.
+          # Fail on malformed single-dollar PL/pgSQL openers. This is a read-only source check.
           if grep -nE '^[[:space:]]*as \$[[:space:]]*$' "$admin_sql" "$lesson_migration"; then
             echo "FAIL: malformed single-dollar function delimiter detected."
             exit 1
