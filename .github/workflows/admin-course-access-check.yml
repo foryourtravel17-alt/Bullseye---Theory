@@ -1,0 +1,43 @@
+name: Admin course access checks
+
+on:
+  pull_request:
+    paths:
+      - 'admin.html'
+      - 'supabase/migrations/**'
+      - 'lesson-*.html'
+      - '.github/workflows/admin-course-access-check.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'admin.html'
+      - 'supabase/migrations/**'
+      - 'lesson-*.html'
+
+permissions:
+  contents: read
+
+jobs:
+  static-safety-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate admin migration and course lesson files
+        shell: bash
+        run: |
+          set -euo pipefail
+          migration='supabase/migrations/20261026180000_admin_course_access_upsert.sql'
+          test -s "$migration"
+          grep -q 'create or replace function public.admin_list_course_students' "$migration"
+          grep -q 'create or replace function public.admin_set_course_access' "$migration"
+          grep -q "set search_path = ''" "$migration"
+          test "$(grep -c \"set search_path = ''\" "$migration")" -eq 2
+          grep -q 'if not public.is_admin()' "$migration"
+          grep -q 'revoke all on function public.admin_list_course_students() from public, anon' "$migration"
+          grep -q 'grant execute on function public.admin_list_course_students() to authenticated' "$migration"
+          grep -q 'insert into public.course_access as existing' "$migration"
+          grep -q 'on conflict (user_id) do update' "$migration"
+          grep -q 'admin_list_course_students' admin.html
+          grep -q 'admin_set_course_access' admin.html
+          test "$(find . -maxdepth 1 -type f -name 'lesson-[0-9]*.html' | wc -l)" -ge 9
+          echo 'PASS: admin RPC migration, authorization guards, upsert, UI wiring, and lesson pages present.'
