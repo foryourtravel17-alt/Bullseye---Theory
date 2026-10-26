@@ -1,36 +1,58 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bullseye Theory Admin</title><style>body{margin:0;background:#050806;color:#eef8f0;font:16px Arial}.wrap{max-width:1000px;margin:auto;padding:30px} .card{background:#0b120e;border:1px solid #17351f;border-radius:16px;padding:20px;margin:15px 0}.id{font-size:11px;color:#91a69a;word-break:break-all}.green{color:#20e06a}button{padding:10px 14px;background:#20e06a;border:0;border-radius:9px;font-weight:bold}input{padding:10px;background:#07100b;border:1px solid #17351f;color:white;border-radius:8px;width:90%}</style></head><body><main class="wrap"><h1 class="green">BULLSEYE THEORY — ADMIN</h1><p id="status">Checking admin access…</p><div id="list"></div></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script><script>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bullseye Theory Admin</title>
+<style>
+:root{color-scheme:dark;--bg:#050806;--panel:#0b120e;--line:#24483c;--text:#eef8f0;--muted:#91a69a;--green:#a8ff61;--red:#ffb5b5}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 Arial,sans-serif}.wrap{max-width:1000px;margin:auto;padding:24px}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}.green{color:var(--green)}.muted{color:var(--muted);font-size:13px}.status{padding:12px;border-radius:8px;background:#102019;margin:12px 0}.error{background:#321719;color:var(--red)}label{display:block;margin:12px 0 6px;font-size:13px;color:#c6d8cf}input,select{width:100%;padding:11px;background:#07100b;border:1px solid var(--line);color:var(--text);border-radius:8px}button{padding:10px 13px;background:var(--green);color:#07100b;border:0;border-radius:8px;font-weight:bold;cursor:pointer;margin:6px 6px 0 0}button.secondary{background:#172820;color:var(--text);border:1px solid var(--line)}.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.check{display:flex;align-items:center;gap:8px}.check input{width:auto}.check label{margin:0}@media(max-width:600px){.wrap{padding:14px}.row{grid-template-columns:1fr}}
+</style></head><body><main class="wrap"><h1 class="green">BULLSEYE THEORY — ADMIN</h1>
+<p class="muted">Admin-only course access management. Payments remain manual; never mark payment verified unless you have independently checked settlement.</p>
+<div id="status" class="status">Checking admin access…</div>
+<section class="card"><h2>Grant or update student access</h2>
+<label for="student">Student account (email)</label><select id="student"><option value="">Loading student accounts…</option></select>
+<div class="row"><div><label for="expiry">Access expiry (optional)</label><input id="expiry" type="date"><p class="muted">Leave blank for no expiry.</p></div><div><label>Access flags</label>
+<div class="check"><input id="active" type="checkbox" checked><label for="active">Course access active</label></div>
+<div class="check"><input id="verified" type="checkbox"><label for="verified">Payment independently verified</label></div>
+</div></div>
+<button id="save">SAVE ACCESS</button><button class="secondary" id="refresh">REFRESH STUDENTS</button>
+<p class="muted">Saving can create an access record for a newly registered student. This does not process a payment or send a receipt.</p></section>
+<section><h2>Student access status</h2><div id="list"></div></section></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script><script>
 const sb=supabase.createClient(BULLSEYE_SUPABASE_URL,BULLSEYE_SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
-const $=id=>document.getElementById(id);
+const $=id=>document.getElementById(id);let students=[];
+function status(message,error=false){$('status').textContent=message;$('status').classList.toggle('error',error)}
+function el(tag,txt,cls){const n=document.createElement(tag);n.textContent=txt;if(cls)n.className=cls;return n}
 async function init(){
-  const s=await sb.auth.getSession();
-  if(!s.data.session){location.href="auth.html";return}
-  const u=s.data.session.user;
-  const p=await sb.from("profiles").select("is_admin,full_name").eq("id",u.id).maybeSingle();
-  if(p.error||!p.data?.is_admin){$("status").textContent="Admin access not enabled for this account.";return}
-  $("status").textContent="Admin access active.";
-  const [a,pf]=await Promise.all([
-    sb.from("course_access").select("user_id,is_active,payment_verified,expires_at").order("user_id"),
-    sb.from("profiles").select("id,full_name").order("full_name")
-  ]);
-  if(a.error){$("status").textContent="Could not load students: "+a.error.message;return}
-  const names=new Map((pf.data||[]).map(x=>[x.id,x.full_name||"Student"]));
-  $("list").innerHTML=(a.data||[]).map(x=>{
-    const name=names.get(x.user_id)||"Student";
-    return '<div class="card"><h3>'+name+'</h3><p class="id">'+x.user_id+'</p><p>Active: <b>'+x.is_active+'</b> · Payment verified: <b>'+x.payment_verified+'</b></p><p>Expiry: '+(x.expires_at?new Date(x.expires_at).toLocaleString():"No expiry")+'</p><button onclick="activate(\''+x.user_id+'\')">ACTIVATE</button> <button onclick="deactivate(\''+x.user_id+'\')">DEACTIVATE</button> <button onclick="issueCertificate(\''+x.user_id+'\')">ISSUE CERTIFICATE</button></div>';
-  }).join("")||"<div class='card'>No student accounts yet.</div>";
+ const {data:{session},error}=await sb.auth.getSession();
+ if(error||!session){location.href='auth.html';return}
+ const {data:profile,error:pe}=await sb.from('profiles').select('is_admin').eq('id',session.user.id).maybeSingle();
+ if(pe||!profile?.is_admin){status('Admin access not enabled for this account.',true);return}
+ status('Admin access confirmed. Loading student accounts…');await loadStudents();
 }
-async function activate(id){
-  const {error}=await sb.from("course_access").update({is_active:true,payment_verified:true}).eq("user_id",id);
-  if(error){alert(error.message);return} location.reload();
+async function loadStudents(){
+ const {data,error}=await sb.rpc('admin_list_course_students');
+ if(error){status('Could not load students: '+error.message,true);return}
+ students=data||[];const select=$('student');select.replaceChildren();
+ if(!students.length){select.add(new Option('No student accounts yet',''));$('list').replaceChildren(el('div','No student accounts yet.','card'));status('Admin access active. No student accounts found.');return}
+ select.add(new Option('Choose a student…',''));
+ students.forEach(s=>select.add(new Option((s.full_name?s.full_name+' — ':'')+(s.email||s.user_id),s.user_id)));
+ render();status('Admin access active. Loaded '+students.length+' account(s).');
 }
-async function deactivate(id){
-  const {error}=await sb.from("course_access").update({is_active:false}).eq("user_id",id);
-  if(error){alert(error.message);return} location.reload();
+function render(){
+ const list=$('list');list.replaceChildren();
+ students.forEach(s=>{const card=el('article','','card');card.append(el('h3',(s.full_name||'Student')+' — '+(s.email||'email unavailable')));
+ card.append(el('p','User ID: '+s.user_id,'muted'));
+ card.append(el('p','Access: '+(s.is_active?'ACTIVE':'INACTIVE')+' · Payment verified: '+(s.payment_verified?'YES':'NO')));
+ card.append(el('p','Expiry: '+(s.expires_at?new Date(s.expires_at).toLocaleDateString():'No expiry')));
+ const b=el('button','EDIT THIS STUDENT');b.addEventListener('click',()=>{ $('student').value=s.user_id;$('active').checked=!!s.is_active;$('verified').checked=!!s.payment_verified;$('expiry').value=s.expires_at?s.expires_at.slice(0,10):'';window.scrollTo({top:0,behavior:'smooth'});});card.append(b);list.append(card);});
 }
-async function issueCertificate(id){
-  const {data,error}=await sb.rpc("issue_certificate",{target_user:id});
-  if(error){alert("Certificate not issued: "+error.message);return}
-  alert("Certificate issued: "+data);
-}
-init();
+$('save').addEventListener('click',async()=>{
+ const id=$('student').value;if(!id){status('Choose a student first.',true);return}
+ if($('verified').checked&&!confirm('Confirm that you independently verified the payment settlement?'))return;
+ let expiry=null;if($('expiry').value){expiry=new Date($('expiry').value+'T23:59:59').toISOString();if(new Date(expiry)<=new Date()){status('Expiry must be in the future.',true);return}}
+ $('save').disabled=true;
+ const {error}=await sb.rpc('admin_set_course_access',{target_user:id,make_active:$('active').checked,verify_payment:$('verified').checked,access_expires_at:expiry});
+ $('save').disabled=false;
+ if(error){status('Access was not saved: '+error.message,true);return}
+ status('Access updated successfully.');await loadStudents();
+});
+$('refresh').addEventListener('click',loadStudents());init();
 </script></body></html>
