@@ -65,9 +65,9 @@ returns boolean
 language sql
 stable
 security definer
-set search_path = public
+set search_path = ''
 as $$
-  select coalesce((select is_admin from public.profiles where id = auth.uid()), false);
+  select coalesce((select p.is_admin from public.profiles p where p.id = auth.uid()), false);
 $$;
 
 revoke all on function public.is_admin() from public;
@@ -145,7 +145,7 @@ create or replace function public.issue_certificate(target_user uuid)
 returns text
 language plpgsql
 security definer
-set search_path = public
+set search_path = ''
 as $$
 declare
   cert_id text;
@@ -167,7 +167,7 @@ begin
 
   if (select count(*) from public.lesson_progress
       where user_id = target_user and lesson_number between 1 and 11
-        and completed = true and quiz_passed = true) < 10 then
+        and completed = true and quiz_passed = true) < 11 then
     raise exception 'All 11 lessons and quizzes must be completed';
   end if;
 
