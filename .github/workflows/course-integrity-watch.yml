@@ -50,4 +50,16 @@ jobs:
           grep -Fq 'and quiz_passed = true) < 11 then' "$admin_sql"
           grep -Fq 'and quiz_passed = true) < 11 then' "$lesson_migration"
 
-          echo "PASS: SQL delimiters and 11-lesson certificate threshold are present."
+          # Verify every published lesson page retains the client-side course-access gate.
+          lesson_count=0
+          for lesson in lesson-[0-9]*.html; do
+            test -s "$lesson"
+            grep -Fq 'course_access' "$lesson"
+            grep -Fq 'payment_verified' "$lesson"
+            grep -Fq 'expires_at' "$lesson"
+            grep -Fq 'lesson_progress' "$lesson"
+            lesson_count=$((lesson_count + 1))
+          done
+          test "$lesson_count" -ge 11
+
+          echo "PASS: SQL delimiters, 11-lesson certificate threshold, and access-gate markers across $lesson_count lesson pages are present."
