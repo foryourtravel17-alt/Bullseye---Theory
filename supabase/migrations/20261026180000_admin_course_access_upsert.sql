@@ -50,14 +50,14 @@ begin
     raise exception 'Expiry must be in the future' using errcode = '22023';
   end if;
 
-  insert into public.course_access (user_id, is_active, payment_verified, activated_at, expires_at, updated_at)
+  insert into public.course_access as existing (user_id, is_active, payment_verified, activated_at, expires_at, updated_at)
   values (target_user, make_active, verify_payment,
           case when make_active then now() else null end,
           access_expires_at, now())
   on conflict (user_id) do update
   set is_active = excluded.is_active,
       payment_verified = excluded.payment_verified,
-      activated_at = case when excluded.is_active then coalesce(public.course_access.activated_at, now()) else null end,
+      activated_at = case when excluded.is_active then coalesce(existing.activated_at, now()) else null end,
       expires_at = excluded.expires_at,
       updated_at = now();
 end;
