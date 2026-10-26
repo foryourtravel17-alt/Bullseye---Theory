@@ -167,7 +167,7 @@ begin
 
   if (select count(*) from public.lesson_progress
       where user_id = target_user and lesson_number between 1 and 11
-        and completed = true and quiz_passed = true) < 10 then
+        and completed = true and quiz_passed = true) < 11 then
     raise exception 'All 11 lessons and quizzes must be completed';
   end if;
 
