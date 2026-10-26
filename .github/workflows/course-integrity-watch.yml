@@ -1,0 +1,53 @@
+name: Daily Course Integrity Watch
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "15 3 * * *"
+  pull_request:
+    paths:
+      - "supabase/admin-production.sql"
+      - "supabase/migrations/**"
+      - "lesson-*.html"
+      - ".github/workflows/course-integrity-watch.yml"
+  push:
+    branches: [main]
+    paths:
+      - "supabase/admin-production.sql"
+      - "supabase/migrations/**"
+      - "lesson-*.html"
+      - ".github/workflows/course-integrity-watch.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  course-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Validate certificate SQL and lesson schema
+        shell: bash
+        run: |
+          set -euo pipefail
+          admin_sql="supabase/admin-production.sql"
+          lesson_migration="supabase/migrations/20261025030000_align_11_lesson_schema.sql"
+
+          test -s "$admin_sql"
+          test -s "$lesson_migration"
+
+          # Fail on the malformed single-dollar PL/pgSQL opener seen in a prior draft.
+          if grep -nE '^[[:space:]]*as \$[[:space:]]*$' "$admin_sql" "$lesson_migration"; then
+            echo "FAIL: malformed single-dollar function delimiter detected."
+            exit 1
+          fi
+
+          grep -Fq 'as $$' "$admin_sql"
+          grep -Fq 'as $$' "$lesson_migration"
+          grep -Fq 'end;' "$admin_sql"
+          grep -Fq '$$;' "$admin_sql"
+          grep -Fq '$$;' "$lesson_migration"
+          grep -Fq 'and quiz_passed = true) < 11 then' "$admin_sql"
+          grep -Fq 'and quiz_passed = true) < 11 then' "$lesson_migration"
+
+          echo "PASS: SQL delimiters and 11-lesson certificate threshold are present."
