@@ -6,12 +6,14 @@ on:
       - "*.html"
       - "scripts/check_launch_pages.py"
       - ".github/workflows/launch-page-check.yml"
+      - ".github/workflows/deploy-pages.yml"
   push:
     branches: [main]
     paths:
       - "*.html"
       - "scripts/check_launch_pages.py"
       - ".github/workflows/launch-page-check.yml"
+      - ".github/workflows/deploy-pages.yml"
 
 permissions:
   contents: read
