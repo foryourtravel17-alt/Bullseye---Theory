@@ -1,8 +1,9 @@
 name: Deploy Bullseye Theory to GitHub Pages
 
+# GitHub Pages is not configured for this repository; Cloudflare Workers is
+# the active hosting path. Keep this workflow manual-only until Pages is
+# intentionally configured, so pushes to main do not create guaranteed failures.
 on:
-  push:
-    branches: ["main"]
   workflow_dispatch:
 
 permissions:
