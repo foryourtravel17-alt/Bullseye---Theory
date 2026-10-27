@@ -52,3 +52,15 @@ jobs:
           check_page "terms.html" "Terms of Use"
           check_page "refund.html" "Refund Information"
           check_page "membership.html" "ENROLLMENT CLOSED"
+
+          # Verify both the branded body and the actual HTTP status for unknown routes.
+          status="$(curl --silent --show-error --location --output /tmp/bullseye-404.html --write-out "%{http_code}" "$base/automation-probe-does-not-exist.html")"
+          if [[ "$status" != "404" ]]; then
+            echo "::error::Unknown-route smoke test expected HTTP 404, got $status"
+            exit 1
+          fi
+          if ! grep -Fqi "Page not found" /tmp/bullseye-404.html; then
+            echo "::error::Unknown-route smoke test did not find the branded 404 marker"
+            exit 1
+          fi
+          echo "PASS unknown route returns HTTP 404 with branded page"
