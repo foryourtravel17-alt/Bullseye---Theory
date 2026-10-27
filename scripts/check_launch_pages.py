@@ -92,6 +92,10 @@ else:
         errors.append("deploy-cloudflare.yml: unknown-route test must require HTTP 404")
     if "Page not found" not in workflow_text:
         errors.append("deploy-cloudflare.yml: unknown-route test must check branded 404 marker")
+    if 'check_unknown_route "automation-probe-does-not-exist"' not in workflow_text:
+        errors.append("deploy-cloudflare.yml: missing extensionless unknown-route probe")
+    if 'check_unknown_route "automation-probe-does-not-exist.html"' not in workflow_text:
+        errors.append("deploy-cloudflare.yml: missing extension-suffixed unknown-route probe")
 
 if errors:
     print("LAUNCH PAGE CHECKS FAILED")
