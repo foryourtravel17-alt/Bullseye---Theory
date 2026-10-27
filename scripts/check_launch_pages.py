@@ -89,7 +89,7 @@ else:
     workflow_text = pages_workflow.read_text(encoding="utf-8")
     if "workflow_dispatch:" not in workflow_text:
         errors.append("deploy-pages.yml: manual workflow_dispatch must remain available")
-    if re.search(r"^\\s{2}push\\s*:", workflow_text, re.MULTILINE):
+    if re.search(r"^\s{2}push\s*:", workflow_text, re.MULTILINE):
         errors.append("deploy-pages.yml: remove automatic push trigger until Pages is configured")
 
 if errors:
