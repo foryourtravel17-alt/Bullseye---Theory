@@ -2,6 +2,7 @@
 """Dependency-free source checks for Bullseye Theory launch pages."""
 from html.parser import HTMLParser
 from pathlib import Path
+import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -79,9 +80,22 @@ if membership.is_file():
         if phrase not in text:
             errors.append(f"membership.html: missing launch safety phrase: {phrase}")
 
+# Keep the production deployment smoke test honest about unknown routes.
+deploy_workflow = ROOT / ".github/workflows/deploy-cloudflare.yml"
+if not deploy_workflow.is_file():
+    errors.append("Missing Cloudflare deployment workflow")
+else:
+    workflow_text = deploy_workflow.read_text(encoding="utf-8")
+    if 'write-out "%{http_code}"' not in workflow_text:
+        errors.append("deploy-cloudflare.yml: unknown-route test must capture HTTP status")
+    if '!= "404"' not in workflow_text:
+        errors.append("deploy-cloudflare.yml: unknown-route test must require HTTP 404")
+    if "Page not found" not in workflow_text:
+        errors.append("deploy-cloudflare.yml: unknown-route test must check branded 404 marker")
+
 if errors:
     print("LAUNCH PAGE CHECKS FAILED")
     for err in errors:
         print(f"- {err}")
     sys.exit(1)
-print(f"PASS: checked {len(PAGES)} launch pages; {len(titles)} unique titles; local targets and safety copy verified.")
+print(f"PASS: checked {len(PAGES)} launch pages; {len(titles)} unique titles; local targets, safety copy, and HTTP 404 smoke-test contract verified.")
