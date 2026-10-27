@@ -107,14 +107,24 @@ Deno.serve(async (req: Request) => {
   if (attemptError) return respond({ error: "Could not save quiz attempt" }, 500);
 
   if (passed) {
-    // lesson_number uniqueness exists in the inspected live schema. This write is
-    // intentionally additive; do not revoke browser writes until all pages migrate.
+    // Preserve completion state if a student retakes a quiz after completing a lesson.
+    const { data: priorProgress, error: readProgressError } = await admin
+      .from("lesson_progress")
+      .select("completed,completed_at,progress_percent")
+      .eq("user_id", user.id)
+      .eq("lesson_number", lesson)
+      .maybeSingle();
+    if (readProgressError) return respond({ error: "Could not read existing progress" }, 500);
+    const alreadyCompleted = !!priorProgress?.completed;
     const { error: progressError } = await admin.from("lesson_progress").upsert({
       user_id: user.id,
       lesson_number: lesson,
       quiz_passed: true,
-      progress_percent: 90,
-      completed: false,
+      progress_percent: alreadyCompleted ? 100 : 90,
+      completed: alreadyCompleted,
+      ...(alreadyCompleted && priorProgress?.completed_at
+        ? { completed_at: priorProgress.completed_at }
+        : {}),
     }, { onConflict: "user_id,lesson_number" });
     if (progressError) return respond({ error: "Quiz passed but progress could not be saved" }, 500);
   }
