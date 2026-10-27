@@ -31,3 +31,30 @@ jobs:
           python-version: "3.x"
       - name: Validate pages and local links
         run: python scripts/check_launch_pages.py
+      - name: Verify live unknown routes return real HTTP 404
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://bullseye-theory.foryourtravel17.workers.dev"
+          check_unknown_route() {
+            local path="$1"
+            local body_file
+            body_file="$(mktemp)"
+            local status
+            status="$(curl --silent --show-error --location --output "$body_file" --write-out "%{http_code}" "$base/$path")"
+            if [[ "$status" != "404" ]]; then
+              echo "::error::Unknown route /$path expected HTTP 404, got $status"
+              cat "$body_file"
+              rm -f "$body_file"
+              return 1
+            fi
+            if ! grep -Fqi "Page not found" "$body_file"; then
+              echo "::error::Unknown route /$path returned HTTP 404 but branded marker was missing"
+              rm -f "$body_file"
+              return 1
+            fi
+            echo "PASS /$path returns HTTP 404 with branded page"
+            rm -f "$body_file"
+          }
+          check_unknown_route "automation-probe-does-not-exist"
+          check_unknown_route "automation-probe-does-not-exist.html"
