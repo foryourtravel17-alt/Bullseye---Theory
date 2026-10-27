@@ -3,6 +3,7 @@
 from html.parser import HTMLParser
 from pathlib import Path
 import sys
+import re
 
 ROOT = Path(__file__).resolve().parents[1]
 PAGES = [
@@ -78,6 +79,18 @@ if membership.is_file():
     for phrase in ("enrollment closed", "payment methods", "do not send money"):
         if phrase not in text:
             errors.append(f"membership.html: missing launch safety phrase: {phrase}")
+
+# GitHub Pages is intentionally manual-only until the repository is configured
+# with a Pages site. This guards against reintroducing guaranteed failing push runs.
+pages_workflow = ROOT / ".github/workflows/deploy-pages.yml"
+if not pages_workflow.is_file():
+    errors.append("Missing GitHub Pages workflow configuration")
+else:
+    workflow_text = pages_workflow.read_text(encoding="utf-8")
+    if "workflow_dispatch:" not in workflow_text:
+        errors.append("deploy-pages.yml: manual workflow_dispatch must remain available")
+    if re.search(r"^\\s{2}push\\s*:", workflow_text, re.MULTILINE):
+        errors.append("deploy-pages.yml: remove automatic push trigger until Pages is configured")
 
 if errors:
     print("LAUNCH PAGE CHECKS FAILED")
