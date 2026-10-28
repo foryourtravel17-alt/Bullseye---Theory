@@ -1,34 +1,44 @@
-# Server-side quiz grading foundation
+# Server-side quiz grading and lesson completion
 
-## Status
+## Current implementation in PR #32
 
-This PR adds a draft Supabase Edge Function at `supabase/functions/grade-quiz/index.ts`. It is **not deployed**, and the lesson pages have **not** been switched to it. Current lesson pages still write quiz attempts and completion flags directly to Supabase. Do not revoke their grants or policies yet.
+All eleven lesson HTML pages load `lesson-secure-client.js`. The shared client calls the `grade-quiz` and `complete-lesson` Edge Functions. Browser answer keys and direct browser INSERT/UPSERT writes for quiz attempts and lesson progress have been removed from the lesson HTML.
+
+The grading implementation lives in `supabase/functions/grade-quiz/grading.ts`; contract tests import that module rather than maintaining a duplicate grader.
 
 ## Request contract
 
-Authenticated browser sends `POST /functions/v1/grade-quiz` with its normal Supabase access token and JSON containing `lesson_number` (1–11) and exactly five selected answers. The function obtains the caller from the verified JWT; it never accepts a caller-supplied user ID. It checks that the caller has active, payment-verified, unexpired course access, grades against server-held answer keys, writes the attempt, and on a pass updates progress. The service-role key is read only from Edge Function environment and is never shipped to the browser.
+The signed-in browser calls `sb.functions.invoke("grade-quiz", { body: { lesson_number, answers } })`, with five selected answer strings. The function derives the user from the verified JWT, checks active, payment-verified and unexpired course access, grades against server-held answer keys, saves the attempt and updates progress on a pass. The service-role key is read only by the Edge Function.
 
-Answer format:
-- Lessons 1, 2, 11: object with `q1` through `q5`, values as the page's letter values.
-- Lessons 3–10: array of five strings matching the radio option values (currently `"0"`, `"1"`, `"2"`).
+The browser calls `complete-lesson` with `lesson_number`; the function requires authenticated, eligible course access and a persisted passing attempt for that lesson before saving completion.
 
-## Important limitations / release gates
+## CI evidence
 
-1. The function uses the inspected live schema contract: `quiz_attempts.lesson_number`, `lesson_progress.lesson_number`, and the unique upsert key `(user_id, lesson_number)`. Confirm this against staging and keep the schema decision aligned with PR #14/#27.
-2. The function currently records a passing attempt before writing progress. If progress write fails, the attempt remains recorded; the client receives an error and can retry. Consider a database transaction/RPC if strict atomicity is required.
-3. This is a migration foundation, not the complete security fix. Direct browser INSERT/UPDATE grants and permissive policies remain in place until every lesson page uses the function and bypass tests pass.
-4. Lesson 3–10 answer keys mirror the currently committed HTML arrays. Content owners should review all questions and keys before sale.
-5. Validate preflight/CORS, wrong answers, missing answers, forged client score fields, expired/unverified access, invalid JWT, cross-user attempts, database failures, and all eleven lessons in a staging project.
-6. Deploy only with the Supabase CLI or Dashboard after owner review. Do not put a service-role key in GitHub source or client configuration.
+The latest observed CI runs for PR #32 passed:
+- Edge Function Checks (Deno type-check, grading contract tests, static migration guard): https://github.com/foryourtravel17-alt/Bullseye---Theory/actions/runs/40625904819
+- Launch Page Checks: https://github.com/foryourtravel17-alt/Bullseye---Theory/actions/runs/40625904862
+- Admin course access checks: https://github.com/foryourtravel17-alt/Bullseye---Theory/actions/runs/40625904817
+- Daily Course Integrity Watch: https://github.com/foryourtravel17-alt/Bullseye---Theory/actions/runs/40625904855
 
-## Staging validation checklist
+These are CI checks, not staging or production integration tests.
 
-- [ ] Function is deployed to a non-production Supabase project with server-side environment variables.
-- [ ] Signed-out call returns 401.
-- [ ] Invalid lesson or malformed answers returns 400.
-- [ ] Inactive, unpaid, or expired entitlement returns 403.
-- [ ] Correct answers produce the expected percentage; 4/5 passes and 3/5 fails.
-- [ ] A request containing forged `score`, `passed`, or `user_id` cannot influence stored values or target another user.
-- [ ] Attempt and progress rows belong to the authenticated user.
-- [ ] Repeat tests across all 11 lesson answer formats.
-- [ ] Only after all lesson pages use this path, remove direct student writes in a separate reviewed migration.
+## Staging checklist — still required
+
+- [ ] Provision/use a separate staging Supabase project; do not test by deploying to the current live project.
+- [ ] Deploy both functions to staging with server-side environment variables; keep gateway JWT verification enabled.
+- [ ] Configure `ALLOWED_SITE_ORIGIN` to the exact staging website origin.
+- [ ] Signed-out and invalid JWT requests are rejected.
+- [ ] Invalid lesson number or malformed/missing answers are rejected.
+- [ ] Inactive, unpaid and expired access is rejected.
+- [ ] Confirm 4/5 passes and 3/5 fails for every lesson.
+- [ ] Forged `score`, `passed`, or `user_id` request fields cannot affect grading or write to another account.
+- [ ] Attempts and progress belong only to the authenticated user.
+- [ ] Retaking a quiz does not erase existing lesson completion.
+- [ ] Completion requires a persisted passing attempt for the same lesson.
+- [ ] Validate preflight/CORS and database failure behavior.
+- [ ] Verify actual staging schema and upsert conflict key; reconcile schema PRs #14/#27 before migration.
+- [ ] Content owner reviews all eleven answer keys before selling the course.
+
+## Release safety
+
+Do not revoke direct student write permissions until staging tests prove every migrated page works. Do not apply production SQL, deploy functions to production, or merge this draft solely on the basis of CI success.
