@@ -9,6 +9,7 @@ on:
       - "supabase/admin-production.sql"
       - "supabase/migrations/**"
       - "lesson-*.html"
+      - "lesson-secure-client.js"
       - ".github/workflows/course-integrity-watch.yml"
   push:
     branches: [main]
@@ -16,6 +17,7 @@ on:
       - "supabase/admin-production.sql"
       - "supabase/migrations/**"
       - "lesson-*.html"
+      - "lesson-secure-client.js"
       - ".github/workflows/course-integrity-watch.yml"
 
 permissions:
@@ -50,16 +52,22 @@ jobs:
           grep -Fq 'and quiz_passed = true) < 11 then' "$admin_sql"
           grep -Fq 'and quiz_passed = true) < 11 then' "$lesson_migration"
 
-          # Verify every published lesson page retains the client-side course-access gate.
+          # The shared client now owns the course-access gate for every lesson.
+          secure_client="lesson-secure-client.js"
+          test -s "$secure_client"
+          grep -Fq 'course_access' "$secure_client"
+          grep -Fq 'payment_verified' "$secure_client"
+          grep -Fq 'expires_at' "$secure_client"
+          grep -Fq 'lesson_progress' "$secure_client"
+
           lesson_count=0
           for lesson in lesson-[0-9]*.html; do
             test -s "$lesson"
-            grep -Fq 'course_access' "$lesson"
-            grep -Fq 'payment_verified' "$lesson"
-            grep -Fq 'expires_at' "$lesson"
-            grep -Fq 'lesson_progress' "$lesson"
+            number="${lesson#lesson-}"
+            number="${number%.html}"
+            grep -Fq "lesson-secure-client.js\" data-lesson-number=\"$number\"" "$lesson"
             lesson_count=$((lesson_count + 1))
           done
           test "$lesson_count" -ge 11
 
-          echo "PASS: SQL delimiters, 11-lesson certificate threshold, and access-gate markers across $lesson_count lesson pages are present."
+          echo "PASS: SQL delimiters, 11-lesson certificate threshold, and shared access gate across $lesson_count lesson pages are present."
