@@ -2,19 +2,7 @@
 // Deploy only after staging validation. Never expose SUPABASE_SERVICE_ROLE_KEY to browsers.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const answerKeys: Record<number, string[]> = {
-  1: ["a", "b", "a", "c", "b"],
-  2: ["a", "a", "a", "b", "b"],
-  3: ["0", "1", "2", "0", "1"],
-  4: ["2", "0", "1", "2", "0"],
-  5: ["1", "2", "0", "1", "2"],
-  6: ["1", "0", "2", "1", "0"],
-  7: ["2", "1", "0", "2", "1"],
-  8: ["0", "1", "2", "0", "1"],
-  9: ["1", "0", "2", "0", "1"],
-  10: ["2", "1", "0", "2", "1"],
-  11: ["a", "b", "a", "b", "b"],
-};
+import { gradeAnswers, normalizeAnswers } from "./grading.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -65,20 +53,8 @@ Deno.serve(async (req: Request) => {
     return respond({ error: "lesson_number must be an integer from 1 to 11" }, 400);
   }
 
-  const key = answerKeys[lesson];
-  const submitted = payload.answers;
-  let values: string[] | null = null;
-  if (Array.isArray(submitted) && submitted.length === 5 && submitted.every((v) => typeof v === "string")) {
-    values = submitted as string[];
-  } else if (submitted && typeof submitted === "object" && !Array.isArray(submitted)) {
-    const obj = submitted as Record<string, unknown>;
-    const prefix = lesson === 1 || lesson === 2 || lesson === 11 ? "q" : "q";
-    const candidate = Array.from({ length: 5 }, (_, i) => obj[prefix + (lesson === 1 || lesson === 2 || lesson === 11 ? i + 1 : i)]);
-    if (candidate.every((v) => typeof v === "string")) values = candidate as string[];
-  }
-  if (!values || values.length !== key.length) {
-    return respond({ error: "Submit exactly five answers" }, 400);
-  }
+  const values = normalizeAnswers(lesson, payload.answers);
+  if (!values) return respond({ error: "Submit exactly five valid answers" }, 400);
 
   // Service-role access is server-only and follows authentication + entitlement checks.
   const admin = createClient(url, serviceKey, {
@@ -94,9 +70,9 @@ Deno.serve(async (req: Request) => {
   if (accessError) return respond({ error: "Could not verify course access" }, 500);
   if (!active) return respond({ error: "Active verified course access is required" }, 403);
 
-  const correct = values.reduce((sum, value, index) => sum + (value === key[index] ? 1 : 0), 0);
-  const score = Math.round((correct / key.length) * 100);
-  const passed = correct >= 4;
+  const grade = gradeAnswers(lesson, values);
+  if (!grade) return respond({ error: "Invalid lesson or answers" }, 400);
+  const { correct, score, passed } = grade;
 
   const { error: attemptError } = await admin.from("quiz_attempts").insert({
     user_id: user.id,
