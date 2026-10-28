@@ -105,5 +105,5 @@ Deno.serve(async (req: Request) => {
     if (progressError) return respond({ error: "Quiz passed but progress could not be saved" }, 500);
   }
 
-  return respond({ lesson_number: lesson, score, correct, total: key.length, passed });
+  return respond({ lesson_number: lesson, score, correct, total: 5, passed });
 });
