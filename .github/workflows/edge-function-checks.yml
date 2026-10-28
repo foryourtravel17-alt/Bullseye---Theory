@@ -3,6 +3,9 @@ on:
   pull_request:
     paths:
       - "supabase/functions/**"
+      - "lesson-*.html"
+      - "lesson-secure-client.js"
+      - "scripts/check-secure-lessons.sh"
       - ".github/workflows/edge-function-checks.yml"
   workflow_dispatch:
 permissions:
@@ -19,3 +22,5 @@ jobs:
         run: deno check supabase/functions/grade-quiz/index.ts supabase/functions/complete-lesson/index.ts
       - name: Run quiz grading contract tests
         run: deno test supabase/functions/grade-quiz/grade.test.ts
+      - name: Verify all lesson pages use server-side grading
+        run: bash scripts/check-secure-lessons.sh
