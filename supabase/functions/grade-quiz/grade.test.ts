@@ -1,47 +1,24 @@
 import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
+import { gradeAnswers, normalizeAnswers } from "./grading.ts";
 
-const answerKeys: Record<number, string[]> = {
-  1: ["a", "b", "a", "c", "b"],
-  2: ["a", "a", "a", "b", "b"],
-  3: ["0", "1", "2", "0", "1"],
-  4: ["2", "0", "1", "2", "0"],
-  5: ["1", "2", "0", "1", "2"],
-  6: ["1", "0", "2", "1", "0"],
-  7: ["2", "1", "0", "2", "1"],
-  8: ["0", "1", "2", "0", "1"],
-  9: ["1", "0", "2", "0", "1"],
-  10: ["2", "1", "0", "2", "1"],
-  11: ["a", "b", "a", "b", "b"],
-};
-
-function grade(lesson: number, answers: unknown) {
-  const key = answerKeys[lesson];
-  if (!key || !Array.isArray(answers) || answers.length !== 5 ||
-      !answers.every((v) => typeof v === "string")) return null;
-  const correct = answers.reduce((sum, value, index) => sum + (value === key[index] ? 1 : 0), 0);
-  return { correct, score: Math.round((correct / key.length) * 100), passed: correct >= 4 };
-}
-
-Deno.test("supports only the eleven known lessons", () => {
-  assertEquals(grade(0, ["a", "b", "a", "c", "b"]), null);
-  assertEquals(grade(12, ["a", "b", "a", "c", "b"]), null);
+Deno.test("rejects unknown lessons and invalid answer counts", () => {
+  assertEquals(gradeAnswers(0, ["a", "b", "a", "c", "b"]), null);
+  assertEquals(normalizeAnswers(12, ["a", "b", "a", "c", "b"]), null);
+  assertEquals(normalizeAnswers(1, ["a", "b"]), null);
+  assertEquals(normalizeAnswers(1, ["a", "b", "a", "c", 2]), null);
 });
 
-Deno.test("rejects missing, extra, or non-string answers", () => {
-  assertEquals(grade(1, ["a", "b", "a", "c"]), null);
-  assertEquals(grade(1, ["a", "b", "a", "c", "b", "x"]), null);
-  assertEquals(grade(1, ["a", "b", "a", "c", 1]), null);
+Deno.test("normalizes letter answers for lessons 1, 2 and 11", () => {
+  assertEquals(normalizeAnswers(1, { q1: "a", q2: "b", q3: "a", q4: "c", q5: "b" }), ["a", "b", "a", "c", "b"]);
+  assertEquals(normalizeAnswers(11, { q1: "a", q2: "b", q3: "a", q4: "b", q5: "b" }), ["a", "b", "a", "b", "b"]);
 });
 
-Deno.test("grades five correct answers as 100 percent and pass", () => {
-  assertEquals(grade(1, ["a", "b", "a", "c", "b"]), { correct: 5, score: 100, passed: true });
+Deno.test("normalizes indexed answers for lessons 3 through 10", () => {
+  assertEquals(normalizeAnswers(3, { q0: "0", q1: "1", q2: "2", q3: "0", q4: "1" }), ["0", "1", "2", "0", "1"]);
+  assertEquals(gradeAnswers(3, ["0", "1", "2", "0", "1"]), { correct: 5, score: 100, passed: true });
 });
 
-Deno.test("requires at least four of five correct answers", () => {
-  assertEquals(grade(1, ["a", "b", "a", "c", "x"]), { correct: 4, score: 80, passed: true });
-  assertEquals(grade(1, ["a", "b", "a", "x", "x"]), { correct: 3, score: 60, passed: false });
-});
-
-Deno.test("accepts the option values used by lessons 3 through 10", () => {
-  assertEquals(grade(3, ["0", "1", "2", "0", "1"]), { correct: 5, score: 100, passed: true });
+Deno.test("grades 4/5 as pass and 3/5 as fail", () => {
+  assertEquals(gradeAnswers(1, ["a", "b", "a", "c", "x"]), { correct: 4, score: 80, passed: true });
+  assertEquals(gradeAnswers(1, ["a", "b", "a", "x", "x"]), { correct: 3, score: 60, passed: false });
 });
