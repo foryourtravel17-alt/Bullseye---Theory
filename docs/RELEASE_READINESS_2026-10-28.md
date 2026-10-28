@@ -1,31 +1,34 @@
 # Bullseye Theory release readiness — 2026-10-28
 
-## Verified CI evidence
-- Workflow: Edge Function Checks
-- Run ID: 40624974731
-- Commit: ab1269bbaee0135b70cc3d4464aaab6cc1e4a7c7
-- Result: success
-- Steps confirmed successful: Deno type-check for both Edge Functions; quiz grading contract tests.
+## Current code and CI status
+- Current work: PR #32 — https://github.com/foryourtravel17-alt/Bullseye---Theory/pull/32
+- Current head at this update: `e667d5bb1ab07cfc9e66a43dda133438d84c96e9`
+- Edge Function Checks: PASS — https://github.com/foryourtravel17-alt/Bullseye---Theory/actions/runs/40625904819
+- Launch Page Checks: PASS — https://github.com/foryourtravel17-alt/Bullseye---Theory/actions/runs/40625904862
+- Admin course access checks: PASS — https://github.com/foryourtravel17-alt/Bullseye---Theory/actions/runs/40625904817
+- Daily Course Integrity Watch: PASS — https://github.com/foryourtravel17-alt/Bullseye---Theory/actions/runs/40625904855
+- The Edge Function workflow checked Deno types, the shared grading contract tests, and the static guard for all 11 migrated lesson pages.
 
-Run: https://github.com/foryourtravel17-alt/Bullseye---Theory/actions/runs/40624974731
+## Code changes now present in PR #32
+1. Extracted server-held answer keys and grading into `supabase/functions/grade-quiz/grading.ts`; tests import that shared implementation.
+2. Added authenticated server-side `grade-quiz` and `complete-lesson` Edge Functions.
+3. Migrated all 11 lesson pages to `lesson-secure-client.js`; browser answer keys and direct browser INSERT/UPSERT quiz/progress writes were removed from those lesson HTML files.
+4. Added a static CI guard for the lesson migration.
+5. Updated the course-integrity workflow to validate the shared access gate instead of requiring duplicate inline access logic in each HTML file.
+6. Corrected the configurable CORS fallback to the current site origin, `https://bullseye-theory.foryourtravel17.workers.dev`.
 
-## Do not overstate this result
-The run verifies TypeScript/Deno checks and isolated grading contract tests. It does not verify live Supabase access, JWT gateway settings, database schema compatibility, browser integration, payments, or production deployment.
+## What CI does not prove
+CI is source-level verification only. It does not prove Edge Functions are deployed, the current database schema matches assumptions, browser authentication works end to end, payments grant access correctly, or production is safe to switch over.
 
-## Release blockers
-1. All eleven lesson pages still use client-side answer keys and/or direct writes to quiz_attempts and lesson_progress. They have not yet been migrated to call grade-quiz and complete-lesson.
-2. The current grading test duplicates a simplified grading function instead of importing the exact production grading logic. Refactor grading into a shared pure module and test that module before relying on the tests as regression coverage.
-3. The Edge Function CORS policy currently allows all origins; restrict it to approved site origins before public deployment.
-4. Explicitly verify JWT enforcement for both functions in a staging Supabase project. Do not add a production project pin to a diagnostic change.
-5. Verify schema compatibility in staging: quiz_attempts.lesson_number/passed; lesson_progress.lesson_number; unique conflict key (user_id, lesson_number); course_access fields.
-6. Review the answer keys and all quiz questions for lessons 1–11.
-7. Migrate all pages and test forged score/user_id/progress, no entitlement, expired entitlement, invalid JWT, 4/5 pass threshold, retry after completion, and database failures.
-8. Only after client migration and bypass tests, prepare a separate reviewed migration to revoke direct student write access. Do not apply it to production without explicit approval.
-9. Resolve schema conflicts among PR #14, #27, and #30 before applying any migration.
-10. Production deploy remains blocked pending staging validation and owner approval.
+## Remaining release blockers
+1. No separate staging Supabase project is currently listed in the connected Supabase account; only the existing project `kjhdcpjztuzpysdauqdz` is visible. Do not use it as staging because it is the live project.
+2. Deploy both functions to a separately provisioned staging project and configure server-side `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and exact `ALLOWED_SITE_ORIGIN`. Keep JWT verification enabled.
+3. Run staging tests for signed-out/invalid JWT, active/unpaid/expired access, all 11 lessons, 4/5 pass threshold, forged client fields, cross-user attempts, retakes after completion, CORS/preflight, and database failures.
+4. Confirm schema compatibility: `quiz_attempts.lesson_number/passed`; `lesson_progress.lesson_number`; unique `(user_id, lesson_number)`; and the `course_access` fields.
+5. Review the educational accuracy of all 11 answer keys before course sales.
+6. Resolve schema conflicts among PR #14, #27, and related SQL before any database migration.
+7. Only after staging proves the new client path works, prepare and review a separate least-privilege migration to remove direct student writes. Do not apply it to production without explicit authorization.
+8. PR #32 remains draft until staging tests and schema review are complete. Do not merge or deploy production merely because CI passes.
 
-## Current PRs
-- Quiz grading foundation: https://github.com/foryourtravel17-alt/Bullseye---Theory/pull/30
-- Secure lesson completion: https://github.com/foryourtravel17-alt/Bullseye---Theory/pull/31
-
-Both remain draft/review-only. Neither has been merged or deployed.
+## Production safety
+No production SQL/migration was applied, no Edge Function was deployed, no secret was changed, and no live content was published during this work.
