@@ -6,6 +6,7 @@ on:
       - "lesson-*.html"
       - "lesson-secure-client.js"
       - "scripts/check-secure-lessons.sh"
+      - "scripts/check-edge-function-contracts.sh"
       - ".github/workflows/edge-function-checks.yml"
   workflow_dispatch:
 permissions:
@@ -24,3 +25,5 @@ jobs:
         run: deno test supabase/functions/grade-quiz/grade.test.ts
       - name: Verify all lesson pages use server-side grading
         run: bash scripts/check-secure-lessons.sh
+      - name: Run free Edge Function security contract checks
+        run: bash scripts/check-edge-function-contracts.sh
