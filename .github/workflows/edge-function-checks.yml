@@ -1,0 +1,21 @@
+name: Edge Function Checks
+on:
+  pull_request:
+    paths:
+      - "supabase/functions/**"
+      - ".github/workflows/edge-function-checks.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  deno-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check Edge Functions
+        run: deno check supabase/functions/grade-quiz/index.ts supabase/functions/complete-lesson/index.ts
+      - name: Run quiz grading contract tests
+        run: deno test supabase/functions/grade-quiz/grade.test.ts
