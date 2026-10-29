@@ -10,6 +10,7 @@ The Market Lab is an educational companion to the Bullseye Theory course. It doe
 - Use fictional numbers only when labelled simulated; do not imply they are current.
 - Do not issue personalised buy/sell/hold recommendations or price targets in the educational demo.
 - For future real market commentary, cite primary sources, record exact publication/data timestamps, confirm data-display rights and obtain regulatory review before paid distribution.
+- If an embedded third-party quote widget is used, keep it visually separate from fictional sample fixtures, label the provider and possible delay, and do not imply that the embed grants Bullseye independent market-data redistribution rights.
 - A disclaimer is not a substitute for registration or authorisation that may be required.
 
 ## Review cadence
