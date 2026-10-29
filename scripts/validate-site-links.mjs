@@ -73,6 +73,17 @@ if (existsSync(terminalPath)) {
   }
 }
 
+const homePath = resolve(root, "index.html");
+if (existsSync(homePath)) {
+  const home = readFileSync(homePath, "utf8");
+  if (!home.includes("Market Lab scenario and watchlist fixtures are simulated")) {
+    errors.push("index.html must distinguish simulated Market Lab fixtures from provider data");
+  }
+  if (!home.includes("the separate ticker above is third-party data and may be delayed")) {
+    errors.push("index.html must label the separate provider ticker and possible delay");
+  }
+}
+
 const membershipPath = resolve(root, "membership.html");
 if (existsSync(membershipPath)) {
   const membership = readFileSync(membershipPath, "utf8");
