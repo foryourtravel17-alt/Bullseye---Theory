@@ -13,7 +13,7 @@ const pages = [
   "legal.html",
   "disclaimer.html"
 ];
-const requiredFiles = ["market-briefs.json", "scripts/validate-market-briefs.mjs"];
+const requiredFiles = ["market-briefs.json", "scripts/validate-market-briefs.mjs", "docs/market-briefing-policy.md"];
 const errors = [];
 
 for (const relative of [...pages, ...requiredFiles]) {
@@ -56,6 +56,46 @@ if (existsSync(terminalPath)) {
   }
   if (!/age\s*<=\s*8/.test(terminal)) {
     errors.push("terminal.html must hide factory observations older than eight hours");
+  }
+}
+
+// Guard visible content against demo-data and quote-provenance regressions.
+if (existsSync(terminalPath)) {
+  const terminal = readFileSync(terminalPath, "utf8");
+  for (const marker of [
+    "Fictional prices only",
+    "SIMULATED",
+    "Third-party Quote Tape",
+    "availability and delay depend on provider/exchange entitlements",
+    "Bullseye has not independently verified rights to redistribute quote data"
+  ]) {
+    if (!terminal.includes(marker)) errors.push("terminal.html is missing Market Lab guardrail: " + marker);
+  }
+}
+
+const membershipPath = resolve(root, "membership.html");
+if (existsSync(membershipPath)) {
+  const membership = readFileSync(membershipPath, "utf8");
+  for (const marker of [
+    "₹999",
+    "₹1,999",
+    "PRE-LAUNCH · PAYMENTS NOT ENABLED",
+    "Everything in the ₹999 course plan",
+    "Payments are intentionally disabled for now."
+  ]) {
+    if (!membership.includes(marker)) errors.push("membership.html is missing pricing/payment guardrail: " + marker);
+  }
+}
+
+const policyPath = resolve(root, "docs/market-briefing-policy.md");
+if (existsSync(policyPath)) {
+  const policy = readFileSync(policyPath, "utf8");
+  for (const marker of [
+    "Do not issue personalised buy/sell/hold recommendations or price targets",
+    "third-party quote widget",
+    "redistribution rights"
+  ]) {
+    if (!policy.toLowerCase().includes(marker.toLowerCase())) errors.push("market briefing policy is missing guardrail: " + marker);
   }
 }
 
