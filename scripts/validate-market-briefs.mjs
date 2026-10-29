@@ -14,8 +14,13 @@ if (pack.mode !== "educational_demo") errors.push("mode must remain educational_
 if (pack.dataStatus !== "simulated") errors.push("initial MVP must label data as simulated");
 if (!isDate(pack.lastReviewed)) errors.push("lastReviewed must be a real YYYY-MM-DD date");
 if (!isDate(pack.nextReviewDue)) errors.push("nextReviewDue must be a real YYYY-MM-DD date");
-if (isDate(pack.lastReviewed) && isDate(pack.nextReviewDue) && pack.nextReviewDue < pack.lastReviewed) {
-  errors.push("nextReviewDue must not be earlier than lastReviewed");
+if (isDate(pack.lastReviewed) && isDate(pack.nextReviewDue) && pack.nextReviewDue <= pack.lastReviewed) {
+  errors.push("nextReviewDue must be later than lastReviewed");
+}
+const todayUtc = new Date().toISOString().slice(0, 10);
+if (isDate(pack.lastReviewed) && pack.lastReviewed > todayUtc) errors.push("lastReviewed must not be in the future");
+if (isDate(pack.nextReviewDue) && pack.nextReviewDue < todayUtc) {
+  errors.push("nextReviewDue is stale; complete a real review and update the review dates");
 }
 if (!Array.isArray(pack.scenarios) || pack.scenarios.length < 3) errors.push("at least three scenario examples are required");
 if (!Array.isArray(pack.sampleInstruments) || pack.sampleInstruments.length < 1) errors.push("sampleInstruments must be non-empty");
