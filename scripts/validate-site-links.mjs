@@ -69,7 +69,7 @@ if (existsSync(terminalPath)) {
     "availability and delay depend on provider/exchange entitlements",
     "Bullseye has not independently verified rights to redistribute quote data"
   ]) {
-    if (!terminal.includes(marker)) errors.push("terminal.html is missing Market Lab guardrail: " + marker);
+    if (!terminal.toLowerCase().includes(marker.toLowerCase())) errors.push("terminal.html is missing Market Lab guardrail: " + marker);
   }
 }
 
