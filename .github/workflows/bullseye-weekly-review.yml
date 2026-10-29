@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - "market-briefs.json"
+      - "docs/market-briefing-policy.md"
+      - "docs/market-review-*.md"
+      - "docs/membership-pricing.md"
       - "scripts/validate-market-briefs.mjs"
       - "scripts/validate-site-links.mjs"
       - "package.json"
