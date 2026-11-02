@@ -57,3 +57,8 @@
 - Scenario pack changed: no.
 - Market-data display controls changed: yes.
 - Production changes: none.
+
+
+## Clean Market Lab extraction
+
+On 2 November 2026, a separate clean branch `feat/market-lab-clean-rebase` was created from current `main` and PR #34 opened to isolate the Market Lab policy/UI/validators from PR #11's 69-ahead/54-behind divergence. It carries the fictional-only brief pack, conditional scenario terminal, paused live/recent data displays, policy/review records, build validators, and Cloudflare `.assetsignore` exclusions for internal docs/scripts. PR #34 is draft; its Market Lab Guard workflow initially exposed stale validator assumptions and is being corrected. Do not claim green until the latest run completes.
