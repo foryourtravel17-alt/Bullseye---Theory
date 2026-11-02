@@ -60,7 +60,7 @@
 
 ## Follow-up verification addendum — 2026-11-02 (latest branch head)
 
-- Latest PR #11 head: `aeb053ee687ae71feb1f7c7995b59c71d94d54ef`. The branch is 76 commits ahead and 54 behind `main`; GitHub still reports the PR open, draft, unmerged and `mergeable=false`. This supersedes the earlier 69-ahead count in this handoff.
+- Latest PR #11 head: `8753ee5e527eb5323776ecd4f0863179fd1bdb56`. The branch is 78 commits ahead and 54 behind `main`; GitHub still reports the PR open, draft, unmerged and `mergeable=false`. This supersedes the earlier 69-ahead count in this handoff.
 - Draft corrections on the feature branch: the SEBI policy now records the circular's no-monetary-incentive-to-participants wording and its separate security-name/future-price/advice clarification; the homepage no longer promises lifetime access while duration is undecided; and the local validator now matches the paused quote/factory-feed design rather than requiring the retired eight-hour approved-feed path.
 - No commit status entries or PR-triggered workflow runs were returned for the latest head. The local container could not resolve GitHub to clone the private repository, so `npm test` was not executed locally. Do not call CI green until a successful run is visible on the exact current head.
 - A direct source inspection confirms that `lesson-2.html` and `lesson-11.html` include lesson bodies in static HTML and only check `course_access` in browser JavaScript. This is not a secure paid-content boundary. A direct request can retrieve the static file before the client redirect. Do not accept payments or claim paid-content protection until lesson bodies are served behind server-side authorization and direct-URL/bypass tests pass.
