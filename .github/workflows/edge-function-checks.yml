@@ -38,5 +38,7 @@ jobs:
         run: bash scripts/check-edge-function-contracts.sh
       - name: Test Cloudflare course entitlement Worker
         run: deno test scripts/test-cloudflare-entitlement-worker.ts
+      - name: Build Cloudflare Worker and static assets without deploying
+        run: npx --yes wrangler@4 deploy --dry-run --outdir .wrangler-dry-run
       - name: Check static course asset gate wiring
         run: bash scripts/check-cloudflare-entitlement-gate.sh
