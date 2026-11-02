@@ -21,3 +21,15 @@ verify_jwt = true
 
 [functions.complete-lesson]
 verify_jwt = true
+
+[functions.get-trc20-payment-config]
+verify_jwt = false
+
+[functions.create-trc20-order]
+verify_jwt = true
+
+[functions.get-trc20-order-status]
+verify_jwt = true
+
+[functions.scan-trc20-payments]
+verify_jwt = false
