@@ -25,7 +25,7 @@
 
 - Connector-side source assertions after the edits: homepage no longer contains the TradingView ticker script or stale hero quote numbers; Market Lab no longer embeds TradingView or fetches `approved_market_feed.json`; policy includes the SEBI circular/30-day control and NISM/audit-trail qualifications; all sample fixture labels remain fictional; package build includes the new compliance guard. These are source-level checks only, not a completed `npm test` execution.
 - GitHub Actions for the latest Market Lab head were not returned by the available commit-workflow query. Do not call CI green until a successful run is visible in GitHub.
-- No production deployment, merge, Supabase SQL/function deployment, secret change, payment activation or social publishing occurred.
+- On 2026-11-02, the connected Supabase project received the six reviewed schema migrations plus an additional performance/RLS policy migration. The six course/payment Edge Functions were deployed. Checkout remains closed; TRON scanner secrets/schedule are not configured. Cloudflare production Worker deployment and social publishing were not performed.
 
 ## Current PR/release state
 
