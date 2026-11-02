@@ -54,15 +54,18 @@ Deno.serve(async (req: Request) => {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const { data: access, error: accessError } = await admin
-    .from("course_access")
-    .select("is_active,payment_verified,expires_at")
-    .eq("user_id", userId)
-    .maybeSingle();
-  if (accessError) return respond({ error: "Could not verify course access" }, 500);
-  const active = !!access?.is_active && !!access?.payment_verified &&
-    (!access.expires_at || new Date(access.expires_at).getTime() > Date.now());
-  if (!active) return respond({ error: "Active verified course access is required" }, 403);
+  // Lesson 1 is free for signed-in students; paid access is required for Lessons 2–11.
+  if (lessonNumber !== 1) {
+    const { data: access, error: accessError } = await admin
+      .from("course_access")
+      .select("is_active,payment_verified,expires_at")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (accessError) return respond({ error: "Could not verify course access" }, 500);
+    const active = !!access?.is_active && !!access?.payment_verified &&
+      (!access.expires_at || new Date(access.expires_at).getTime() > Date.now());
+    if (!active) return respond({ error: "Active verified course access is required for Lessons 2–11" }, 403);
+  }
 
   const { data: passingAttempt, error: attemptError } = await admin
     .from("quiz_attempts")
