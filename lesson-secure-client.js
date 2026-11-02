@@ -37,11 +37,14 @@
     const { data: { session }, error: sessionError } = await sb.auth.getSession();
     if (sessionError || !session) { location.href = "auth.html"; return; }
     signedIn = true;
-    const { data: access, error: accessError } = await sb.from("course_access")
-      .select("is_active,payment_verified,expires_at").eq("user_id", session.user.id).maybeSingle();
-    const active = !accessError && !!access?.is_active && !!access?.payment_verified &&
-      (!access.expires_at || new Date(access.expires_at) > new Date());
-    if (!active) { alert("Course access is not active yet."); location.href = "dashboard.html"; return; }
+    if (lesson !== 1) {
+      const { data: access, error: accessError } = await sb.from("course_access")
+        .select("is_active,payment_verified,expires_at").eq("user_id", session.user.id).maybeSingle();
+      const expiry = access?.expires_at ? new Date(access.expires_at).getTime() : 0;
+      const active = !accessError && !!access?.is_active && !!access?.payment_verified &&
+        Number.isFinite(expiry) && expiry > Date.now();
+      if (!active) { alert("Paid course access is not active yet. Lesson 1 remains available as a free preview."); location.href = "dashboard.html"; return; }
+    }
 
     const { data: progress } = await sb.from("lesson_progress")
       .select("completed,quiz_passed").eq("user_id", session.user.id)

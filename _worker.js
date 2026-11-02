@@ -35,8 +35,9 @@ function isProtectedCourseAsset(pathname) {
   try { normalized = decodeURIComponent(pathname); } catch { /* malformed paths still checked below */ }
   normalized = normalized.replace(/\\/g, "/");
   const lessonFile = /(?:^|\/)lesson-(?:[1-9]|1[01])(?:[-./]|$)/i.test(normalized);
+  const freePreviewPage = /^\/lesson-1\.html$/i.test(normalized);
   const courseDirectory = /^\/(?:lessons?|course-assets?|downloads?|pdf|pptx|videos?)\/.+$/i.test(normalized);
-  return lessonFile || courseDirectory;
+  return (lessonFile && !freePreviewPage) || courseDirectory;
 }
 
 function originAllowed(request) {
@@ -71,8 +72,8 @@ async function getVerifiedEntitlement(token, env) {
   // Fail closed if data integrity is unexpected; there must be one entitlement row per user.
   if (!Array.isArray(rows) || rows.length !== 1) return false;
   const access = rows[0];
-  const expiry = access?.expires_at ? Date.parse(access.expires_at) : Infinity;
-  return !!access?.is_active && !!access?.payment_verified && expiry > Date.now();
+  const expiry = access?.expires_at ? Date.parse(access.expires_at) : 0;
+  return !!access?.is_active && !!access?.payment_verified && Number.isFinite(expiry) && expiry > Date.now();
 }
 
 async function setSession(request, env) {

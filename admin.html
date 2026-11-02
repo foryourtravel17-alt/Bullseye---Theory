@@ -8,7 +8,7 @@
 <div id="status" class="status">Checking admin access…</div>
 <section class="card"><h2>Grant or update student access</h2>
 <label for="student">Student account (email)</label><select id="student"><option value="">Loading student accounts…</option></select>
-<div class="row"><div><label for="expiry">Access expiry (optional)</label><input id="expiry" type="date"><p class="muted">Leave blank for no expiry.</p></div><div><label>Access flags</label>
+<div class="row"><div><label for="expiry">Access expiry (optional)</label><input id="expiry" type="date"><p class="muted">Leave blank for the standard 85-day access period. Choose a later date only for an approved admin extension.</p></div><div><label>Access flags</label>
 <div class="check"><input id="active" type="checkbox" checked><label for="active">Course access active</label></div>
 <div class="check"><input id="verified" type="checkbox"><label for="verified">Payment independently verified</label></div>
 </div></div>
@@ -44,7 +44,7 @@ function render(){
  students.forEach(s=>{const card=el('article','','card');card.append(el('h3',(s.full_name||'Student')+' — '+(s.email||'email unavailable')));
  card.append(el('p','User ID: '+s.user_id,'muted'));
  card.append(el('p','Access: '+(s.is_active?'ACTIVE':'INACTIVE')+' · Payment verified: '+(s.payment_verified?'YES':'NO')));
- card.append(el('p','Expiry: '+(s.expires_at?new Date(s.expires_at).toLocaleDateString():'No expiry')));
+ card.append(el('p','Expiry: '+(s.expires_at?new Date(s.expires_at).toLocaleDateString() :'Not set')));
  const b=el('button','EDIT THIS STUDENT');b.addEventListener('click',()=>{ $('student').value=s.user_id;$('active').checked=!!s.is_active;$('verified').checked=!!s.payment_verified;$('expiry').value=s.expires_at?s.expires_at.slice(0,10):'';window.scrollTo({top:0,behavior:'smooth'});});card.append(b);list.append(card);});
 }
 $('save').addEventListener('click',async()=>{

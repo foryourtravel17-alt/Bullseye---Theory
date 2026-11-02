@@ -6,12 +6,18 @@ function testToken(exp: number): string {
 }
 
 Deno.test("course asset matcher protects lesson pages and course resource directories", () => {
-  for (const path of ["/lesson-1.html", "/lesson-11.pdf", "/lesson-2-slides.pptx", "/lesson-3/video.mp4", "/assets/lesson-2.pdf", "/lesson-2%2Fslides.pdf", "/lessons/lesson-1.html", "/course-assets/chart.pdf", "/downloads/workbook.pdf"]) {
+  for (const path of ["/lesson-1.pdf", "/lesson-11.pdf", "/lesson-2-slides.pptx", "/lesson-3/video.mp4", "/assets/lesson-2.pdf", "/lesson-2%2Fslides.pdf", "/lessons/lesson-1.html", "/course-assets/chart.pdf", "/downloads/workbook.pdf"]) {
     if (!isProtectedCourseAsset(path)) throw new Error("Expected protected path: " + path);
   }
-  for (const path of ["/", "/index.html", "/auth.html", "/lesson-12.html", "/lesson-notes.html"]) {
+  for (const path of ["/", "/index.html", "/auth.html", "/lesson-1.html", "/lesson-12.html", "/lesson-notes.html"]) {
     if (isProtectedCourseAsset(path)) throw new Error("Unexpected protected path: " + path);
   }
+});
+
+Deno.test("lesson 1 HTML remains a public preview while paid lessons and downloads stay protected", () => {
+  if (isProtectedCourseAsset("/lesson-1.html")) throw new Error("Lesson 1 preview must remain public");
+  if (!isProtectedCourseAsset("/lesson-2.html")) throw new Error("Lesson 2 must remain protected");
+  if (!isProtectedCourseAsset("/lesson-1.pdf")) throw new Error("Lesson 1 downloadable assets must remain protected");
 });
 
 Deno.test("cookie parser reads the exact session cookie", () => {
@@ -49,7 +55,7 @@ Deno.test("session exchange sets a short-lived HttpOnly cookie only after verifi
     const url = String(input);
     if (url.endsWith("/auth/v1/user")) return new Response(JSON.stringify({ id: "student-1" }), { status: 200 });
     if (url.includes("/rest/v1/course_access?")) {
-      return new Response(JSON.stringify([{ is_active: true, payment_verified: true, expires_at: null }]), { status: 200 });
+      return new Response(JSON.stringify([{ is_active: true, payment_verified: true, expires_at: new Date(Date.now() + 60_000).toISOString() }]), { status: 200 });
     }
     throw new Error("Unexpected upstream request: " + url);
   }) as typeof fetch;
@@ -85,7 +91,7 @@ Deno.test("expired or unentitled sessions never receive protected asset bytes", 
     const url = String(input);
     if (url.endsWith("/auth/v1/user")) return new Response(JSON.stringify({ id: "student-2" }), { status: 200 });
     if (url.includes("/rest/v1/course_access?")) {
-      return new Response(JSON.stringify([{ is_active: true, payment_verified: false, expires_at: null }]), { status: 200 });
+      return new Response(JSON.stringify([{ is_active: true, payment_verified: false, expires_at: new Date(Date.now() + 60_000).toISOString() }]), { status: 200 });
     }
     throw new Error("Unexpected upstream request: " + url);
   }) as typeof fetch;
@@ -113,8 +119,8 @@ Deno.test("duplicate entitlement rows fail closed", async () => {
     if (url.endsWith("/auth/v1/user")) return new Response(JSON.stringify({ id: "student-duplicate" }), { status: 200 });
     if (url.includes("/rest/v1/course_access?")) {
       return new Response(JSON.stringify([
-        { is_active: true, payment_verified: true, expires_at: null },
-        { is_active: false, payment_verified: false, expires_at: null },
+        { is_active: true, payment_verified: true, expires_at: new Date(Date.now() + 60_000).toISOString() },
+        { is_active: false, payment_verified: false, expires_at: new Date(Date.now() + 60_000).toISOString() },
       ]), { status: 200 });
     }
     throw new Error("Unexpected upstream request: " + url);
@@ -143,7 +149,7 @@ Deno.test("active entitled student receives the lesson with private cache header
     const url = String(input);
     if (url.endsWith("/auth/v1/user")) return new Response(JSON.stringify({ id: "student-active" }), { status: 200 });
     if (url.includes("/rest/v1/course_access?")) {
-      return new Response(JSON.stringify([{ is_active: true, payment_verified: true, expires_at: null }]), { status: 200 });
+      return new Response(JSON.stringify([{ is_active: true, payment_verified: true, expires_at: new Date(Date.now() + 60_000).toISOString() }]), { status: 200 });
     }
     throw new Error("Unexpected upstream request: " + url);
   }) as typeof fetch;
