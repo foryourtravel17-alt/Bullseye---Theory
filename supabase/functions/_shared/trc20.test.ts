@@ -1,6 +1,7 @@
 import {
   buildUsdtAmountAtomic,
   findMatchingOrders,
+  hasExactUsdtTransferReceiptLog,
   isSolidifiedSuccessfulReceipt,
   parseAtomicUsdt,
   timingSafeEqualText,
@@ -86,6 +87,24 @@ Deno.test("order quote uses six-decimal USDT units and unique suffix", () => {
   const amount = BigInt(buildUsdtAmountAtomic(999, 83, 321));
   assert(amount > 0n, "quoted amount should be positive");
   same(amount % 1000n, (BigInt(Math.round((999 / 83) * 1_000_000)) + 321n) % 1000n, "unique suffix is included");
+});
+
+
+Deno.test("requires the exact official USDT Transfer event in the solidified receipt", () => {
+  const log = {
+    address: "41a614f803b6fd780986a42c78ec9c7f77e6ded13c",
+    topics: [
+      "ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+      "0000000000000000000000001111111111111111111111111111111111111111",
+      "000000000000000000000000389e7f090fe45d935a8f3b641f4fd11a54aeae54",
+    ],
+    data: "0000000000000000000000000000000000000000000000000000000000bebc20",
+  };
+  same(hasExactUsdtTransferReceiptLog({ log: [log] }, "12500000"), true, "exact USDT Transfer receipt accepted");
+  same(hasExactUsdtTransferReceiptLog({ log: [log] }, "12500001"), false, "wrong receipt amount rejected");
+  same(hasExactUsdtTransferReceiptLog({ log: [{ ...log, address: "41" + "0".repeat(40) }] }, "12500000"), false, "wrong contract rejected");
+  same(hasExactUsdtTransferReceiptLog({ log: [{ ...log, topics: [log.topics[0], log.topics[1], "0".repeat(64)] }] }, "12500000"), false, "wrong receipt recipient rejected");
+  same(hasExactUsdtTransferReceiptLog({ log: [{ ...log, topics: ["0".repeat(64), ...log.topics.slice(1)] }] }, "12500000"), false, "wrong event signature rejected");
 });
 
 Deno.test("cron bearer secret comparison is exact", () => {
