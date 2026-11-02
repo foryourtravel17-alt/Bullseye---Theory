@@ -21,6 +21,19 @@
   let activeOrderId = null;
   let pollTimer = null;
   let pollDeadline = 0;
+  const ACTIVE_ORDER_KEY = "bullseye_active_trc20_order_v1";
+
+  function saveActiveOrder(orderId) {
+    try { sessionStorage.setItem(ACTIVE_ORDER_KEY, orderId); } catch { /* storage may be unavailable */ }
+  }
+
+  function clearActiveOrder() {
+    try { sessionStorage.removeItem(ACTIVE_ORDER_KEY); } catch { /* storage may be unavailable */ }
+  }
+
+  function getSavedOrder() {
+    try { return sessionStorage.getItem(ACTIVE_ORDER_KEY); } catch { return null; }
+  }
 
   function setStatus(message, kind = "info") {
     status.textContent = message;
@@ -30,6 +43,50 @@
   function formatExpiry(value) {
     const date = new Date(value);
     return Number.isNaN(date.getTime()) ? "—" : date.toLocaleString();
+  }
+
+  async function restorePendingOrder() {
+    const savedOrderId = getSavedOrder();
+    if (!savedOrderId) return false;
+
+    const { data, error } = await client.functions.invoke("get-trc20-order-status", {
+      body: { order_id: savedOrderId }
+    });
+    if (error || !data) {
+      setStatus("Your saved order could not be checked right now. Do not send again; refresh or contact support.", "error");
+      button.disabled = true;
+      return true;
+    }
+
+    activeOrderId = savedOrderId;
+    orderPanel.hidden = false;
+    amountNode.textContent = data.usdt_amount + " USDT";
+    expiryNode.textContent = formatExpiry(data.expires_at);
+
+    if (data.status === "paid") {
+      clearActiveOrder();
+      setStatus("This order is already paid and verified. Course access is active for your account.", "success");
+      paidLink.hidden = false;
+      button.disabled = true;
+      return true;
+    }
+    if (data.status === "expired") {
+      clearActiveOrder();
+      setStatus("Your previous order expired. Do not send funds to it. You may create a new order.", "error");
+      button.disabled = false;
+      return true;
+    }
+    if (data.status === "manual_review") {
+      setStatus("Your previous payment needs manual reconciliation. Do not send again; contact support with your order reference.", "error");
+      button.disabled = true;
+      return true;
+    }
+
+    pollDeadline = new Date(data.expires_at).getTime() + 60 * 60 * 1000;
+    button.disabled = true;
+    setStatus("Your pending order has been restored. Send only the exact amount shown before its expiry; do not create another order.");
+    pollOrder(savedOrderId);
+    return true;
   }
 
   async function loadConfiguration() {
@@ -50,6 +107,15 @@
     const paymentState = byId("paymentState");
     const paymentStateNote = byId("paymentStateNote");
     const topPaymentStatus = byId("topPaymentStatus");
+    if (sessionData.session) {
+      const restored = await restorePendingOrder();
+      if (restored) {
+        if (paymentState) paymentState.textContent = data.checkout_enabled ? "ORDER IN PROGRESS" : "CHECKOUT CLOSED";
+        if (paymentStateNote) paymentStateNote.textContent = "Your existing order is being checked. Do not create a second payment.";
+        if (topPaymentStatus) topPaymentStatus.textContent = data.checkout_enabled ? "EXISTING ORDER RESTORED" : "CHECKOUT CLOSED · EXISTING ORDER CHECKING";
+        return;
+      }
+    }
     if (!data.checkout_enabled) {
       if (paymentState) paymentState.textContent = "CHECKOUT CLOSED";
       if (paymentStateNote) paymentStateNote.textContent = "Automatic verifier secrets are not configured or checkout has not been enabled.";
@@ -82,12 +148,14 @@
         return;
       }
       if (data.status === "paid") {
+        clearActiveOrder();
         setStatus("Payment verified on TRON Mainnet. Course access has been activated for your account.", "success");
         paidLink.hidden = false;
         button.disabled = true;
         return;
       }
       if (data.status === "expired") {
+        clearActiveOrder();
         setStatus("This payment order expired without a verified matching transfer. Do not send to this expired order; contact support if you already transferred.", "error");
         button.disabled = false;
         return;
@@ -136,6 +204,7 @@
       return;
     }
     activeOrderId = data.order_id;
+    saveActiveOrder(activeOrderId);
     orderPanel.hidden = false;
     amountNode.textContent = data.usdt_amount + " USDT";
     expiryNode.textContent = formatExpiry(data.expires_at);
