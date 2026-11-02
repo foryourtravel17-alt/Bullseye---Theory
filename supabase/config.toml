@@ -1,0 +1,35 @@
+project_id = "bullseye-theory-local"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+
+[studio]
+enabled = true
+port = 54323
+
+[functions.grade-quiz]
+verify_jwt = true
+
+[functions.complete-lesson]
+verify_jwt = true
+
+[functions.get-trc20-payment-config]
+verify_jwt = false
+
+[functions.create-trc20-order]
+verify_jwt = true
+
+[functions.get-trc20-order-status]
+verify_jwt = true
+
+[functions.scan-trc20-payments]
+verify_jwt = false
