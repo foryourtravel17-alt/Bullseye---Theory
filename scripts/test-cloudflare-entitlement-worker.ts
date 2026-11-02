@@ -14,7 +14,13 @@ Deno.test("course asset matcher protects lesson pages and course resource direct
   }
 });
 
-Deno.test("lesson 1 HTML remains a public preview while paid lessons and downloads stay protected", () => {\n  if (isProtectedCourseAsset("/lesson-1.html")) throw new Error("Lesson 1 preview must remain public");\n  if (!isProtectedCourseAsset("/lesson-2.html")) throw new Error("Lesson 2 must remain protected");\n  if (!isProtectedCourseAsset("/lesson-1.pdf")) throw new Error("Lesson 1 downloadable assets must remain protected");\n});\n\nDeno.test("cookie parser reads the exact session cookie", () => {
+Deno.test("lesson 1 HTML remains a public preview while paid lessons and downloads stay protected", () => {
+  if (isProtectedCourseAsset("/lesson-1.html")) throw new Error("Lesson 1 preview must remain public");
+  if (!isProtectedCourseAsset("/lesson-2.html")) throw new Error("Lesson 2 must remain protected");
+  if (!isProtectedCourseAsset("/lesson-1.pdf")) throw new Error("Lesson 1 downloadable assets must remain protected");
+});
+
+Deno.test("cookie parser reads the exact session cookie", () => {
   const value = cookieValue("theme=dark; bt_course_session=abc.def.sig; other=x", "bt_course_session");
   if (value !== "abc.def.sig") throw new Error("Unexpected cookie value: " + value);
   if (cookieValue("not_bt_course_session=x", "bt_course_session") !== "") throw new Error("Matched a partial cookie name");
