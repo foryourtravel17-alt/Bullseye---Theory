@@ -137,10 +137,12 @@ begin
       payment_verified = true,
       activated_at = case
         when public.course_access.is_active and public.course_access.payment_verified
+          and (public.course_access.expires_at is null or public.course_access.expires_at > now())
           then public.course_access.activated_at
         else now()
       end,
-      expires_at = now() + make_interval(days => v_order.access_days),
+      expires_at = greatest(coalesce(public.course_access.expires_at, now()), now())
+        + make_interval(days => v_order.access_days),
       updated_at = now();
 
   return 'paid';
