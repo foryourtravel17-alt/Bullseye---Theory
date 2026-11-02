@@ -52,10 +52,11 @@ async function init(){
   const {data:access,error}=await sb.from("course_access").select("is_active,payment_verified,expires_at").eq("user_id",user.id).maybeSingle();
   const expiry=access?.expires_at?new Date(access.expires_at).getTime():0;
   const active=!!access?.is_active && !!access?.payment_verified && Number.isFinite(expiry) && expiry>Date.now();
+  const expired=!!access?.is_active && !!access?.payment_verified && Number.isFinite(expiry) && expiry<=Date.now();
   const expiryLabel=access?.expires_at?new Date(access.expires_at).toLocaleDateString():"not configured";
   if(active) await syncCourseCookie(session);
-  document.getElementById("accessTitle").textContent=active?"COURSE ACTIVE":"FREE PREVIEW AVAILABLE";
-  document.getElementById("accessText").textContent=active?"Your Bullseye Theory course is active until "+expiryLabel+".":"Lesson 1 is available as a free preview. Lessons 2–11 unlock after payment is verified.";
+  document.getElementById("accessTitle").textContent=active?"COURSE ACTIVE":(expired?"ACCESS EXPIRED":"FREE PREVIEW AVAILABLE");
+  document.getElementById("accessText").textContent=active?"Your Bullseye Theory course is active until "+expiryLabel+".":(expired?"Your 85-day course access expired on "+expiryLabel+". Lesson 1 remains free; renew to unlock Lessons 2–11.":"Lesson 1 is available as a free preview. Lessons 2–11 unlock after payment is verified.");
 
   const {data:progressRows}=await sb.from("lesson_progress").select("lesson_number,completed,progress_percent").eq("user_id",user.id);
   const completed=new Map((progressRows||[]).map(row=>[row.lesson_number,row]));
@@ -89,6 +90,7 @@ async function init(){
   }).join("");
 
   if(active) document.getElementById("notice").textContent="Course access is active until "+expiryLabel+". Start the lessons and your quiz/completion progress will be saved to your student account.";
+  else if(expired) document.getElementById("notice").textContent="Your 85-day course access expired on "+expiryLabel+". Lesson 1 remains available as a free preview; renew to unlock Lessons 2–11.";
   else document.getElementById("notice").textContent="Your account is ready. Lesson 1 is a free preview; Lessons 2–11 remain locked until payment is verified.";
   if(error) document.getElementById("accessText").textContent="Account found, but course-access status could not be loaded yet.";
 }
