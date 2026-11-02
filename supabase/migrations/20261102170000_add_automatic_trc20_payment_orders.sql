@@ -97,7 +97,7 @@ begin
     return 'order_already_paid';
   end if;
   if v_order.status <> 'pending' then return 'order_not_pending'; end if;
-  if now() > v_order.expires_at then
+  if now() > v_order.expires_at + interval '1 hour' then
     update public.payment_orders set status = 'expired'
     where id = p_order_id and status = 'pending';
     return 'order_expired';
