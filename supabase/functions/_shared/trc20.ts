@@ -30,7 +30,7 @@ export function parseAtomicUsdt(value: unknown, decimals: unknown): string | nul
   if (Number(decimals) !== USDT_DECIMALS) return null;
   if (typeof value !== "string" && typeof value !== "number") return null;
   const text = String(value);
-  if (!/^\\d+$/.test(text)) return null;
+  if (!/^\d+$/.test(text)) return null;
   try {
     const amount = BigInt(text);
     return amount > 0n ? amount.toString() : null;
@@ -42,6 +42,7 @@ export function parseAtomicUsdt(value: unknown, decimals: unknown): string | nul
 export function validateIncomingTransfer(
   transfer: TronTransfer,
   destination = TRON_RECEIVING_WALLET,
+  confirmedByQuery = false,
 ): { txHash: string; from: string; amountAtomic: string; blockTimestamp: number } | null {
   const txHash = transfer.transaction_id || transfer.txID || "";
   const from = transfer.from || "";
@@ -51,7 +52,7 @@ export function validateIncomingTransfer(
   const blockTimestamp = Number(transfer.block_timestamp);
 
   if (!/^[a-fA-F0-9]{64}$/.test(txHash)) return null;
-  if (transfer.confirmed !== true) return null;
+  if (!confirmedByQuery) return null;
   if (to !== destination || from.length < 20 || from === destination) return null;
   if (token !== TRON_MAINNET_USDT_CONTRACT || !amountAtomic) return null;
   if (!Number.isSafeInteger(blockTimestamp) || blockTimestamp <= 0) return null;
