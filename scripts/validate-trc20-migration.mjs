@@ -75,7 +75,7 @@ for (const table of Object.keys(required)) {
 
 for (const marker of [
   "security invoker",
-  "current_user <> 'service_role'",
+  "pg_catalog.current_setting('role', true) is distinct from 'service_role'",
   "for update",
   "v_order.access_days",
   "payment_tx_hash = p_tx_hash",
