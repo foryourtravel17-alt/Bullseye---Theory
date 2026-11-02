@@ -20,6 +20,7 @@ Review the scenario pack twice each week (Monday and Thursday). Review:
 3. Official exchange and company disclosures, RBI and government statistical releases when relevant.
 4. Source quality and licensing/redistribution permissions before incorporating data.
 5. Regulatory or product changes that affect how content is offered.
+6. When using exchange event calendars, describe entries as scheduled events only; verify the actual exchange-filed announcement before describing a result or drawing conclusions. Record the exchange, publication/as-of time and timezone for dated claims.
 
 If trustworthy evidence is unavailable, keep scenarios generic and label them educational. Do not publish fabricated updates to meet the schedule.
 
