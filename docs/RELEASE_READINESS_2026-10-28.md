@@ -54,3 +54,21 @@ Reviewing PR #29 against the live function definition found that `public.is_admi
 ## Payment QR readiness update
 
 The owner reports a valid USDT QR is available and the official Indian UPI QR is expected shortly. The existing `payment.html` currently has placeholders for UPI, PayPal and USDT TRC20 and explicitly keeps all methods inactive. Do not assume the available USDT QR is TRC20: verify the exact chain, token contract, destination address and test transaction before displaying it. A QR/screenshot is not proof of settlement. Keep manual admin verification and server-side entitlement activation; do not auto-unlock from a client-supplied receipt. Before accepting USDT for course services, obtain qualified Indian CA/legal advice on VDA tax/TDS, GST, accounting, and any applicable payment/foreign-exchange requirements. The current Income Tax Department guidance on section 194S includes payments for VDA transfers and service consideration in VDA can raise withholding questions; applicability depends on transaction structure and facts. No payment settings or access records were changed.
+
+
+## Course content cross-check completed — 2 Nov 2026
+
+- Compared the server-held answer key against the five displayed answer choices on lessons 1–10. The selected answer in the server key matches the correct educational choice on each question.
+- Lesson 11's five choices were checked against the stored key: context/structure, risk controls, evidence-based breakout study, review/journaling, and a repeatable process.
+- Added a Deno test that asserts the stored answer keys for all eleven lessons grade to 5/5.
+- Corrected stale visible curriculum labels from `LESSON 3 / 10` through `LESSON 10 / 10` to `/ 11`, and extended the static lesson guard to prevent recurrence.
+- This is a content-to-key consistency check, not an independent expert review of the entire trading curriculum. Lessons 3–10 still need a qualified course-editor proofread for completeness and clarity before sales.
+
+## Updated release blockers
+
+1. The new quiz-answer-key RLS migration is draft-only and must be tested locally/staging before any production apply.
+2. PR #27's `(user_id, lesson_number)` primary-key migration is needed before the current Edge Function's upsert contract can work against the live schema. It must be reconciled with PR #14; do not apply both schema models.
+3. Secure Edge Functions remain undeployed; local/staging integration tests are still required.
+4. Static paid lesson HTML is still directly retrievable from the public Cloudflare asset site. Client-side login/redirect checks are not an access-control boundary. Do not sell the course until paid lesson content is served behind a server-side entitlement check or private authenticated storage.
+5. USDT QR was reported available by the owner, and official Indian UPI QR is expected. The payment page currently has placeholders. Exact USDT network/token contract/address and a verified test transfer are required before displaying the QR; do not assume TRC20. A screenshot is not settlement proof. Keep admin manual verification and access activation; do not automate unlock from a client receipt.
+6. Obtain qualified Indian CA/legal review of accepting USDT as consideration for course services (including VDA tax/TDS and GST/accounting treatment) before enabling crypto payments. This is not a legal/tax opinion.
