@@ -17,8 +17,10 @@ Deno.serve((req: Request) => {
     });
   }
 
+  const accessDays = Number(Deno.env.get("COURSE_ACCESS_DAYS"));
   const checkoutEnabled =
     Deno.env.get("USDT_CHECKOUT_ENABLED") === "true" &&
+    Number.isInteger(accessDays) && accessDays >= 1 && accessDays <= 3650 &&
     Boolean(Deno.env.get("TRONGRID_API_KEY")) &&
     Boolean(Deno.env.get("TRC20_SCANNER_CRON_SECRET")) &&
     Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"));
@@ -31,6 +33,7 @@ Deno.serve((req: Request) => {
     wallet_address: TRON_RECEIVING_WALLET,
     token_contract: TRON_MAINNET_USDT_CONTRACT,
     plans: { course_inr: 999, premium_inr: 1999 },
+    course_access_days: checkoutEnabled ? accessDays : null,
     message: checkoutEnabled
       ? "Course checkout is configured. Sign in to create a time-limited payment order."
       : "Checkout is closed while payment verification is being configured and tested.",
