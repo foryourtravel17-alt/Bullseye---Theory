@@ -47,10 +47,19 @@
       return;
     }
     const { data: sessionData } = await client.auth.getSession();
+    const paymentState = byId("paymentState");
+    const paymentStateNote = byId("paymentStateNote");
+    const topPaymentStatus = byId("topPaymentStatus");
     if (!data.checkout_enabled) {
+      if (paymentState) paymentState.textContent = "CHECKOUT CLOSED";
+      if (paymentStateNote) paymentStateNote.textContent = "Automatic verifier secrets are not configured or checkout has not been enabled.";
+      if (topPaymentStatus) topPaymentStatus.textContent = "PAYMENT CHECKOUT CLOSED · DO NOT TRANSFER";
       setStatus("Checkout is closed while automatic payment verification is being configured. Do not transfer funds yet.");
       return;
     }
+    if (paymentState) paymentState.textContent = "COURSE CHECKOUT AVAILABLE";
+    if (paymentStateNote) paymentStateNote.textContent = "Create an order first and transfer only the exact amount shown before its expiry.";
+    if (topPaymentStatus) topPaymentStatus.textContent = "COURSE CHECKOUT AVAILABLE · CREATE AN ORDER FIRST";
     if (!sessionData.session) {
       setStatus("Payment verification is ready for course checkout. Sign in first to create your personal order.");
       return;
