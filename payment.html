@@ -22,7 +22,7 @@ main{max-width:1080px;margin:auto;padding:44px 22px 80px}.eyebrow{color:var(--li
 <div class="eyebrow">STUDENT ENROLMENT / PAYMENT INFORMATION</div>
 <h1>Choose your<br><span style="color:var(--lime)">learning plan.</span></h1>
 <p class="intro">Bullseye Theory is structured trading education built around market structure, price action, risk management, trading psychology and review. The payment QR below is the accountant-supplied receiving QR, formatted for the website.</p>
-<div class="status">PAYMENT CHECKOUT CLOSED · AUTOMATION TESTING IN PROGRESS</div>
+<div class="status" id="topPaymentStatus">PAYMENT CHECKOUT CLOSED · AUTOMATION TESTING IN PROGRESS</div>
 <div class="prices">
 <section class="card"><div class="tag">COMPLETE COURSE</div><h2>11-Lesson Course</h2><div class="price">₹999</div><p>Planned one-time course price. Paid lessons unlock only after a verified payment.</p></section>
 <section class="card"><div class="tag">COURSE + PREMIUM</div><h2>Premium Bundle</h2><div class="price">₹1,999</div><p>Planned bundle price. Premium deliverables, access duration and Telegram entitlement terms must be finalized before enrolment opens.</p></section>
@@ -40,7 +40,7 @@ main{max-width:1080px;margin:auto;padding:44px 22px 80px}.eyebrow{color:var(--li
 <div class="detail"><small>RECEIVING WALLET ADDRESS</small><b class="wallet" id="walletAddress">TF8aiK6Q8kboLBcaHtckapVpsEQyR3oWwV</b><button class="btn" id="copyWallet" type="button">Copy wallet address</button></div>
 <div class="detail"><small>OFFICIAL USDT TOKEN CONTRACT</small><b>TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t</b><a href="https://tronscan.org/#/token20/TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t" target="_blank" rel="noopener noreferrer">View USDT contract on TronScan ↗</a></div>
 <div class="detail"><small>NETWORK</small><b>TRON MAINNET · TRC-20 ONLY</b></div>
-<div class="detail"><small>PAYMENT STATE</small><b style="color:var(--gold)">NOT ACCEPTING PAYMENTS YET</b><span class="muted">Automated order creation, on-chain settlement checks and course unlock are still being tested.</span></div>
+<div class="detail"><small>PAYMENT STATE</small><b id="paymentState" style="color:var(--gold)">CHECKOUT CLOSED</b><span id="paymentStateNote" class="muted">Waiting for automated verifier configuration and tests.</span></div>
 </div>
 </div>
 <div class="notice"><strong>Safety gate:</strong> Do not transfer funds unless secure checkout below successfully creates an order and displays the exact USDT amount and expiry time. If checkout says closed, the QR is shown for reference only. Never send a rounded amount or use a different network. A screenshot or customer-entered transaction hash will never trigger an unlock by itself.</div>
