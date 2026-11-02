@@ -1,7 +1,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { buildUsdtAmountAtomic, TRON_MAINNET_USDT_CONTRACT, TRON_RECEIVING_WALLET } from "../_shared/trc20.ts";
 
-const SITE_ORIGIN = Deno.env.get("ALLOWED_SITE_ORIGIN") || "https://bullseye-theory.foryourtravel17.workers.dev";\nconst COURSE_ACCESS_DAYS = 85;
+const SITE_ORIGIN = Deno.env.get("ALLOWED_SITE_ORIGIN") || "https://bullseye-theory.foryourtravel17.workers.dev";
+const COURSE_ACCESS_DAYS = 85;
 const corsHeaders = {
   "Access-Control-Allow-Origin": SITE_ORIGIN,
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
