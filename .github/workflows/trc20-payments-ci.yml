@@ -31,6 +31,8 @@ jobs:
         uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
+      - name: Validate payment migration structure and privileges
+        run: node scripts/validate-trc20-migration.mjs
       - name: Test strict TRC-20 matching and settlement rules
         run: deno test supabase/functions/_shared/trc20.test.ts
       - name: Type-check payment Edge Functions
