@@ -53,3 +53,27 @@
 - Existing `market-briefs.json` scenario pack and fictional sample values were not changed. Review metadata remains 2026-11-02 / 2026-11-05 because this review was completed on 2 November.
 - These changes are draft-only on `feat/bullseye-companion-terminal-memberships`. They do not establish legal compliance or data rights; obtain qualified Indian securities-law review before re-enabling any live/recent data display.
 - Required next verification: run the branch's GitHub Actions on the latest head; visually QA the changed homepage/Market Lab on mobile and desktop; resolve PR #11's base-branch divergence/conflicts; separately remediate the public factory raw-state exposure and reconcile course-security PRs #14/#27/#30/#31/#32. No merge, production deploy, Supabase migration or publishing was performed.
+
+## Follow-up verification addendum — 2026-11-02
+
+This addendum supersedes the earlier pre-remediation sentence suggesting that a fresh, human-approved factory observation could be displayed. **Current release decision: keep all factory observations disabled in Market Lab**, whether approved or not. Telegram approval does not establish data age, licensing, exchange permission or regulatory eligibility.
+
+### Primary-source clarification
+
+- The SEBI circular dated 8 May 2026 (effective 1 July 2026) prescribes a 30-day lag for both sharing and usage of market-price data for educational purposes. Its sharing clause is framed for investor education/awareness without monetary incentives to participants and requires an appropriate legal agreement; the circular also calls for safeguards including audit trails. Its separate clarification restricts use of the preceding 30 days' market-price data to speak about or display a security's name (including a code name) in content indicating a future price, advice or recommendation. The one-day exception is specific to NISM's simulation lab. This operational summary is not a legal opinion and does not determine whether a paid course or membership qualifies.
+- NSE's Data Sharing & Usage Policy requires a relevant agreement to define permitted use and handling; redistribution is not permitted except as agreed in that agreement. No Bullseye-specific data licence or redistribution entitlement was verified.
+- The SEBI legal index checked on 2 November 2026 showed later October circulars, but no later educational market-price-data circular was identified in that index. No market-direction update is supported by these compliance notices.
+
+### Additional findings and draft corrections
+
+- The separate public `ai-trending-content-factory` repository still exposes `data/state.json` directly. A current public fetch confirms that it contains draft signal direction, entry/stop/target and indicator fields. This is an information-exposure issue even though Bullseye Market Lab no longer reads that file. Move raw state to private storage and review repository history; do not treat the sanitized feed as making raw state private. No credentials were confirmed by this limited inspection, and it is not a complete secret/history scan.
+- The current `terminal.html` intentionally contains no raw-state or approved-feed fetch and no live/recent quote widget. Keep both disabled until written permissions and qualified compliance review establish the exact permitted use.
+- The site-link validator still encoded the former design: it required the sanitized feed, approval checks, an eight-hour freshness window and third-party quote-widget wording, while the newer market-data guard correctly prohibited the feed and ticker. Those mutually exclusive assertions made the validation contract internally inconsistent. The validator has been updated in this draft to assert the paused-data design instead.
+- The homepage still said “one-time enrollment” and “lifetime access” while the membership policy and membership page state that duration is undecided. The homepage wording has been corrected; ₹999 remains the planned standalone course price and ₹1,999 the planned Premium bundle price including the course. Payments remain disabled until duration, renewal/cancellation/refund terms, support, gateway and server-side verification are finalised.
+- `market-briefs.json` was not changed: the three scenarios remain conditional, observable and invalidatable; all sample values remain fictional. Review dates remain `lastReviewed=2026-11-02` and `nextReviewDue=2026-11-05`.
+
+### Verification limitations
+
+- GitHub returned no PR-triggered workflow runs or commit status entries for the pre-correction head during this review. The latest Cloudflare deployment comment reported a failed build for commit `4db2bbd` at 2026-11-02 12:49 UTC. The full local `npm test` could not be executed in this session because the isolated runtime could not reach GitHub to clone the private repository. The new CI run must be checked on the updated head before calling tests green.
+- PR #11 remains draft and unmerged. The feature branch is 71 commits ahead and 54 behind `main`, and GitHub reports `mergeable=false`. Resolve the divergence/conflicts separately; no merge, production deployment, Supabase migration, payment activation or publishing was performed.
+
