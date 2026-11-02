@@ -34,6 +34,14 @@ const lessons=[
 ["10","Trading Psychology & Discipline","Emotions, routines, journaling and disciplined decision-making.","lesson-10.html"],
 ["11","Complete Course Revision","Connect the full Bullseye Theory learning path into one repeatable process.","lesson-11.html"]
 ];
+async function syncCourseCookie(session){
+  if(!session?.access_token)return false;
+  try{
+    const response=await fetch("/api/course-session",{method:"POST",credentials:"same-origin",cache:"no-store",headers:{Authorization:"Bearer "+session.access_token}});
+    if(!response.ok)return false;
+    const result=await response.json();return result.active===true;
+  }catch(error){console.warn("Secure course session refresh failed:",error);return false}
+}
 async function init(){
   const {data:{session}}=await sb.auth.getSession();
   if(!session){location.href="auth.html";return}
@@ -43,6 +51,7 @@ async function init(){
   document.getElementById("welcome").textContent="Welcome, "+name+".";
   const {data:access,error}=await sb.from("course_access").select("is_active,payment_verified,expires_at").eq("user_id",user.id).maybeSingle();
   const active=!!access?.is_active && !!access?.payment_verified && (!access.expires_at || new Date(access.expires_at)>new Date());
+  if(active) await syncCourseCookie(session);
   document.getElementById("accessTitle").textContent=active?"COURSE ACTIVE":"ACCESS PENDING";
   document.getElementById("accessText").textContent=active?"Your Bullseye Theory course is active.":"Payment verification is pending. Your account is ready, but lessons will unlock after activation.";
 
@@ -76,7 +85,14 @@ async function init(){
   if(active) document.getElementById("notice").textContent="Course access is active. Start Lesson 1 to begin the native course experience. Your quiz and completion progress will be saved to your student account.";
   if(error) document.getElementById("accessText").textContent="Account found, but course-access status could not be loaded yet.";
 }
-document.getElementById("logout").onclick=async()=>{await sb.auth.signOut();location.href="auth.html"};
+document.getElementById("logout").onclick=async()=>{
+  try{await fetch("/api/course-session/logout",{method:"POST",credentials:"same-origin",cache:"no-store"})}catch(_){}
+  await sb.auth.signOut();location.href="auth.html";
+};
+sb.auth.onAuthStateChange((event,session)=>{
+  if(event==="SIGNED_IN"||event==="TOKEN_REFRESHED") void syncCourseCookie(session);
+  if(event==="SIGNED_OUT") void fetch("/api/course-session/logout",{method:"POST",credentials:"same-origin",cache:"no-store"}).catch(()=>{});
+});
 init();
 </script>
 <script src="motion-system.js?v=20260929"></script>\n<script src="bullseye-premium.js?v=20261001-3"></script></body>
