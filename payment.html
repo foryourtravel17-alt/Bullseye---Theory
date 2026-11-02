@@ -43,7 +43,24 @@ main{max-width:1080px;margin:auto;padding:44px 22px 80px}.eyebrow{color:var(--li
 <div class="detail"><small>PAYMENT STATE</small><b style="color:var(--gold)">NOT ACCEPTING PAYMENTS YET</b><span class="muted">Automated order creation, on-chain settlement checks and course unlock are still being tested.</span></div>
 </div>
 </div>
-<div class="notice"><strong>Do not transfer funds yet.</strong> The QR and receiving address are displayed for review, but checkout remains disabled until the automated verifier, exact-amount order flow, confirmed transaction checks, refund terms and course-access tests are complete. A screenshot or customer-entered transaction hash will never trigger an unlock by itself.</div>
+<div class="notice"><strong>Safety gate:</strong> Do not transfer funds unless secure checkout below successfully creates an order and displays the exact USDT amount and expiry time. If checkout says closed, the QR is shown for reference only. Never send a rounded amount or use a different network. A screenshot or customer-entered transaction hash will never trigger an unlock by itself.</div>
+</section>
+<section class="card" id="secureCheckout">
+<div class="eyebrow">AUTOMATED CHECKOUT</div><h2>Create a verified USDT order</h2>
+<p class="muted">Sign in first. The server creates the INR-to-USDT quote and a unique six-decimal amount; the order expires after 20 minutes.</p>
+<div class="details">
+<label for="planSelect" class="muted">Choose plan</label>
+<select id="planSelect" class="btn" style="width:100%;text-align:left"><option value="course">Complete Course — ₹999</option><option value="premium" disabled>Premium Bundle — ₹1,999 (not open)</option></select>
+<button class="btn" id="createOrder" type="button" disabled>Checking secure checkout…</button>
+<p id="checkoutStatus" role="status" aria-live="polite" class="muted">Checking payment-service readiness. No order or payment has been created.</p>
+<div id="orderPanel" class="detail" hidden>
+<small>EXACT USDT AMOUNT — SEND ONLY THIS</small><b id="orderAmount" class="price">— USDT</b>
+<small>ORDER EXPIRES</small><b id="orderExpiry">—</b>
+<p class="muted">Use TRON Mainnet / TRC-20 only. The verifier checks the received token contract, destination, exact amount and solidified receipt before automatic unlock.</p>
+<button class="btn" id="copyOrderWallet" type="button">Copy receiving wallet</button>
+</div>
+<a id="paidDashboard" class="btn" href="dashboard.html" hidden>Open Student Dashboard →</a>
+</div>
 </section>
 <div class="prices">
 <section class="card disabled"><div class="tag">INDIA / UPI</div><h2>UPI QR</h2><p>Not available yet. The official Indian QR has not been supplied in this project. This method will remain hidden or disabled until added and tested.</p></section>
@@ -52,6 +69,9 @@ main{max-width:1080px;margin:auto;padding:44px 22px 80px}.eyebrow{color:var(--li
 <section class="card"><div class="eyebrow">HOW AUTOMATIC ACCESS WILL WORK</div><h2>Verified payment → student access</h2><div class="steps"><div class="step"><b>01 / Sign in</b>Create or sign in to your Bullseye student account.</div><div class="step"><b>02 / Create order</b>Checkout will generate a time-limited USDT amount for your selected plan.</div><div class="step"><b>03 / Confirm & unlock</b>The server checks the official token contract, destination, exact amount and solidified successful transaction before it unlocks course access.</div></div></section>
 <p class="footer">Educational content only; not personalized investment advice or a promise of trading profits. Planned prices are not an invitation to pay while checkout is closed. USDT acceptance and applicable tax, TDS, GST and accounting treatment must be reviewed by the business's qualified adviser. Support: <a href="mailto:eyetheorybulls@gmail.com">eyetheorybulls@gmail.com</a>. See <a href="terms.html">Terms</a>, <a href="refund.html">Refund information</a>, <a href="privacy.html">Privacy</a> and <a href="disclaimer.html">Disclaimer</a>.</p>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="payment-checkout.js?v=20261102-1"></script>
 <script>
 const wallet = "TF8aiK6Q8kboLBcaHtckapVpsEQyR3oWwV";
 document.getElementById("copyWallet").addEventListener("click", async () => {
