@@ -6,7 +6,7 @@ function testToken(exp: number): string {
 }
 
 Deno.test("course asset matcher protects lesson pages and course resource directories", () => {
-  for (const path of ["/lesson-1.html", "/lesson-11.pdf", "/lesson-2-slides.pptx", "/lesson-3/video.mp4", "/lessons/lesson-1.html", "/course-assets/chart.pdf", "/downloads/workbook.pdf"]) {
+  for (const path of ["/lesson-1.html", "/lesson-11.pdf", "/lesson-2-slides.pptx", "/lesson-3/video.mp4", "/assets/lesson-2.pdf", "/lesson-2%2Fslides.pdf", "/lessons/lesson-1.html", "/course-assets/chart.pdf", "/downloads/workbook.pdf"]) {
     if (!isProtectedCourseAsset(path)) throw new Error("Expected protected path: " + path);
   }
   for (const path of ["/", "/index.html", "/auth.html", "/lesson-12.html", "/lesson-notes.html"]) {
