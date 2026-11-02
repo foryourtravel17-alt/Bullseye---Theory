@@ -45,10 +45,9 @@ Deno.serve(async (req: Request) => {
   if (!Deno.env.get("TRONGRID_API_KEY") || !Deno.env.get("TRC20_SCANNER_CRON_SECRET")) {
     return respond({ error: "Payment verification is not fully configured. Checkout remains closed." }, 503);
   }
-  const accessDays = Number(Deno.env.get("COURSE_ACCESS_DAYS"));
-  if (!Number.isInteger(accessDays) || accessDays < 1 || accessDays > 3650) {
-    return respond({ error: "The course access duration has not been configured. Checkout remains closed." }, 503);
-  }
+  // Access duration is a fixed product rule enforced by the database migration.
+  // Do not make the entitlement duration depend on a separately managed secret.
+  const accessDays = COURSE_ACCESS_DAYS;
 
   const url = Deno.env.get("SUPABASE_URL");
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
