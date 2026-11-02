@@ -35,6 +35,11 @@ need "$complete" 'eq\("passed", true\)' "requires a passing quiz attempt"
 need "$complete" 'from\("lesson_progress"\)\.upsert' "persists completion server-side"
 need "$client" 'functions\.invoke\("grade-quiz"' "client invokes grading endpoint"
 need "$client" 'functions\.invoke\("complete-lesson"' "client invokes completion endpoint"
+need "$client" 'if \(lesson !== 1\)' "client keeps free Lesson 1 outside the paid entitlement gate"
+need "$grade" 'if \(lesson !== 1\)' "server grader allows free Lesson 1 but gates Lessons 2–11"
+need "$complete" 'if \(lessonNumber !== 1\)' "server completion allows free Lesson 1 but gates Lessons 2–11"
+need "dashboard.html" 'freePreview=num===1' "dashboard labels Lesson 1 as a free preview"
+need "dashboard.html" 'START FREE PREVIEW' "unpaid students can open the free preview from dashboard"
 
 
 # Course progress integrity and SECURITY DEFINER hardening are draft migrations only.
