@@ -49,6 +49,7 @@ Set these in Supabase Dashboard → Edge Functions → Secrets:
 
 - `USDT_CHECKOUT_ENABLED=false` initially. Change to `true` only after all gates pass.
 - `PREMIUM_CHECKOUT_ENABLED=false`. Keep false until Premium deliverables/access duration are final.
+- `COURSE_ACCESS_DAYS` — a positive integer from 1 to 3650 that exactly matches the published course access duration. Checkout will fail closed if this value is missing or invalid; do not set this to an arbitrary value to bypass the policy gate.
 - `TRONGRID_API_KEY` — production TronGrid key. Do not rely on anonymous or undocumented rate limits.
 - `TRC20_SCANNER_CRON_SECRET` — independently generated random secret used only by the scheduled scanner.
 - `ALLOWED_SITE_ORIGIN=https://bullseye-theory.foryourtravel17.workers.dev`
