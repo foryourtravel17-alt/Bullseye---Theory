@@ -5,6 +5,7 @@ create table if not exists public.payment_orders (
   user_id uuid not null references auth.users(id) on delete cascade,
   plan_code text not null check (plan_code in ('course', 'premium')),
   inr_amount_paise integer not null check (inr_amount_paise in (99900, 199900)),
+  access_days integer not null check (access_days between 1 and 3650),
   usdt_inr_rate numeric(18,8) not null check (usdt_inr_rate > 0),
   usdt_amount_atomic numeric(24,0) not null check (usdt_amount_atomic > 0),
   destination_wallet text not null check (destination_wallet = 'TF8aiK6Q8kboLBcaHtckapVpsEQyR3oWwV'),
@@ -131,7 +132,7 @@ begin
   insert into public.course_access (
     user_id, is_active, payment_verified, activated_at, expires_at, updated_at
   ) values (
-    v_order.user_id, true, true, now(), null, now()
+    v_order.user_id, true, true, now(), now() + make_interval(days => v_order.access_days), now()
   )
   on conflict (user_id) do update
   set is_active = true,
@@ -141,7 +142,7 @@ begin
           then public.course_access.activated_at
         else now()
       end,
-      expires_at = null,
+      expires_at = now() + make_interval(days => v_order.access_days),
       updated_at = now();
 
   return 'paid';
