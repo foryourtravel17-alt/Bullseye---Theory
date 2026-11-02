@@ -36,7 +36,7 @@ function isProtectedCourseAsset(pathname) {
   normalized = normalized.replace(/\\/g, "/");
   const lessonFile = /(?:^|\/)lesson-(?:[1-9]|1[01])(?:[-./]|$)/i.test(normalized);
   const courseDirectory = /^\/(?:lessons?|course-assets?|downloads?|pdf|pptx|videos?)\/.+$/i.test(normalized);
-  return lessonFile || courseDirectory;
+  return (lessonFile && !freePreviewPage) || courseDirectory;
 }
 
 function originAllowed(request) {
