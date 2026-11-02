@@ -17,7 +17,11 @@ Deno.serve((req: Request) => {
     });
   }
 
-  const checkoutEnabled = Deno.env.get("USDT_CHECKOUT_ENABLED") === "true";
+  const checkoutEnabled =
+    Deno.env.get("USDT_CHECKOUT_ENABLED") === "true" &&
+    Boolean(Deno.env.get("TRONGRID_API_KEY")) &&
+    Boolean(Deno.env.get("TRC20_SCANNER_CRON_SECRET")) &&
+    Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"));
   const premiumEnabled = checkoutEnabled && Deno.env.get("PREMIUM_CHECKOUT_ENABLED") === "true";
   return new Response(JSON.stringify({
     checkout_enabled: checkoutEnabled,
