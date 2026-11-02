@@ -4,6 +4,8 @@ const migrationPath = new URL("../supabase/migrations/20261102170000_add_automat
 const sql = readFileSync(migrationPath, "utf8");
 const policyPath = new URL("../supabase/migrations/20261102200000_set_course_access_validity_85_days.sql", import.meta.url);
 const policySql = readFileSync(policyPath, "utf8");
+const scannerPath = new URL("../.github/workflows/trc20-payment-scan.yml", import.meta.url);
+const scannerWorkflow = readFileSync(scannerPath, "utf8");
 const errors = [];
 
 function tableBlock(name) {
@@ -92,6 +94,10 @@ for (const marker of [
 if (!/check\s*\(access_days\s*=\s*85\)/i.test(policySql)) errors.push("85-day policy migration must constrain every payment order to 85 days");
 if (!/now\(\)\s*\+\s*interval '85 days'/i.test(policySql)) errors.push("85-day policy migration must set admin grants to 85 days");
 if (!/course_access_verified_requires_expiry/i.test(policySql)) errors.push("85-day policy migration must prevent active verified access without expiry");
+if (!scannerWorkflow.includes("vars.TRC20_SCANNER_ENABLED == 'true'")) errors.push("scheduled payment scanner must remain disabled unless the repository enable variable is true");
+if (!scannerWorkflow.includes("TRC20_SCANNER_CRON_SECRET")) errors.push("scheduled payment scanner must use its dedicated cron secret");
+if (!scannerWorkflow.includes("/functions/v1/scan-trc20-payments")) errors.push("scheduled payment scanner must call only the scanner Edge Function");
+if (scannerWorkflow.includes("SUPABASE_SERVICE_ROLE_KEY")) errors.push("GitHub scanner workflow must not receive the Supabase service-role key");
 if ((sql.match(/create or replace function public\.finalize_trc20_payment/gi) || []).length !== 1) errors.push("payment migration must contain exactly one finalizer definition");
 if (/expires_at\s*=\s*null/i.test(sql)) errors.push("payment finalizer must never write a null course expiry");
 if (!/now\(\)\s*\+\s*make_interval\(days\s*=>\s*v_order\.access_days\)/i.test(sql)) errors.push("initial verified payment must grant the order's fixed access duration");
