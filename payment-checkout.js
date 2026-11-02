@@ -92,7 +92,11 @@
         setStatus("This page stopped checking automatically. Your order remains visible in your account; refresh to check again.", "info");
         return;
       }
-      setStatus("Waiting for the exact USDT amount and a successful solidified TRON transaction…");
+      if (Date.now() > new Date(data.expires_at).getTime()) {
+        setStatus("The order window has closed. If you sent the exact amount before expiry, keep waiting for the chain's final confirmation; do not send again.");
+      } else {
+        setStatus("Waiting for the exact USDT amount and a successful solidified TRON transaction…");
+      }
       pollTimer = setTimeout(tick, 10000);
     };
     await tick();
@@ -126,7 +130,7 @@
     orderPanel.hidden = false;
     amountNode.textContent = data.usdt_amount + " USDT";
     expiryNode.textContent = formatExpiry(data.expires_at);
-    pollDeadline = new Date(data.expires_at).getTime();
+    pollDeadline = new Date(data.expires_at).getTime() + 60 * 60 * 1000;
     setStatus("Order created. Scan the QR, select TRON Mainnet / TRC-20, and send the exact amount shown. Do not send a rounded amount.");
     button.disabled = true;
     pollOrder(activeOrderId);
