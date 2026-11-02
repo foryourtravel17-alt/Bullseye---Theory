@@ -37,8 +37,8 @@ grant select, insert, update on public.course_access to service_role;
 grant select on auth.users, public.profiles to authenticated, service_role;
 SQL
 
-psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f supabase/migrations/20261102170000_add_automatic_trc20_payment_orders.sql
-psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f supabase/migrations/20261102200000_set_course_access_validity_85_days.sql
+psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f supabase/migrations/20261102170543_add_automatic_trc20_payment_orders.sql
+psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f supabase/migrations/20261102170555_set_course_access_validity_85_days.sql
 
 psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
 insert into auth.users(id, email) values
