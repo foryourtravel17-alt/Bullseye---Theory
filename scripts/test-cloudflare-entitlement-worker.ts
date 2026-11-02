@@ -6,15 +6,15 @@ function testToken(exp: number): string {
 }
 
 Deno.test("course asset matcher protects lesson pages and course resource directories", () => {
-  for (const path of ["/lesson-1.html", "/lesson-11.pdf", "/lesson-2-slides.pptx", "/lesson-3/video.mp4", "/assets/lesson-2.pdf", "/lesson-2%2Fslides.pdf", "/lessons/lesson-1.html", "/course-assets/chart.pdf", "/downloads/workbook.pdf"]) {
+  for (const path of ["/lesson-1.pdf", "/lesson-11.pdf", "/lesson-2-slides.pptx", "/lesson-3/video.mp4", "/assets/lesson-2.pdf", "/lesson-2%2Fslides.pdf", "/lessons/lesson-1.html", "/course-assets/chart.pdf", "/downloads/workbook.pdf"]) {
     if (!isProtectedCourseAsset(path)) throw new Error("Expected protected path: " + path);
   }
-  for (const path of ["/", "/index.html", "/auth.html", "/lesson-12.html", "/lesson-notes.html"]) {
+  for (const path of ["/", "/index.html", "/auth.html", "/lesson-1.html", "/lesson-12.html", "/lesson-notes.html"]) {
     if (isProtectedCourseAsset(path)) throw new Error("Unexpected protected path: " + path);
   }
 });
 
-Deno.test("cookie parser reads the exact session cookie", () => {
+Deno.test("lesson 1 HTML remains a public preview while paid lessons and downloads stay protected", () => {\n  if (isProtectedCourseAsset("/lesson-1.html")) throw new Error("Lesson 1 preview must remain public");\n  if (!isProtectedCourseAsset("/lesson-2.html")) throw new Error("Lesson 2 must remain protected");\n  if (!isProtectedCourseAsset("/lesson-1.pdf")) throw new Error("Lesson 1 downloadable assets must remain protected");\n});\n\nDeno.test("cookie parser reads the exact session cookie", () => {
   const value = cookieValue("theme=dark; bt_course_session=abc.def.sig; other=x", "bt_course_session");
   if (value !== "abc.def.sig") throw new Error("Unexpected cookie value: " + value);
   if (cookieValue("not_bt_course_session=x", "bt_course_session") !== "") throw new Error("Matched a partial cookie name");
