@@ -2,7 +2,7 @@
 
 ## Current state
 
-This is an implementation draft in a GitHub pull request. It is **not deployed to the live Supabase project**, and checkout must remain closed until the launch checklist is complete. The website shows the supplied QR with a visible closed-checkout warning.
+Implementation source is in draft PR #36. On 2026-11-02, the linked Supabase project received the course-progress, function search-path, TRC-20 payment, quiz-answer isolation, table-privilege, 85-day entitlement, and RLS/index hardening migrations. The six Edge Functions (`grade-quiz`, `complete-lesson`, `get-trc20-payment-config`, `create-trc20-order`, `get-trc20-order-status`, `scan-trc20-payments`) are deployed. **Checkout remains closed**: no TRONGRID API key or scanner secret has been configured, and no scanner schedule has been enabled. Deployment does not mean payments are accepted. The website shows the supplied QR with a visible closed-checkout warning.
 
 ## Approved receiving details supplied by the owner
 
