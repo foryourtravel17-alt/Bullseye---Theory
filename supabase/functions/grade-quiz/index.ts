@@ -65,10 +65,11 @@ Deno.serve(async (req: Request) => {
     .select("is_active,payment_verified,expires_at")
     .eq("user_id", user.id)
     .maybeSingle();
+  const expiry = access?.expires_at ? new Date(access.expires_at).getTime() : 0;
   const active = !!access?.is_active && !!access?.payment_verified &&
-    (!access.expires_at || new Date(access.expires_at).getTime() > Date.now());
+    Number.isFinite(expiry) && expiry > Date.now();
   if (accessError) return respond({ error: "Could not verify course access" }, 500);
-  if (!active) return respond({ error: "Active verified course access is required" }, 403);
+  if (lesson !== 1 && !active) return respond({ error: "Active verified course access is required for paid lessons" }, 403);
 
   const grade = gradeAnswers(lesson, values);
   if (!grade) return respond({ error: "Invalid lesson or answers" }, 400);
