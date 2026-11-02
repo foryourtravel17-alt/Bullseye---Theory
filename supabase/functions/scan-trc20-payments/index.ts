@@ -1,6 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   findMatchingOrders,
+  hasExactUsdtTransferReceiptLog,
   isSolidifiedSuccessfulReceipt,
   TRON_MAINNET_USDT_CONTRACT,
   TRON_RECEIVING_WALLET,
@@ -147,6 +148,12 @@ Deno.serve(async (req: Request) => {
       normalized.txHash,
       body as { txID?: string; txid?: string; ret?: Array<{ contractRet?: string }> },
       info as { id?: string; blockNumber?: number; receipt?: { result?: string } },
+    )) {
+      continue;
+    }
+    if (!hasExactUsdtTransferReceiptLog(
+      info as { log?: Array<{ address?: string; topics?: string[]; data?: string }> },
+      normalized.amountAtomic,
     )) {
       continue;
     }
