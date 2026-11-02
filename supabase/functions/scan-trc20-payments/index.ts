@@ -114,7 +114,7 @@ Deno.serve(async (req: Request) => {
   const results: Array<{ tx_hash: string; result: string }> = [];
 
   for (const transfer of candidates) {
-    const normalized = validateIncomingTransfer(transfer, TRON_RECEIVING_WALLET);
+    const normalized = validateIncomingTransfer(transfer, TRON_RECEIVING_WALLET, true);
     if (!normalized) continue;
     const matches = findMatchingOrders(
       { amountAtomic: normalized.amountAtomic, blockTimestamp: normalized.blockTimestamp },
