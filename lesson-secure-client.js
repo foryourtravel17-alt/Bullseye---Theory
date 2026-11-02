@@ -37,11 +37,14 @@
     const { data: { session }, error: sessionError } = await sb.auth.getSession();
     if (sessionError || !session) { location.href = "auth.html"; return; }
     signedIn = true;
-    const { data: access, error: accessError } = await sb.from("course_access")
-      .select("is_active,payment_verified,expires_at").eq("user_id", session.user.id).maybeSingle();
-    const active = !accessError && !!access?.is_active && !!access?.payment_verified &&
-      (!access.expires_at || new Date(access.expires_at) > new Date());
-    if (!active) { alert("Course access is not active yet."); location.href = "dashboard.html"; return; }
+    // Lesson 1 is an authenticated free preview. Paid entitlement is required for lessons 2–11.
+    if (lesson !== 1) {
+      const { data: access, error: accessError } = await sb.from("course_access")
+        .select("is_active,payment_verified,expires_at").eq("user_id", session.user.id).maybeSingle();
+      const active = !accessError && !!access?.is_active && !!access?.payment_verified &&
+        (!access.expires_at || new Date(access.expires_at) > new Date());
+      if (!active) { alert("Verified course access is required for Lessons 2–11."); location.href = "dashboard.html"; return; }
+    }
 
     const { data: progress } = await sb.from("lesson_progress")
       .select("completed,quiz_passed").eq("user_id", session.user.id)
