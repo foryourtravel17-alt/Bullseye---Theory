@@ -75,5 +75,11 @@ This addendum supersedes the earlier pre-remediation sentence suggesting that a 
 ### Verification limitations
 
 - GitHub returned no PR-triggered workflow runs or commit status entries for the pre-correction head during this review. The latest Cloudflare deployment comment reported a failed build for commit `4db2bbd` at 2026-11-02 12:49 UTC. The full local `npm test` could not be executed in this session because the isolated runtime could not reach GitHub to clone the private repository. The new CI run must be checked on the updated head before calling tests green.
-- PR #11 remains draft and unmerged. The feature branch is 71 commits ahead and 54 behind `main`, and GitHub reports `mergeable=false`. Resolve the divergence/conflicts separately; no merge, production deployment, Supabase migration, payment activation or publishing was performed.
+- PR #11 remains draft and unmerged. The feature branch is 76 commits ahead and 54 behind `main`, and GitHub reports `mergeable=false`. Resolve the divergence/conflicts separately; no merge, production deployment, Supabase migration, payment activation or publishing was performed.
+
+### Course-access security check
+
+- Static lesson files such as `lesson-2.html` and `lesson-11.html` contain the lesson body in the delivered HTML and perform the entitlement check in browser JavaScript. A redirect after page load is not server-side content protection; direct requests/page-source can expose the lesson body. This is a release blocker for paid-content claims and checkout. Keep payments disabled until paid lesson content is served only after server-side authorization and bypass tests prove that direct URLs, signed-out sessions and non-entitled accounts cannot retrieve it.
+- PR #32 is still open/draft and describes server-side quiz grading/completion plus client migration; that description does not establish that the lesson HTML body itself is behind a server-side authorization boundary. PR #14 also explicitly records static paid-content exposure. Reconcile the security PRs and verify the actual content-delivery boundary, not only quiz APIs.
+- `terms.html` and `refund.html` were not found in this branch; `legal.html` is a pre-launch placeholder asking for business identity, support and payment/refund terms. The membership page correctly says access duration and billing terms are undecided and payments are disabled. These documents and support details remain owner/legal tasks before checkout.
 
