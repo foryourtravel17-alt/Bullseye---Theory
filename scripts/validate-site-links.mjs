@@ -41,35 +41,29 @@ for (const page of pages) {
   }
 }
 
-// Guard the public Market Lab against accidentally reading internal factory state.
+// Keep live/recent market data and the public factory feed disabled until permissions and compliance are verified.
 const terminalPath = resolve(root, "terminal.html");
 if (existsSync(terminalPath)) {
   const terminal = readFileSync(terminalPath, "utf8");
-  if (!terminal.includes("approved_market_feed.json")) {
-    errors.push("terminal.html must use the sanitized approved_market_feed.json endpoint");
+  if (/approved_market_feed\.json|loadFactoryFeed|age\s*<=\s*8/i.test(terminal)) {
+    errors.push("terminal.html must not render the public factory observation feed before the 30-day data-use control is implemented");
   }
   if (/data\/state\.json/i.test(terminal)) {
     errors.push("terminal.html must never read raw data/state.json");
   }
-  if (!/approvalStatus\s*===\s*["']approved["']/.test(terminal)) {
-    errors.push("terminal.html must render only explicitly approved factory records");
+  if (/tradingview-widget|embed-widget-ticker-tape\.js/i.test(terminal)) {
+    errors.push("terminal.html must not embed live/recent quote widgets while data permissions are unverified");
   }
-  if (!/age\s*<=\s*8/.test(terminal)) {
-    errors.push("terminal.html must hide factory observations older than eight hours");
-  }
-}
-
-// Guard visible content against demo-data and quote-provenance regressions.
-if (existsSync(terminalPath)) {
-  const terminal = readFileSync(terminalPath, "utf8");
   for (const marker of [
+    "Quote Tape Paused",
+    "Public Feed Paused",
     "Fictional prices only",
     "SIMULATED",
-    "Third-party Quote Tape",
-    "availability and delay depend on provider/exchange entitlements",
-    "Bullseye has not independently verified rights to redistribute quote data"
+    "30-day lag"
   ]) {
-    if (!terminal.toLowerCase().includes(marker.toLowerCase())) errors.push("terminal.html is missing Market Lab guardrail: " + marker);
+    if (!terminal.toLowerCase().includes(marker.toLowerCase())) {
+      errors.push("terminal.html is missing Market Lab guardrail: " + marker);
+    }
   }
 }
 
@@ -77,10 +71,16 @@ const homePath = resolve(root, "index.html");
 if (existsSync(homePath)) {
   const home = readFileSync(homePath, "utf8");
   if (!home.includes("Market Lab scenario and watchlist fixtures are simulated")) {
-    errors.push("index.html must distinguish simulated Market Lab fixtures from provider data");
+    errors.push("index.html must label Market Lab fixtures as simulated, not live");
   }
-  if (!home.includes("the separate ticker above is third-party data and may be delayed")) {
-    errors.push("index.html must label the separate provider ticker and possible delay");
+  if (!home.includes("MARKET DATA DISPLAY PAUSED")) {
+    errors.push("index.html must state that live/recent market data display is paused");
+  }
+  if (/tradingview-widget|embed-widget-ticker-tape\.js/i.test(home)) {
+    errors.push("index.html must not embed a live/recent ticker while data permissions are unverified");
+  }
+  if (!home.includes('href="terminal.html"')) {
+    errors.push("index.html must link to the Market Lab");
   }
 }
 
@@ -90,9 +90,9 @@ if (existsSync(membershipPath)) {
   for (const marker of [
     "₹999",
     "₹1,999",
-    "PRE-LAUNCH · PAYMENTS NOT ENABLED",
-    "Everything in the ₹999 course plan",
-    "Payments are intentionally disabled for now."
+    "COMING SOON — ENROLLMENT CLOSED.",
+    "Checkout and payment methods are inactive.",
+    "Do not send money or cryptocurrency"
   ]) {
     if (!membership.includes(marker)) errors.push("membership.html is missing pricing/payment guardrail: " + marker);
   }
