@@ -4,14 +4,14 @@ const SITE_ORIGIN = Deno.env.get("ALLOWED_SITE_ORIGIN") || "https://bullseye-the
 const headers = {
   "Access-Control-Allow-Origin": SITE_ORIGIN,
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Vary": "Origin",
   "Cache-Control": "no-store",
 };
 
 Deno.serve((req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers });
-  if (req.method !== "GET") {
+  if (req.method !== "GET" && req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {
       status: 405, headers: { ...headers, "Content-Type": "application/json" },
     });
