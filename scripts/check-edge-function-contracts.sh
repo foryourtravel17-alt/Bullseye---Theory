@@ -38,8 +38,8 @@ need "$client" 'functions\.invoke\("complete-lesson"' "client invokes completion
 
 
 # Course progress integrity and SECURITY DEFINER hardening are draft migrations only.
-progress_key="supabase/migrations/20261027153000_repair_course_progress_key_and_policy_duplicates.sql"
-definer_search_path="supabase/migrations/20261027180000_pin_security_definer_search_path.sql"
+progress_key="supabase/migrations/20261102170527_repair_course_progress_key_and_policy_duplicates.sql"
+definer_search_path="supabase/migrations/20261102170530_pin_security_definer_search_path.sql"
 need "$progress_key" 'where user_id is null or lesson_number is null' "blocks progress PK migration on null key fields"
 need "$progress_key" 'having count\(\*\) > 1' "blocks progress PK migration on duplicate user/lesson rows"
 need "$progress_key" 'primary key using index lesson_progress_user_lesson_number_uidx' "promotes the existing upsert index to a primary key"
@@ -49,7 +49,7 @@ need "$definer_search_path" 'as [$]function[$]' "uses a valid PostgreSQL dollar-
 need "$definer_search_path" 'revoke all on function public[.]handle_new_student' "revokes direct execution of trigger helper"
 
 # Quiz answer keys are stored in public.quiz_questions; browser roles must not read them.
-answer_policy="supabase/migrations/20261102180000_restrict_quiz_answer_key_access.sql"
+answer_policy="supabase/migrations/20261102170551_restrict_quiz_answer_key_access.sql"
 need "$answer_policy" 'drop policy if exists "Authenticated users can view quiz questions"' "removes broad authenticated quiz-question policy"
 need "$answer_policy" 'create policy "Admins can view quiz questions"' "restricts quiz-question reads to admins"
 need "$answer_policy" 'using \(\(select public\.is_admin\(\)\)\)' "checks admin role for quiz-question reads"
