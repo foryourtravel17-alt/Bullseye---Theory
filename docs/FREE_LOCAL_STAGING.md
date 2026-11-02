@@ -37,9 +37,18 @@ Run each command in a separate terminal. Keep JWT verification enabled.
 ## 6. Current automated tests
 GitHub Actions runs Deno type-checking, quiz grading contract tests, static checks across all 11 lesson pages, and free source-contract checks. These do not substitute for the end-to-end tests above.
 
+## Draft migration inventory — 2 Nov 2026
+
+PR #35 now carries three reviewed migration drafts in timestamp order:
+- 20261027153000_repair_course_progress_key_and_policy_duplicates.sql — checks for null/duplicate keys, then promotes the existing unique (user_id, lesson_number) index to the primary key.
+- 20261027180000_pin_security_definer_search_path.sql — pins the SECURITY DEFINER function search_path and uses a valid $function$ delimiter with schema-qualified auth.uid().
+- 20261102180000_restrict_quiz_answer_key_access.sql — removes broad authenticated access to quiz answer keys and restricts question reads to admins.
+
+Read-only live check on 2 Nov 2026: lesson_progress has 0 rows, no primary key, and the expected unique index on (user_id, lesson_number). This supports the guarded migration design, but does not replace local integration testing. No migration has been applied to the live project.
+
 ## Safety
 - Do not use the live project ref `kjhdcpjztuzpysdauqdz` as local or staging.
 - Do not deploy with `supabase functions deploy`.
 - Do not run production migrations.
 - Do not use real student/payment data in local tests.
-- Keep PR #32 draft until local schema and function integration tests pass.
+- Keep PR #35 draft until local schema and function integration tests pass. PR #32 is consolidated into #35; do not merge #32 separately.
