@@ -8,6 +8,7 @@ on:
       - "assets/usdt-tron-mainnet-trc20.svg"
       - "supabase/functions/**"
       - "supabase/migrations/**"
+      - "scripts/test-trc20-migration-postgres.sh"
       - ".github/workflows/trc20-payments-ci.yml"
   push:
     branches: [main]
@@ -17,6 +18,7 @@ on:
       - "assets/usdt-tron-mainnet-trc20.svg"
       - "supabase/functions/**"
       - "supabase/migrations/**"
+      - "scripts/test-trc20-migration-postgres.sh"
 
 permissions:
   contents: read
@@ -24,6 +26,22 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: bullseye_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d bullseye_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/bullseye_test
     steps:
       - name: Check out source
         uses: actions/checkout@v4
@@ -35,6 +53,8 @@ jobs:
         run: node --check payment-checkout.js
       - name: Validate payment migration structure and privileges
         run: node scripts/validate-trc20-migration.mjs
+      - name: Apply and integration-test payment migration in disposable PostgreSQL 17
+        run: bash scripts/test-trc20-migration-postgres.sh
       - name: Test strict TRC-20 matching and settlement rules
         run: deno test supabase/functions/_shared/trc20.test.ts
       - name: Type-check payment Edge Functions
