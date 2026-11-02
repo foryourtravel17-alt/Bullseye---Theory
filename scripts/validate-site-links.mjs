@@ -45,10 +45,10 @@ for (const page of pages) {
 const terminalPath = resolve(root, "terminal.html");
 if (existsSync(terminalPath)) {
   const terminal = readFileSync(terminalPath, "utf8");
-  if (/data\\/state\\.json|approved_market_feed\\.json|loadFactoryFeed|age\\s*<=\\s*8/i.test(terminal)) {
+  if (/data\/state\.json|approved_market_feed\.json|loadFactoryFeed|age\s*<=\s*8/i.test(terminal)) {
     errors.push("terminal.html must not load raw factory state, the public approved feed, or recent-observation windows while data display is paused");
   }
-  if (/tradingview-widget|embed-widget-ticker-tape\\.js/i.test(terminal)) {
+  if (/tradingview-widget|embed-widget-ticker-tape\.js/i.test(terminal)) {
     errors.push("terminal.html must not embed a live/recent quote widget pending written permissions and compliance review");
   }
   for (const marker of [
@@ -68,7 +68,7 @@ if (existsSync(terminalPath)) {
 const homePath = resolve(root, "index.html");
 if (existsSync(homePath)) {
   const home = readFileSync(homePath, "utf8");
-  if (/tradingview-widget|embed-widget-ticker-tape\\.js/i.test(home)) {
+  if (/tradingview-widget|embed-widget-ticker-tape\.js/i.test(home)) {
     errors.push("index.html must not embed a live/recent quote widget pending written permissions and compliance review");
   }
   for (const marker of [
