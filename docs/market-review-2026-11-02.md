@@ -74,8 +74,8 @@ This addendum supersedes the earlier pre-remediation sentence suggesting that a 
 
 ### Verification limitations
 
-- GitHub returned no PR-triggered workflow runs or commit status entries for the pre-correction head during this review. The latest Cloudflare deployment comment reported a failed build for commit `4db2bbd` at 2026-11-02 12:49 UTC. The full local `npm test` could not be executed in this session because the isolated runtime could not reach GitHub to clone the private repository. The new CI run must be checked on the updated head before calling tests green.
-- PR #11 remains draft and unmerged. The feature branch is 76 commits ahead and 54 behind `main`, and GitHub reports `mergeable=false`. Resolve the divergence/conflicts separately; no merge, production deployment, Supabase migration, payment activation or publishing was performed.
+- GitHub returned no PR-triggered workflow runs or commit status entries for the current PR head `8753ee5e527eb5323776ecd4f0863179fd1bdb56` during this review. The latest Cloudflare deployment comment reported a failed build for commit `4db2bbd` at 2026-11-02 12:49 UTC. The full local `npm test` could not be executed in this session because the isolated runtime could not reach GitHub to clone the private repository. The new CI run must be checked on the updated head before calling tests green.
+- PR #11 remains draft and unmerged. The feature branch is 78 commits ahead and 54 behind `main`, and GitHub reports `mergeable=false`. Resolve the divergence/conflicts separately; no merge, production deployment, Supabase migration, payment activation or publishing was performed.
 
 ### Course-access security check
 
