@@ -13,9 +13,10 @@ function isProtected(pathname) {
   let normalized = pathname;
   try { normalized = decodeURIComponent(pathname); } catch { /* malformed paths fail closed */ }
   normalized = normalized.replace(/\\/g, "/");
-  const lessonFile = /(?:^|\/)lesson-(?:[2-9]|1[01])(?:[-./]|$)/i.test(normalized);
+  const lessonFile = /(?:^|\/)lesson-(?:[1-9]|1[01])(?:[-./]|$)/i.test(normalized);
+  const freePreviewPage = /^\/lesson-1\.html$/i.test(normalized);
   const courseDirectory = /^\/(?:lessons?|course-assets?|downloads?|pdf|pptx|videos?)\/.+$/i.test(normalized);
-  return lessonFile || courseDirectory;
+  return (lessonFile && !freePreviewPage) || courseDirectory;
 }
 
 function walk(directory, result = []) {
