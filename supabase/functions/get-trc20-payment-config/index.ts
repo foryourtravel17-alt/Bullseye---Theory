@@ -17,10 +17,9 @@ Deno.serve((req: Request) => {
     });
   }
 
-  const accessDays = Number(Deno.env.get("COURSE_ACCESS_DAYS"));
+  const accessDays = 85;
   const checkoutEnabled =
     Deno.env.get("USDT_CHECKOUT_ENABLED") === "true" &&
-    Number.isInteger(accessDays) && accessDays >= 1 && accessDays <= 3650 &&
     Boolean(Deno.env.get("TRONGRID_API_KEY")) &&
     Boolean(Deno.env.get("TRC20_SCANNER_CRON_SECRET")) &&
     Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"));
