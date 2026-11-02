@@ -1,7 +1,14 @@
 name = "bullseye-theory"
-compatibility_date = "2026-09-24"
+main = "./_worker.js"
+compatibility_date = "2026-11-01"
 workers_dev = true
+
+[vars]
+SUPABASE_URL = "https://kjhdcpjztuzpysdauqdz.supabase.co"
+SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1fo0yxL2uk_vwFGR5-Sh-A_z7t0RhXt"
 
 [assets]
 directory = "."
+binding = "ASSETS"
+run_worker_first = true
 not_found_handling = "404-page"
