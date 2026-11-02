@@ -5,8 +5,8 @@ const root = process.cwd();
 const workerPath = resolve(root, "_worker.js");
 if (!existsSync(workerPath)) throw new Error("Missing _worker.js");
 const workerSource = readFileSync(workerPath, "utf8");
-if (!workerSource.includes("lesson-(?:[2-9]|1[01])")) {
-  throw new Error("Worker must protect lesson-2 through lesson-11 while leaving lesson-1 free");
+if (!workerSource.includes("lesson-(?:[1-9]|1[01])") || !workerSource.includes("freePreviewPage")) {
+  throw new Error("Worker must protect paid lessons and exempt only the Lesson 1 HTML preview");
 }
 
 function isProtected(pathname) {
@@ -31,6 +31,7 @@ function walk(directory, result = []) {
 const files = walk(root);
 const errors = [];
 if (isProtected("/lesson-1.html")) errors.push("Lesson 1 free preview must not be paid-gated");
+if (!isProtected("/lesson-1.pdf")) errors.push("Lesson 1 downloadable assets must remain protected");
 for (let lesson = 2; lesson <= 11; lesson++) {
   const path = "/lesson-" + lesson + ".html";
   if (!files.includes(path)) errors.push("missing lesson page: " + path);
