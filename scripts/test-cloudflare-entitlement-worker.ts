@@ -55,7 +55,7 @@ Deno.test("session exchange sets a short-lived HttpOnly cookie only after verifi
     const url = String(input);
     if (url.endsWith("/auth/v1/user")) return new Response(JSON.stringify({ id: "student-1" }), { status: 200 });
     if (url.includes("/rest/v1/course_access?")) {
-      return new Response(JSON.stringify([{ is_active: true, payment_verified: true, expires_at: null }]), { status: 200 });
+      return new Response(JSON.stringify([{ is_active: true, payment_verified: true, expires_at: new Date(Date.now() + 60_000).toISOString() }]), { status: 200 });
     }
     throw new Error("Unexpected upstream request: " + url);
   }) as typeof fetch;
@@ -91,7 +91,7 @@ Deno.test("expired or unentitled sessions never receive protected asset bytes", 
     const url = String(input);
     if (url.endsWith("/auth/v1/user")) return new Response(JSON.stringify({ id: "student-2" }), { status: 200 });
     if (url.includes("/rest/v1/course_access?")) {
-      return new Response(JSON.stringify([{ is_active: true, payment_verified: false, expires_at: null }]), { status: 200 });
+      return new Response(JSON.stringify([{ is_active: true, payment_verified: false, expires_at: new Date(Date.now() + 60_000).toISOString() }]), { status: 200 });
     }
     throw new Error("Unexpected upstream request: " + url);
   }) as typeof fetch;
@@ -119,8 +119,8 @@ Deno.test("duplicate entitlement rows fail closed", async () => {
     if (url.endsWith("/auth/v1/user")) return new Response(JSON.stringify({ id: "student-duplicate" }), { status: 200 });
     if (url.includes("/rest/v1/course_access?")) {
       return new Response(JSON.stringify([
-        { is_active: true, payment_verified: true, expires_at: null },
-        { is_active: false, payment_verified: false, expires_at: null },
+        { is_active: true, payment_verified: true, expires_at: new Date(Date.now() + 60_000).toISOString() },
+        { is_active: false, payment_verified: false, expires_at: new Date(Date.now() + 60_000).toISOString() },
       ]), { status: 200 });
     }
     throw new Error("Unexpected upstream request: " + url);
@@ -149,7 +149,7 @@ Deno.test("active entitled student receives the lesson with private cache header
     const url = String(input);
     if (url.endsWith("/auth/v1/user")) return new Response(JSON.stringify({ id: "student-active" }), { status: 200 });
     if (url.includes("/rest/v1/course_access?")) {
-      return new Response(JSON.stringify([{ is_active: true, payment_verified: true, expires_at: null }]), { status: 200 });
+      return new Response(JSON.stringify([{ is_active: true, payment_verified: true, expires_at: new Date(Date.now() + 60_000).toISOString() }]), { status: 200 });
     }
     throw new Error("Unexpected upstream request: " + url);
   }) as typeof fetch;
