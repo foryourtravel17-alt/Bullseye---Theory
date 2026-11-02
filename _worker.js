@@ -147,7 +147,11 @@ export default {
       });
     }
     if (isProtectedCourseAsset(url.pathname)) return serveProtectedAsset(request, env);
-    return env.ASSETS.fetch(request);
+    // Do not pass the HttpOnly session cookie or bearer token to the static asset binding.
+    const publicHeaders = new Headers(request.headers);
+    publicHeaders.delete("Cookie");
+    publicHeaders.delete("Authorization");
+    return env.ASSETS.fetch(new Request(url, { method: request.method, headers: publicHeaders }));
   },
 };
 
