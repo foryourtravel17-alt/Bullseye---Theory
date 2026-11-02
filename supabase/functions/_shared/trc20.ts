@@ -107,6 +107,42 @@ export function matchPendingOrder(
   return matching.length === 1 ? matching[0] : null;
 }
 
+
+const USDT_CONTRACT_HEX20 = "a614f803b6fd780986a42c78ec9c7f77e6ded13c";
+const RECIPIENT_HEX20 = "389e7f090fe45d935a8f3b641f4fd11a54aeae54";
+const TRC20_TRANSFER_EVENT_SIGNATURE = "ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
+
+export function hasExactUsdtTransferReceiptLog(
+  info: {
+    log?: Array<{ address?: string; topics?: string[]; data?: string }>;
+  } | null,
+  expectedAmountAtomic: string,
+): boolean {
+  if (!info || !Array.isArray(info.log) || info.log.length === 0) return false;
+  let expected: bigint;
+  try {
+    expected = BigInt(expectedAmountAtomic);
+  } catch {
+    return false;
+  }
+  if (expected <= 0n) return false;
+
+  return info.log.some((entry) => {
+    const contract = (entry.address || "").replace(/^0x/i, "").toLowerCase();
+    const topics = Array.isArray(entry.topics) ? entry.topics.map((x) => x.toLowerCase().replace(/^0x/i, "")) : [];
+    const data = (entry.data || "").replace(/^0x/i, "");
+    if (contract.slice(-40) !== USDT_CONTRACT_HEX20) return false;
+    if (topics.length < 3 || topics[0] !== TRC20_TRANSFER_EVENT_SIGNATURE) return false;
+    if (topics[2].slice(-40) !== RECIPIENT_HEX20) return false;
+    if (!/^[a-f0-9]+$/i.test(data)) return false;
+    try {
+      return BigInt("0x" + data) === expected;
+    } catch {
+      return false;
+    }
+  });
+}
+
 export function timingSafeEqualText(a: string, b: string): boolean {
   const left = new TextEncoder().encode(a);
   const right = new TextEncoder().encode(b);
