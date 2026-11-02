@@ -75,7 +75,7 @@ begin
     where user_id = target_user
       and is_active = true
       and payment_verified = true
-      and (expires_at is null or expires_at > now())
+      and expires_at > now()
   ) then
     raise exception 'Course access is not active';
   end if;
