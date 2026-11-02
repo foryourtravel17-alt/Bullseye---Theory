@@ -44,6 +44,10 @@ Deno.serve(async (req: Request) => {
   if (!Deno.env.get("TRONGRID_API_KEY") || !Deno.env.get("TRC20_SCANNER_CRON_SECRET")) {
     return respond({ error: "Payment verification is not fully configured. Checkout remains closed." }, 503);
   }
+  const accessDays = Number(Deno.env.get("COURSE_ACCESS_DAYS"));
+  if (!Number.isInteger(accessDays) || accessDays < 1 || accessDays > 3650) {
+    return respond({ error: "The course access duration has not been configured. Checkout remains closed." }, 503);
+  }
 
   const url = Deno.env.get("SUPABASE_URL");
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
@@ -119,6 +123,7 @@ Deno.serve(async (req: Request) => {
       user_id: userData.user.id,
       plan_code: plan,
       inr_amount_paise: selected.inrPaise,
+      access_days: accessDays,
       usdt_inr_rate: rate,
       usdt_amount_atomic: atomic,
       destination_wallet: TRON_RECEIVING_WALLET,
