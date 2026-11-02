@@ -31,8 +31,12 @@ function tokenExpiry(token) {
 }
 
 function isProtectedCourseAsset(pathname) {
-  return /^\/lesson-(?:[1-9]|1[01])(?:[-./].*)?$/i.test(pathname) ||
-    /^\/(?:lessons?|course-assets?|downloads?|pdf|pptx|videos?)\/.+$/i.test(pathname);
+  let normalized = pathname;
+  try { normalized = decodeURIComponent(pathname); } catch { /* malformed paths still checked below */ }
+  normalized = normalized.replace(/\\/g, "/");
+  const lessonFile = /(?:^|\/)lesson-(?:[1-9]|1[01])(?:[-./]|$)/i.test(normalized);
+  const courseDirectory = /^\/(?:lessons?|course-assets?|downloads?|pdf|pptx|videos?)\/.+$/i.test(normalized);
+  return lessonFile || courseDirectory;
 }
 
 function originAllowed(request) {
