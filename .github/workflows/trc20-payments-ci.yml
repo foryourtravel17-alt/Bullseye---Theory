@@ -37,6 +37,8 @@ jobs:
         run: node scripts/validate-trc20-migration.mjs
       - name: Test strict TRC-20 matching and settlement rules
         run: deno test supabase/functions/_shared/trc20.test.ts
+      - name: Run migrations and 85-day settlement tests in disposable PostgreSQL
+        run: bash scripts/test-trc20-migration-postgres.sh
       - name: Type-check payment Edge Functions
         run: |
           deno check supabase/functions/create-trc20-order/index.ts
