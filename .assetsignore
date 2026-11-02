@@ -8,5 +8,6 @@ lessons/
 supabase/
 readme.txt
 lesson.html
+_worker.js
 wrangler.toml
 .assetsignore
