@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 
-const migrationPath = new URL("../supabase/migrations/20261102170000_add_automatic_trc20_payment_orders.sql", import.meta.url);
+const migrationPath = new URL("../supabase/migrations/20261102170543_add_automatic_trc20_payment_orders.sql", import.meta.url);
 const sql = readFileSync(migrationPath, "utf8");
-const policyPath = new URL("../supabase/migrations/20261102200000_set_course_access_validity_85_days.sql", import.meta.url);
+const policyPath = new URL("../supabase/migrations/20261102170555_set_course_access_validity_85_days.sql", import.meta.url);
 const policySql = readFileSync(policyPath, "utf8");
 const scannerPath = new URL("../.github/workflows/trc20-payment-scan.yml", import.meta.url);
 const scannerWorkflow = readFileSync(scannerPath, "utf8");
