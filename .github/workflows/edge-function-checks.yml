@@ -3,6 +3,13 @@ on:
   pull_request:
     paths:
       - "supabase/functions/**"
+      - "_worker.js"
+      - "wrangler.toml"
+      - "auth.js"
+      - "dashboard.html"
+      - ".assetsignore"
+      - "scripts/test-cloudflare-entitlement-worker.ts"
+      - "scripts/check-cloudflare-entitlement-gate.sh"
       - "lesson-*.html"
       - "lesson-secure-client.js"
       - "scripts/check-secure-lessons.sh"
@@ -29,3 +36,7 @@ jobs:
         run: bash scripts/check-secure-lessons.sh
       - name: Run free Edge Function security contract checks
         run: bash scripts/check-edge-function-contracts.sh
+      - name: Test Cloudflare course entitlement Worker
+        run: deno test scripts/test-cloudflare-entitlement-worker.ts
+      - name: Check static course asset gate wiring
+        run: bash scripts/check-cloudflare-entitlement-gate.sh
