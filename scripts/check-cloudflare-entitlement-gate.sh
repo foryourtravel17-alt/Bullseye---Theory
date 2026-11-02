@@ -15,6 +15,8 @@ need "wrangler.toml" '^run_worker_first = true$' "Worker runs before every stati
 need "wrangler.toml" '^binding = "ASSETS"$' "Static asset binding is configured"
 need ".assetsignore" '^_worker\.js$' "Worker source is excluded from public static assets"
 need "_worker.js" 'isProtectedCourseAsset\(' "Worker has a protected course asset matcher"
+need "_worker.js" 'lesson-(?:[2-9]|1[01])' "Worker protects paid lessons 2–11 but leaves Lesson 1 free"
+need "scripts/test-cloudflare-entitlement-worker.ts" 'free preview HTML is served without paid entitlement cookie' "tests public free preview routing"
 need "_worker.js" 'auth/v1/user' "Worker verifies Supabase user sessions remotely"
 need "_worker.js" 'rest/v1/course_access' "Worker checks course entitlement through the Data API"
 need "_worker.js" 'payment_verified' "Worker requires independently verified payment"
@@ -32,3 +34,4 @@ echo "PASS: static course-asset gate contract checks. Runtime behavior is covere
 
 echo "Building Cloudflare Worker locally (dry-run only; no deployment)."
 npx --yes wrangler@4 deploy --dry-run --outdir /tmp/bullseye-worker-dry-run
+node scripts/check-course-asset-protection.mjs
