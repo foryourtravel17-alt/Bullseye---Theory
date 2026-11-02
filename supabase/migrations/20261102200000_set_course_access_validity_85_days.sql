@@ -45,6 +45,39 @@ begin
 end;
 $access_expiry_constraint$;
 
+-- Admin listing reports expired records as inactive without changing their stored audit fields.
+create or replace function public.admin_list_course_students()
+returns table (
+  user_id uuid,
+  email text,
+  full_name text,
+  is_active boolean,
+  payment_verified boolean,
+  expires_at timestamptz
+)
+language plpgsql
+security definer
+set search_path = ''
+as $function$
+begin
+  if not public.is_admin() then
+    raise exception 'Admin access required' using errcode = '42501';
+  end if;
+
+  return query
+  select u.id, u.email::text, coalesce(p.full_name, ''),
+         coalesce(c.is_active, false) and (c.expires_at is null or c.expires_at > now()),
+         coalesce(c.payment_verified, false), c.expires_at
+  from auth.users u
+  left join public.profiles p on p.id = u.id
+  left join public.course_access c on c.user_id = u.id
+  order by coalesce(p.full_name, ''), u.email;
+end;
+$function$;
+
+revoke all on function public.admin_list_course_students() from public, anon;
+grant execute on function public.admin_list_course_students() to authenticated;
+
 -- A manual admin grant with no chosen date is also exactly 85 days.
 -- An explicit future date is retained for a documented admin extension.
 create or replace function public.admin_set_course_access(
