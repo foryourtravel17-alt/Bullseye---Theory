@@ -2,6 +2,8 @@ import { readFileSync } from "node:fs";
 
 const migrationPath = new URL("../supabase/migrations/20261102170000_add_automatic_trc20_payment_orders.sql", import.meta.url);
 const sql = readFileSync(migrationPath, "utf8");
+const policyPath = new URL("../supabase/migrations/20261102200000_set_course_access_validity_85_days.sql", import.meta.url);
+const policySql = readFileSync(policyPath, "utf8");
 const errors = [];
 
 function tableBlock(name) {
@@ -79,12 +81,17 @@ for (const marker of [
   "for update",
   "v_order.access_days",
   "payment_tx_hash = p_tx_hash",
-  "public.course_access"
+  "public.course_access",
+  "greatest(coalesce(public.course_access.expires_at, now()), now())"
 ]) {
   if (!sql.toLowerCase().includes(marker.toLowerCase())) {
     errors.push("finalizer missing safety contract: " + marker);
   }
 }
+
+if (!/check\s*\(access_days\s*=\s*85\)/i.test(policySql)) errors.push("85-day policy migration must constrain every payment order to 85 days");
+if (!/now\(\)\s*\+\s*interval '85 days'/i.test(policySql)) errors.push("85-day policy migration must set admin grants to 85 days");
+if (!/course_access_verified_requires_expiry/i.test(policySql)) errors.push("85-day policy migration must prevent active verified access without expiry");
 
 if (errors.length) {
   console.error("TRC-20 migration contract failed:");
