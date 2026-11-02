@@ -1,0 +1,41 @@
+name: TRC20 Payment Checks
+
+on:
+  pull_request:
+    paths:
+      - "payment.html"
+      - "payment-checkout.js"
+      - "assets/usdt-tron-mainnet-trc20.svg"
+      - "supabase/functions/**"
+      - "supabase/migrations/**"
+      - ".github/workflows/trc20-payments-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "payment.html"
+      - "payment-checkout.js"
+      - "assets/usdt-tron-mainnet-trc20.svg"
+      - "supabase/functions/**"
+      - "supabase/migrations/**"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Test strict TRC-20 matching and settlement rules
+        run: deno test supabase/functions/_shared/trc20.test.ts
+      - name: Type-check payment Edge Functions
+        run: |
+          deno check supabase/functions/create-trc20-order/index.ts
+          deno check supabase/functions/get-trc20-order-status/index.ts
+          deno check supabase/functions/get-trc20-payment-config/index.ts
+          deno check supabase/functions/scan-trc20-payments/index.ts
