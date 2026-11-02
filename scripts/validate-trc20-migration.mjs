@@ -92,9 +92,9 @@ for (const marker of [
 if (!/check\s*\(access_days\s*=\s*85\)/i.test(policySql)) errors.push("85-day policy migration must constrain every payment order to 85 days");
 if (!/now\(\)\s*\+\s*interval '85 days'/i.test(policySql)) errors.push("85-day policy migration must set admin grants to 85 days");
 if (!/course_access_verified_requires_expiry/i.test(policySql)) errors.push("85-day policy migration must prevent active verified access without expiry");
-if ((sql.match(/create or replace function public\\.finalize_trc20_payment/gi) || []).length !== 1) errors.push("payment migration must contain exactly one finalizer definition");
-if (/expires_at\\s*=\\s*null/i.test(sql)) errors.push("payment finalizer must never write a null course expiry");
-if (!/now\\(\\)\\s*\\+\\s*make_interval\\(days\\s*=>\\s*v_order\\.access_days\\)/i.test(sql)) errors.push("initial verified payment must grant the order's fixed access duration");
+if ((sql.match(/create or replace function public\.finalize_trc20_payment/gi) || []).length !== 1) errors.push("payment migration must contain exactly one finalizer definition");
+if (/expires_at\s*=\s*null/i.test(sql)) errors.push("payment finalizer must never write a null course expiry");
+if (!/now\(\)\s*\+\s*make_interval\(days\s*=>\s*v_order\.access_days\)/i.test(sql)) errors.push("initial verified payment must grant the order's fixed access duration");
 
 if (errors.length) {
   console.error("TRC-20 migration contract failed:");
