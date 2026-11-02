@@ -48,8 +48,6 @@ need "$definer_search_path" 'auth[.]uid[(][)]' "schema-qualifies auth.uid in is_
 need "$definer_search_path" 'as [$]function[$]' "uses a valid PostgreSQL dollar-quote delimiter"
 need "$definer_search_path" 'revoke all on function public[.]handle_new_student' "revokes direct execution of trigger helper"
 
-echo "PASS: free static edge-function contract checks. Live auth/database behavior still requires staging."
-
 # Quiz answer keys are stored in public.quiz_questions; browser roles must not read them.
 answer_policy="supabase/migrations/20261102180000_restrict_quiz_answer_key_access.sql"
 need "$answer_policy" 'drop policy if exists "Authenticated users can view quiz questions"' "removes broad authenticated quiz-question policy"
@@ -57,3 +55,5 @@ need "$answer_policy" 'create policy "Admins can view quiz questions"' "restrict
 need "$answer_policy" 'using \(\(select public\.is_admin\(\)\)\)' "checks admin role for quiz-question reads"
 need "$answer_policy" 'revoke all on table public\.quiz_questions from anon' "revokes anonymous quiz-question access"
 need "$answer_policy" 'revoke all on table public\.quiz_questions from public' "revokes inherited public quiz-question access"
+
+echo "PASS: free static edge-function contract checks. Live auth/database behavior still requires staging."
