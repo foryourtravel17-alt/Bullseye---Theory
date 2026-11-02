@@ -87,7 +87,12 @@ begin
   on conflict (user_id) do update
   set is_active = excluded.is_active,
       payment_verified = excluded.payment_verified,
-      activated_at = case when excluded.is_active then now() else null end,
+      activated_at = case
+        when not excluded.is_active then null
+        when existing.is_active and existing.payment_verified
+          and existing.expires_at > now() then existing.activated_at
+        else now()
+      end,
       expires_at = excluded.expires_at,
       updated_at = now();
 end;
