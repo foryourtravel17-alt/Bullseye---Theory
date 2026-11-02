@@ -115,3 +115,16 @@ Do not schedule this job before the scanner function and its secrets exist. Conf
 - Do not accept a payment while the site shows checkout closed.
 
 Support: `eyetheorybulls@gmail.com`.
+
+
+## Free scheduled scanner (GitHub Actions)
+
+The scanner can run every five minutes through GitHub Actions; a paid Supabase branch or `pg_cron` extension is not required.
+
+Keep it disabled until the payment tables and Edge Functions have been deployed and tested in a disposable/local Supabase environment. Then configure:
+- Repository variable `TRC20_SCANNER_ENABLED=true`.
+- GitHub secret `SUPABASE_URL`.
+- GitHub secret `TRC20_SCANNER_CRON_SECRET`, matching the Edge Function secret of the same name.
+- Supabase Edge Function secrets `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `TRONGRID_API_KEY`.
+
+The workflow sends only a signed POST to `scan-trc20-payments`; it does not read the service-role key. It is gated by the repository variable and cannot run on schedule while that variable is absent/false. Manual dispatch additionally requires `run_now=true`. Do not enable the scanner until the Edge Function is deployed and its secrets are verified.
