@@ -36,6 +36,18 @@ need "$complete" 'from\("lesson_progress"\)\.upsert' "persists completion server
 need "$client" 'functions\.invoke\("grade-quiz"' "client invokes grading endpoint"
 need "$client" 'functions\.invoke\("complete-lesson"' "client invokes completion endpoint"
 
+
+# Course progress integrity and SECURITY DEFINER hardening are draft migrations only.
+progress_key="supabase/migrations/20261027153000_repair_course_progress_key_and_policy_duplicates.sql"
+definer_search_path="supabase/migrations/20261027180000_pin_security_definer_search_path.sql"
+need "$progress_key" 'where user_id is null or lesson_number is null' "blocks progress PK migration on null key fields"
+need "$progress_key" 'having count\(\*\) > 1' "blocks progress PK migration on duplicate user/lesson rows"
+need "$progress_key" 'primary key using index lesson_progress_user_lesson_number_uidx' "promotes the existing upsert index to a primary key"
+need "$definer_search_path" "set search_path = ''" "pins SECURITY DEFINER functions to an empty search_path"
+need "$definer_search_path" 'auth[.]uid[(][)]' "schema-qualifies auth.uid in is_admin"
+need "$definer_search_path" 'as [$]function[$]' "uses a valid PostgreSQL dollar-quote delimiter"
+need "$definer_search_path" 'revoke all on function public[.]handle_new_student' "revokes direct execution of trigger helper"
+
 echo "PASS: free static edge-function contract checks. Live auth/database behavior still requires staging."
 
 # Quiz answer keys are stored in public.quiz_questions; browser roles must not read them.
