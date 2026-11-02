@@ -6,6 +6,11 @@ for n in $(seq 1 11); do
   grep -Fq "lesson-secure-client.js\" data-lesson-number=\"$n\"" "$file" || {
     echo "FAIL: $file does not load the shared secure client for lesson $n"; exit 1;
   }
+  if [ "$n" -ge 3 ] && [ "$n" -le 10 ]; then
+    grep -Fq "LESSON $n / 11" "$file" || {
+      echo "FAIL: $file still shows a stale lesson count"; exit 1;
+    }
+  fi
   if grep -Eq 'const[[:space:]]+answers[[:space:]]*=|\bans[[:space:]]*=' "$file"; then
     echo "FAIL: browser-side answer key remains in $file"; exit 1
   fi
