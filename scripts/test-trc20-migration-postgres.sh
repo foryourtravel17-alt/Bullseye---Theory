@@ -67,114 +67,79 @@ insert into public.payment_orders (
     'TRON_MAINNET_TRC20', 'test_fixture', now() - interval '3 hours',
     'pending', now() - interval '3 hours', now() - interval '2 hours'
   );
-
-create or replace function public.test_finalize(
-  expected text,
-  order_id uuid,
-  tx_hash text,
-  amount numeric,
-  destination text,
-  token_contract text,
-  transfer_time timestamptz
-)
-returns void
-language plpgsql
-as $$
-declare
-  actual text;
-begin
-  execute 'set role service_role';
-  select public.finalize_trc20_payment(
-    order_id, tx_hash, amount,
-    'TJRabPrwbZy45sbavfcjinPJC18kjpRTv8',
-    destination, token_contract,
-    transfer_time, 12345678
-  ) into actual;
-  execute 'reset role';
-  if actual <> expected then
-    raise exception 'Expected %, received %', expected, actual;
-  end if;
-end;
-$$;
 SQL
 
-HASH_A="$(printf 'a%.0s' {1..64})"
-HASH_B="$(printf 'b%.0s' {1..64})"
 WALLET="TF8aiK6Q8kboLBcaHtckapVpsEQyR3oWwV"
 TOKEN="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+HASH_A="$(printf 'a%.0s' {1..64})"
+HASH_B="$(printf 'b%.0s' {1..64})"
 
-# Successful settlement atomically records the tx and activates finite course access.
-psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -qAtc "select public.test_finalize(
-  'paid',
+run_as_service_role() {
+  local statement="$1"
+  psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -qAtc "SET ROLE service_role; $statement; RESET ROLE;"
+}
+
+assert_result() {
+  local expected="$1"
+  local statement="$2"
+  local actual
+  actual="$(run_as_service_role "$statement")"
+  if [[ "$actual" != "$expected" ]]; then
+    echo "FAIL: expected '$expected', received '$actual'"
+    exit 1
+  fi
+  echo "PASS: finalizer returned $expected"
+}
+
+assert_result "paid" "SELECT public.finalize_trc20_payment(
   '10000000-0000-4000-8000-000000000001',
-  '$HASH_A',
-  12500000,
-  '$WALLET',
-  '$TOKEN',
-  now()
-);"
+  '$HASH_A', 12500000,
+  'TJRabPrwbZy45sbavfcjinPJC18kjpRTv8',
+  '$WALLET', '$TOKEN', now(), 12345678
+)"
 
-# A successful retry for the same paid order/hash is idempotent.
-psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -qAtc "select public.test_finalize(
-  'already_paid',
+assert_result "already_paid" "SELECT public.finalize_trc20_payment(
   '10000000-0000-4000-8000-000000000001',
-  '$HASH_A',
-  12500000,
-  '$WALLET',
-  '$TOKEN',
-  now()
-);"
+  '$HASH_A', 12500000,
+  'TJRabPrwbZy45sbavfcjinPJC18kjpRTv8',
+  '$WALLET', '$TOKEN', now(), 12345678
+)"
 
-# Amount, recipient and contract mismatches never unlock access.
-psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -qAtc "select public.test_finalize(
-  'amount_mismatch',
+assert_result "amount_mismatch" "SELECT public.finalize_trc20_payment(
   '10000000-0000-4000-8000-000000000002',
-  '$HASH_B',
-  12500000,
-  '$WALLET',
-  '$TOKEN',
-  now()
-);"
-psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -qAtc "select public.test_finalize(
-  'destination_mismatch',
-  '10000000-0000-4000-8000-000000000002',
-  '$HASH_B',
-  12500001,
-  'TWrongWallet111111111111111111111',
-  '$TOKEN',
-  now()
-);"
-psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -qAtc "select public.test_finalize(
-  'token_contract_mismatch',
-  '10000000-0000-4000-8000-000000000002',
-  '$HASH_B',
-  12500001,
-  '$WALLET',
-  'TWrongToken111111111111111111111',
-  now()
-);"
+  '$HASH_B', 12500000,
+  'TJRabPrwbZy45sbavfcjinPJC18kjpRTv8',
+  '$WALLET', '$TOKEN', now(), 12345678
+)"
 
-# Reusing an already-consumed tx ID for another order cannot credit twice.
-psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -qAtc "select public.test_finalize(
-  'duplicate_transaction',
+assert_result "destination_mismatch" "SELECT public.finalize_trc20_payment(
   '10000000-0000-4000-8000-000000000002',
-  '$HASH_A',
-  12500001,
-  '$WALLET',
-  '$TOKEN',
-  now()
-);"
+  '$HASH_B', 12500001,
+  'TJRabPrwbZy45sbavfcjinPJC18kjpRTv8',
+  'TWrongWallet111111111111111111111', '$TOKEN', now(), 12345678
+)"
 
-# An order past the finality grace window is expired and cannot be credited.
-psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -qAtc "select public.test_finalize(
-  'order_expired',
+assert_result "token_contract_mismatch" "SELECT public.finalize_trc20_payment(
+  '10000000-0000-4000-8000-000000000002',
+  '$HASH_B', 12500001,
+  'TJRabPrwbZy45sbavfcjinPJC18kjpRTv8',
+  '$WALLET', 'TWrongToken111111111111111111111', now(), 12345678
+)"
+
+assert_result "duplicate_transaction" "SELECT public.finalize_trc20_payment(
+  '10000000-0000-4000-8000-000000000002',
+  '$HASH_A', 12500001,
+  'TJRabPrwbZy45sbavfcjinPJC18kjpRTv8',
+  '$WALLET', '$TOKEN', now(), 12345678
+)"
+
+assert_result "order_expired" "SELECT public.finalize_trc20_payment(
   '10000000-0000-4000-8000-000000000003',
-  '$HASH_B',
-  12500002,
-  '$WALLET',
-  '$TOKEN',
-  now() - interval '2 hours 30 minutes'
-);"
+  '$HASH_B', 12500002,
+  'TJRabPrwbZy45sbavfcjinPJC18kjpRTv8',
+  '$WALLET', '$TOKEN',
+  now() - interval '2 hours 30 minutes', 12345678
+)"
 
 psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
 do $$
