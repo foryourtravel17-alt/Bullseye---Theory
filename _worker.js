@@ -56,7 +56,7 @@ async function getVerifiedEntitlement(token, env) {
   const query = new URLSearchParams({
     select: "is_active,payment_verified,expires_at",
     user_id: "eq." + user.id,
-    limit: "1",
+    limit: "2",
   });
   const accessResponse = await fetch(base + "/rest/v1/course_access?" + query.toString(), {
     headers: { apikey: key, Authorization: "Bearer " + token },
@@ -64,7 +64,9 @@ async function getVerifiedEntitlement(token, env) {
   });
   if (!accessResponse.ok) throw new Error("Could not verify course entitlement");
   const rows = await accessResponse.json();
-  const access = Array.isArray(rows) ? rows[0] : null;
+  // Fail closed if data integrity is unexpected; there must be one entitlement row per user.
+  if (!Array.isArray(rows) || rows.length !== 1) return false;
+  const access = rows[0];
   const expiry = access?.expires_at ? Date.parse(access.expires_at) : Infinity;
   return !!access?.is_active && !!access?.payment_verified && expiry > Date.now();
 }
