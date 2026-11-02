@@ -25,7 +25,7 @@ need "dashboard.html" 'syncCourseCookie\(session\)' "Dashboard refreshes course 
 need "dashboard.html" 'api/course-session/logout' "Dashboard clears course cookie on logout"
 
 need "_worker.js" 'decodeURIComponent' "normalizes encoded asset paths before authorization"
-need "_worker.js" 'rows\\.length !== 1' "fails closed when entitlement rows are duplicated"
-need "_worker.js" 'responseHeaders\\.set\\("Vary", "Cookie"\\)' "marks protected cache responses as cookie-varying"
+need "_worker.js" 'rows[.]length !== 1' "fails closed when entitlement rows are duplicated"
+need "_worker.js" 'responseHeaders[.]set[(]"Vary", "Cookie"[)]' "marks protected cache responses as cookie-varying"
 
 echo "PASS: static course-asset gate contract checks. Runtime behavior is covered by Deno tests; production deployment remains separate."
