@@ -24,7 +24,7 @@
 - The fictional sample watchlist values were not edited or relabelled as live data.
 - The public sanitized factory feed at https://raw.githubusercontent.com/foryourtravel17-alt/ai-trending-content-factory/main/data/approved_market_feed.json reports `generatedAt=2026-10-27T05:35:44Z` and `records=[]`. It is older than the eight-hour observation window and contains no approved observations. The Market Lab should therefore show no current approved factory observations until a fresh, human-approved record is generated.
 - **Security issue remains open:** the connected `ai-trending-content-factory` repository is public and raw `data/state.json` remains directly readable. The inspected file contains historical draft signal fields, including numeric entry/stop/target data and expired records. The Market Lab fetches the sanitized allow-list, but this does not make the raw repository state confidential. Move raw state to private storage and review repository history before treating pre-approval levels as confidential. Do not place credentials in public files.
-- Third-party TradingView quotes remain separate from the fictional fixtures. Provider delay/availability and Bullseye's own redistribution rights have not been independently established; verify applicable provider/exchange terms before release and disable the embed if permitted display cannot be confirmed.
+- A material compliance gap was identified: the homepage and Market Lab contained live third-party ticker embeds, and the Market Lab rendered fresh approved factory observations (age window up to eight hours). Human approval and provider delay labels do not establish that this use is permitted for an India-facing educational product. SEBI Circular HO/47/17/12(11)2025-MRD-POD3/I/11107/2026 dated 8 May 2026, effective 1 July 2026, prescribes a 30-day lag for sharing and usage of market price data for investor education/awareness; its one-day exception is specific to NISM's simulation lab. The circular also requires appropriate agreements and audit-trail safeguards. Official source: https://www.sebi.gov.in/legal/circulars/may-2026/norms-for-sharing-and-usage-of-price-data-for-educational-purposes_101293.html. This is an operational summary, not a legal opinion.
 - Pricing intent remains **₹999 standalone course** and **₹1,999 Premium bundle including the course**. Billing duration, renewal/cancellation/refund terms, support, gateway and server-side payment verification remain unfinished. Payments and checkout must stay disabled.
 
 ## Stale content, links and release status
@@ -42,3 +42,14 @@
 - Market scenario pack content changed: **No**.
 - Educational checklist/provenance copy changed: **Yes**.
 - Production deployment or publication: **Not performed**.
+
+
+## Compliance remediation added after the initial review
+
+- Updated `docs/market-briefing-policy.md` with the SEBI 8 May 2026 circular, effective 1 July 2026: 30-day lag for educational price-data sharing/use, narrow NISM simulation-lab exception, agreement/audit-trail controls, and a requirement for qualified legal review. Bullseye must not assume the NISM exception applies.
+- Removed the TradingView ticker embeds from `index.html` and `terminal.html`. The homepage hero's stale numeric XAUUSD/BTCUSD overlays were replaced with non-price learning labels.
+- Paused rendering of the public factory approved-observation feed in `terminal.html`. A Telegram approval does not establish data age, licensing or educational-use eligibility.
+- Added `scripts/validate-market-data-guardrails.mjs` and wired it into `npm run build` / `npm test`. It checks that ticker embeds, stale quote overlays and recent public factory-feed rendering do not regress, and that the SEBI policy and fictional fixture labels remain.
+- Existing `market-briefs.json` scenario pack and fictional sample values were not changed. Review metadata remains 2026-11-02 / 2026-11-05 because this review was completed on 2 November.
+- These changes are draft-only on `feat/bullseye-companion-terminal-memberships`. They do not establish legal compliance or data rights; obtain qualified Indian securities-law review before re-enabling any live/recent data display.
+- Required next verification: run the branch's GitHub Actions on the latest head; visually QA the changed homepage/Market Lab on mobile and desktop; resolve PR #11's base-branch divergence/conflicts; separately remediate the public factory raw-state exposure and reconcile course-security PRs #14/#27/#30/#31/#32. No merge, production deploy, Supabase migration or publishing was performed.
