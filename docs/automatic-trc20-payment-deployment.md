@@ -94,6 +94,15 @@ Do not schedule this job before the scanner function and its secrets exist. Conf
 
 ## Required tests before enabling checkout
 
+**CI verification already completed on 2 November 2026** (commit `8febef1202a7cd75ff61f4bdbf8cc1bae1e52d1c`):
+- The payment migration was applied to a disposable PostgreSQL 17 CI service.
+- The SQL finalizer integration test passed for successful paid unlock, idempotent retry, duplicate transaction, wrong amount, wrong destination, wrong token contract and expired order.
+- Deno unit tests passed for confirmed TRC-20 history, exact USDT contract, exact Transfer receipt event, amount, destination, order window and solidified successful receipt.
+- The four payment Edge Functions passed Deno type-checks and the checkout JavaScript passed Node syntax validation.
+
+This disposable database test does not connect to the customer's live Supabase project or send a real blockchain transfer.
+
+Remaining before enabling checkout:
 - Apply the migration in a disposable local/test database or a separate free staging project; do not run it against production as a shortcut.
 - Deploy the four functions to that test target with the settings above.
 - Confirm the config endpoint says checkout is closed by default.
