@@ -34,7 +34,7 @@ function isProtectedCourseAsset(pathname) {
   let normalized = pathname;
   try { normalized = decodeURIComponent(pathname); } catch { /* malformed paths still checked below */ }
   normalized = normalized.replace(/\\/g, "/");
-  const lessonFile = /(?:^|\/)lesson-(?:[1-9]|1[01])(?:[-./]|$)/i.test(normalized);
+  // Lesson 1 is the free preview; only lessons 2–11 require paid access.\n  const lessonFile = /(?:^|\/)lesson-(?:[2-9]|1[01])(?:[-./]|$)/i.test(normalized);
   const courseDirectory = /^\/(?:lessons?|course-assets?|downloads?|pdf|pptx|videos?)\/.+$/i.test(normalized);
   return lessonFile || courseDirectory;
 }
