@@ -68,6 +68,9 @@ Deno.serve(async (req: Request) => {
   if (typeof plan !== "string" || !(plan in plans)) {
     return respond({ error: "Select a valid Bullseye plan" }, 400);
   }
+  if (plan === "premium" && Deno.env.get("PREMIUM_CHECKOUT_ENABLED") !== "true") {
+    return respond({ error: "Premium checkout remains closed until its benefits and access duration are formally published." }, 503);
+  }
   const selected = plans[plan as keyof typeof plans];
 
   let rate: number;
