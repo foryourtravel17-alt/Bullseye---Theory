@@ -31,6 +31,8 @@ jobs:
           deno-version: v2.x
       - name: Type-check Edge Functions
         run: deno check supabase/functions/grade-quiz/index.ts supabase/functions/complete-lesson/index.ts
+      - name: Build Cloudflare Worker locally without deploying
+        run: npx --yes wrangler@4 deploy --dry-run --outdir /tmp/bullseye-worker-dry-run
       - name: Run quiz grading contract tests
         run: deno test supabase/functions/grade-quiz/grade.test.ts
       - name: Verify all lesson pages use server-side grading
