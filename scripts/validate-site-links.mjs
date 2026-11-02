@@ -41,46 +41,46 @@ for (const page of pages) {
   }
 }
 
-// Guard the public Market Lab against accidentally reading internal factory state.
+// Guard the public Market Lab: non-fictional market data remains disabled.
 const terminalPath = resolve(root, "terminal.html");
 if (existsSync(terminalPath)) {
   const terminal = readFileSync(terminalPath, "utf8");
-  if (!terminal.includes("approved_market_feed.json")) {
-    errors.push("terminal.html must use the sanitized approved_market_feed.json endpoint");
+  if (/data\\/state\\.json|approved_market_feed\\.json|loadFactoryFeed|age\\s*<=\\s*8/i.test(terminal)) {
+    errors.push("terminal.html must not load raw factory state, the public approved feed, or recent-observation windows while data display is paused");
   }
-  if (/data\/state\.json/i.test(terminal)) {
-    errors.push("terminal.html must never read raw data/state.json");
+  if (/tradingview-widget|embed-widget-ticker-tape\\.js/i.test(terminal)) {
+    errors.push("terminal.html must not embed a live/recent quote widget pending written permissions and compliance review");
   }
-  if (!/approvalStatus\s*===\s*["']approved["']/.test(terminal)) {
-    errors.push("terminal.html must render only explicitly approved factory records");
-  }
-  if (!/age\s*<=\s*8/.test(terminal)) {
-    errors.push("terminal.html must hide factory observations older than eight hours");
-  }
-}
-
-// Guard visible content against demo-data and quote-provenance regressions.
-if (existsSync(terminalPath)) {
-  const terminal = readFileSync(terminalPath, "utf8");
   for (const marker of [
+    "Quote Tape Paused",
+    "Public Feed Paused",
+    "preceding 30 days",
+    "not a data licence",
     "Fictional prices only",
-    "SIMULATED",
-    "Third-party Quote Tape",
-    "availability and delay depend on provider/exchange entitlements",
-    "Bullseye has not independently verified rights to redistribute quote data"
+    "SIMULATED"
   ]) {
-    if (!terminal.toLowerCase().includes(marker.toLowerCase())) errors.push("terminal.html is missing Market Lab guardrail: " + marker);
+    if (!terminal.toLowerCase().includes(marker.toLowerCase())) {
+      errors.push("terminal.html is missing Market Lab safety marker: " + marker);
+    }
   }
 }
 
 const homePath = resolve(root, "index.html");
 if (existsSync(homePath)) {
   const home = readFileSync(homePath, "utf8");
-  if (!home.includes("Market Lab scenario and watchlist fixtures are simulated")) {
-    errors.push("index.html must distinguish simulated Market Lab fixtures from provider data");
+  if (/tradingview-widget|embed-widget-ticker-tape\\.js/i.test(home)) {
+    errors.push("index.html must not embed a live/recent quote widget pending written permissions and compliance review");
   }
-  if (!home.includes("the separate ticker above is third-party data and may be delayed")) {
-    errors.push("index.html must label the separate provider ticker and possible delay");
+  for (const marker of [
+    "MARKET DATA DISPLAY PAUSED",
+    "No live or recent market-price ticker is displayed",
+    "Market Lab scenario and watchlist fixtures are simulated",
+    "membership duration and checkout terms will be confirmed before launch"
+  ]) {
+    if (!home.includes(marker)) errors.push("index.html is missing Market Lab/pricing guardrail: " + marker);
+  }
+  if (/LIFETIME ACCESS|ONE-TIME ENROLLMENT/i.test(home)) {
+    errors.push("index.html must not promise lifetime or one-time access while membership duration is undefined");
   }
 }
 
@@ -92,9 +92,13 @@ if (existsSync(membershipPath)) {
     "₹1,999",
     "PRE-LAUNCH · PAYMENTS NOT ENABLED",
     "Everything in the ₹999 course plan",
+    "Billing period, renewal terms and exact access duration must be confirmed before launch.",
     "Payments are intentionally disabled for now."
   ]) {
     if (!membership.includes(marker)) errors.push("membership.html is missing pricing/payment guardrail: " + marker);
+  }
+  if (/<script[^>]+src=["'][^"']*(razorpay|cashfree|stripe|phonepe)/i.test(membership)) {
+    errors.push("membership.html must not load a payment-provider checkout script while payments are disabled");
   }
 }
 
@@ -104,7 +108,8 @@ if (existsSync(policyPath)) {
   for (const marker of [
     "Do not issue personalised buy/sell/hold recommendations or price targets",
     "third-party quote widget",
-    "redistribution rights"
+    "redistribution rights",
+    "monetary incentives to participants"
   ]) {
     if (!policy.toLowerCase().includes(marker.toLowerCase())) errors.push("market briefing policy is missing guardrail: " + marker);
   }
