@@ -1,5 +1,6 @@
 -- Automatic USDT settlement for Bullseye Theory.
--- This migration is intentionally prepared in a draft PR; it is not applied to production.
+-- Draft migration: do not apply to production until local PostgreSQL and staging tests pass.
+
 create table if not exists public.payment_orders (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -45,7 +46,24 @@ create table if not exists public.payment_transactions (
 );
 
 create table if not exists public.payment_review_events (
-  tx_hash text primary key check (tx_hash ~ '^[A-Fa-f0-9]{64}
+  tx_hash text primary key check (tx_hash ~ '^[A-Fa-f0-9]{64}$'),
+  from_address text not null,
+  to_address text not null,
+  token_contract text not null,
+  amount_atomic numeric(24,0) not null check (amount_atomic > 0),
+  block_number bigint not null check (block_number > 0),
+  block_timestamp timestamptz not null,
+  review_reason text not null check (review_reason in ('no_matching_order', 'multiple_matching_orders')),
+  first_seen_at timestamptz not null default now(),
+  resolution_note text,
+  resolved_at timestamptz
+);
+
+alter table public.payment_orders enable row level security;
+alter table public.payment_transactions enable row level security;
+alter table public.payment_review_events enable row level security;
+
+-- Orders and chain evidence are server-only. Browser roles receive no table privileges.
 revoke all on table public.payment_orders from public, anon, authenticated;
 revoke all on table public.payment_transactions from public, anon, authenticated;
 revoke all on table public.payment_review_events from public, anon, authenticated;
@@ -96,7 +114,7 @@ begin
     return 'order_already_paid';
   end if;
   if v_order.status <> 'pending' then return 'order_not_pending'; end if;
-  if now() > v_order.expires_at + interval '1 hour' then
+  if now() > v_order.expires_at then
     update public.payment_orders set status = 'expired'
     where id = p_order_id and status = 'pending';
     return 'order_expired';
@@ -130,386 +148,21 @@ begin
   insert into public.course_access (
     user_id, is_active, payment_verified, activated_at, expires_at, updated_at
   ) values (
-    v_order.user_id, true, true, now(), now() + make_interval(days => v_order.access_days), now()
+    v_order.user_id, true, true, now(),
+    now() + make_interval(days => v_order.access_days), now()
   )
   on conflict (user_id) do update
   set is_active = true,
       payment_verified = true,
       activated_at = case
-        when public.course_access.is_active and public.course_access.payment_verified
-          and (public.course_access.expires_at is null or public.course_access.expires_at > now())
+        when public.course_access.is_active
+          and public.course_access.payment_verified
+          and public.course_access.expires_at > now()
           then public.course_access.activated_at
         else now()
       end,
       expires_at = greatest(coalesce(public.course_access.expires_at, now()), now())
         + make_interval(days => v_order.access_days),
-      updated_at = now();
-
-  return 'paid';
-end;
-$function$;
-
-revoke all on function public.finalize_trc20_payment(
-  uuid, text, numeric, text, text, text, timestamptz, bigint
-) from public, anon, authenticated;
-grant execute on function public.finalize_trc20_payment(
-  uuid, text, numeric, text, text, text, timestamptz, bigint
-) to service_role;
-),
-  from_address text not null,
-  to_address text not null,
-  token_contract text not null,
-  amount_atomic numeric(24,0) not null check (amount_atomic > 0),
-  block_number bigint not null check (block_number > 0),
-  block_timestamp timestamptz not null,
-  review_reason text not null check (review_reason in ('no_matching_order', 'multiple_matching_orders')),
-  first_seen_at timestamptz not null default now(),
-  resolution_note text,
-  resolved_at timestamptz
-);
-
-alter table public.payment_orders enable row level security;
-alter table public.payment_transactions enable row level security;
-alter table public.payment_review_events enable row level security;
-
--- Orders and chain evidence are server-only. Browser roles receive no table privileges.
-revoke all on table public.payment_orders from public, anon, authenticated;
-revoke all on table public.payment_transactions from public, anon, authenticated;
-grant select, insert, update, delete on table public.payment_orders to service_role;
-grant select, insert, update, delete on table public.payment_transactions to service_role;
-grant select, insert, update on table public.course_access to service_role;
-
-create or replace function public.finalize_trc20_payment(
-  p_order_id uuid,
-  p_tx_hash text,
-  p_amount_atomic numeric,
-  p_from_address text,
-  p_to_address text,
-  p_token_contract text,
-  p_block_timestamp timestamptz,
-  p_block_number bigint
-)
-returns text
-language plpgsql
-security invoker
-set search_path = ''
-as $function$
-declare
-  v_order public.payment_orders%rowtype;
-  v_inserted integer;
-begin
-  if current_user <> 'service_role' then
-    raise exception 'Server payment verifier only' using errcode = '42501';
-  end if;
-
-  if p_tx_hash is null or p_tx_hash !~ '^[A-Fa-f0-9]{64}$'
-     or p_amount_atomic is null or p_amount_atomic <= 0
-     or p_block_number is null or p_block_number <= 0
-     or p_block_timestamp is null
-     or p_from_address is null or length(p_from_address) < 20 then
-    return 'invalid_chain_evidence';
-  end if;
-
-  select * into v_order
-  from public.payment_orders
-  where id = p_order_id
-  for update;
-
-  if not found then return 'order_not_found'; end if;
-  if v_order.status = 'paid' then
-    if lower(v_order.payment_tx_hash) = lower(p_tx_hash) then return 'already_paid'; end if;
-    return 'order_already_paid';
-  end if;
-  if v_order.status <> 'pending' then return 'order_not_pending'; end if;
-  if now() > v_order.expires_at then
-    update public.payment_orders set status = 'expired'
-    where id = p_order_id and status = 'pending';
-    return 'order_expired';
-  end if;
-  if p_amount_atomic <> v_order.usdt_amount_atomic then return 'amount_mismatch'; end if;
-  if p_to_address <> v_order.destination_wallet then return 'destination_mismatch'; end if;
-  if p_token_contract <> v_order.token_contract then return 'token_contract_mismatch'; end if;
-  if p_block_timestamp < v_order.created_at or p_block_timestamp > v_order.expires_at then
-    return 'transfer_outside_order_window';
-  end if;
-
-  insert into public.payment_transactions (
-    tx_hash, order_id, from_address, to_address, token_contract,
-    amount_atomic, block_number, block_timestamp
-  ) values (
-    p_tx_hash, p_order_id, p_from_address, p_to_address, p_token_contract,
-    p_amount_atomic, p_block_number, p_block_timestamp
-  ) on conflict do nothing;
-
-  get diagnostics v_inserted = row_count;
-  if v_inserted = 0 then return 'duplicate_transaction'; end if;
-
-  update public.payment_orders
-  set status = 'paid', paid_at = now(), payment_tx_hash = p_tx_hash
-  where id = p_order_id and status = 'pending';
-
-  if not found then
-    raise exception 'Order status changed during payment finalization';
-  end if;
-
-  insert into public.course_access (
-    user_id, is_active, payment_verified, activated_at, expires_at, updated_at
-  ) values (
-    v_order.user_id, true, true, now(), null, now()
-  )
-  on conflict (user_id) do update
-  set is_active = true,
-      payment_verified = true,
-      activated_at = case
-        when public.course_access.is_active and public.course_access.payment_verified
-          then public.course_access.activated_at
-        else now()
-      end,
-      expires_at = null,
-      updated_at = now();
-
-  return 'paid';
-end;
-$function$;
-
-revoke all on function public.finalize_trc20_payment(
-  uuid, text, numeric, text, text, text, timestamptz, bigint
-) from public, anon, authenticated;
-grant execute on function public.finalize_trc20_payment(
-  uuid, text, numeric, text, text, text, timestamptz, bigint
-) to service_role;
-),
-  from_address text not null,
-  to_address text not null check (to_address = 'TF8aiK6Q8kboLBcaHtckapVpsEQyR3oWwV'),
-  token_contract text not null check (token_contract = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'),
-  amount_atomic numeric(24,0) not null check (amount_atomic > 0),
-  block_number bigint not null check (block_number > 0),
-  block_timestamp timestamptz not null,
-  review_reason text not null check (review_reason in ('no_matching_order', 'multiple_matching_orders')),
-  first_seen_at timestamptz not null default now(),
-  resolution_note text,
-  resolved_at timestamptz
-);
-
--- Orders and chain evidence are server-only. Browser roles receive no table privileges.
-revoke all on table public.payment_orders from public, anon, authenticated;
-revoke all on table public.payment_transactions from public, anon, authenticated;
-revoke all on table public.payment_review_events from public, anon, authenticated;
-grant select, insert, update, delete on table public.payment_orders to service_role;
-grant select, insert, update, delete on table public.payment_transactions to service_role;
-grant select, insert, update, delete on table public.payment_review_events to service_role;
-grant select, insert, update on table public.course_access to service_role;
-
-create or replace function public.finalize_trc20_payment(
-  p_order_id uuid,
-  p_tx_hash text,
-  p_amount_atomic numeric,
-  p_from_address text,
-  p_to_address text,
-  p_token_contract text,
-  p_block_timestamp timestamptz,
-  p_block_number bigint
-)
-returns text
-language plpgsql
-security invoker
-set search_path = ''
-as $function$
-declare
-  v_order public.payment_orders%rowtype;
-  v_inserted integer;
-begin
-  if current_user <> 'service_role' then
-    raise exception 'Server payment verifier only' using errcode = '42501';
-  end if;
-
-  if p_tx_hash is null or p_tx_hash !~ '^[A-Fa-f0-9]{64}$'
-     or p_amount_atomic is null or p_amount_atomic <= 0
-     or p_block_number is null or p_block_number <= 0
-     or p_block_timestamp is null
-     or p_from_address is null or length(p_from_address) < 20 then
-    return 'invalid_chain_evidence';
-  end if;
-
-  select * into v_order
-  from public.payment_orders
-  where id = p_order_id
-  for update;
-
-  if not found then return 'order_not_found'; end if;
-  if v_order.status = 'paid' then
-    if lower(v_order.payment_tx_hash) = lower(p_tx_hash) then return 'already_paid'; end if;
-    return 'order_already_paid';
-  end if;
-  if v_order.status <> 'pending' then return 'order_not_pending'; end if;
-  if now() > v_order.expires_at + interval '1 hour' then
-    update public.payment_orders set status = 'expired'
-    where id = p_order_id and status = 'pending';
-    return 'order_expired';
-  end if;
-  if p_amount_atomic <> v_order.usdt_amount_atomic then return 'amount_mismatch'; end if;
-  if p_to_address <> v_order.destination_wallet then return 'destination_mismatch'; end if;
-  if p_token_contract <> v_order.token_contract then return 'token_contract_mismatch'; end if;
-  if p_block_timestamp < v_order.created_at or p_block_timestamp > v_order.expires_at then
-    return 'transfer_outside_order_window';
-  end if;
-
-  insert into public.payment_transactions (
-    tx_hash, order_id, from_address, to_address, token_contract,
-    amount_atomic, block_number, block_timestamp
-  ) values (
-    p_tx_hash, p_order_id, p_from_address, p_to_address, p_token_contract,
-    p_amount_atomic, p_block_number, p_block_timestamp
-  ) on conflict do nothing;
-
-  get diagnostics v_inserted = row_count;
-  if v_inserted = 0 then return 'duplicate_transaction'; end if;
-
-  update public.payment_orders
-  set status = 'paid', paid_at = now(), payment_tx_hash = p_tx_hash
-  where id = p_order_id and status = 'pending';
-
-  if not found then
-    raise exception 'Order status changed during payment finalization';
-  end if;
-
-  insert into public.course_access (
-    user_id, is_active, payment_verified, activated_at, expires_at, updated_at
-  ) values (
-    v_order.user_id, true, true, now(), now() + make_interval(days => v_order.access_days), now()
-  )
-  on conflict (user_id) do update
-  set is_active = true,
-      payment_verified = true,
-      activated_at = case
-        when public.course_access.is_active and public.course_access.payment_verified
-          then public.course_access.activated_at
-        else now()
-      end,
-      expires_at = now() + make_interval(days => v_order.access_days),
-      updated_at = now();
-
-  return 'paid';
-end;
-$function$;
-
-revoke all on function public.finalize_trc20_payment(
-  uuid, text, numeric, text, text, text, timestamptz, bigint
-) from public, anon, authenticated;
-grant execute on function public.finalize_trc20_payment(
-  uuid, text, numeric, text, text, text, timestamptz, bigint
-) to service_role;
-),
-  from_address text not null,
-  to_address text not null,
-  token_contract text not null,
-  amount_atomic numeric(24,0) not null check (amount_atomic > 0),
-  block_number bigint not null check (block_number > 0),
-  block_timestamp timestamptz not null,
-  review_reason text not null check (review_reason in ('no_matching_order', 'multiple_matching_orders')),
-  first_seen_at timestamptz not null default now(),
-  resolution_note text,
-  resolved_at timestamptz
-);
-
-alter table public.payment_orders enable row level security;
-alter table public.payment_transactions enable row level security;
-alter table public.payment_review_events enable row level security;
-
--- Orders and chain evidence are server-only. Browser roles receive no table privileges.
-revoke all on table public.payment_orders from public, anon, authenticated;
-revoke all on table public.payment_transactions from public, anon, authenticated;
-grant select, insert, update, delete on table public.payment_orders to service_role;
-grant select, insert, update, delete on table public.payment_transactions to service_role;
-grant select, insert, update on table public.course_access to service_role;
-
-create or replace function public.finalize_trc20_payment(
-  p_order_id uuid,
-  p_tx_hash text,
-  p_amount_atomic numeric,
-  p_from_address text,
-  p_to_address text,
-  p_token_contract text,
-  p_block_timestamp timestamptz,
-  p_block_number bigint
-)
-returns text
-language plpgsql
-security invoker
-set search_path = ''
-as $function$
-declare
-  v_order public.payment_orders%rowtype;
-  v_inserted integer;
-begin
-  if current_user <> 'service_role' then
-    raise exception 'Server payment verifier only' using errcode = '42501';
-  end if;
-
-  if p_tx_hash is null or p_tx_hash !~ '^[A-Fa-f0-9]{64}$'
-     or p_amount_atomic is null or p_amount_atomic <= 0
-     or p_block_number is null or p_block_number <= 0
-     or p_block_timestamp is null
-     or p_from_address is null or length(p_from_address) < 20 then
-    return 'invalid_chain_evidence';
-  end if;
-
-  select * into v_order
-  from public.payment_orders
-  where id = p_order_id
-  for update;
-
-  if not found then return 'order_not_found'; end if;
-  if v_order.status = 'paid' then
-    if lower(v_order.payment_tx_hash) = lower(p_tx_hash) then return 'already_paid'; end if;
-    return 'order_already_paid';
-  end if;
-  if v_order.status <> 'pending' then return 'order_not_pending'; end if;
-  if now() > v_order.expires_at then
-    update public.payment_orders set status = 'expired'
-    where id = p_order_id and status = 'pending';
-    return 'order_expired';
-  end if;
-  if p_amount_atomic <> v_order.usdt_amount_atomic then return 'amount_mismatch'; end if;
-  if p_to_address <> v_order.destination_wallet then return 'destination_mismatch'; end if;
-  if p_token_contract <> v_order.token_contract then return 'token_contract_mismatch'; end if;
-  if p_block_timestamp < v_order.created_at or p_block_timestamp > v_order.expires_at then
-    return 'transfer_outside_order_window';
-  end if;
-
-  insert into public.payment_transactions (
-    tx_hash, order_id, from_address, to_address, token_contract,
-    amount_atomic, block_number, block_timestamp
-  ) values (
-    p_tx_hash, p_order_id, p_from_address, p_to_address, p_token_contract,
-    p_amount_atomic, p_block_number, p_block_timestamp
-  ) on conflict do nothing;
-
-  get diagnostics v_inserted = row_count;
-  if v_inserted = 0 then return 'duplicate_transaction'; end if;
-
-  update public.payment_orders
-  set status = 'paid', paid_at = now(), payment_tx_hash = p_tx_hash
-  where id = p_order_id and status = 'pending';
-
-  if not found then
-    raise exception 'Order status changed during payment finalization';
-  end if;
-
-  insert into public.course_access (
-    user_id, is_active, payment_verified, activated_at, expires_at, updated_at
-  ) values (
-    v_order.user_id, true, true, now(), null, now()
-  )
-  on conflict (user_id) do update
-  set is_active = true,
-      payment_verified = true,
-      activated_at = case
-        when public.course_access.is_active and public.course_access.payment_verified
-          then public.course_access.activated_at
-        else now()
-      end,
-      expires_at = null,
       updated_at = now();
 
   return 'paid';
