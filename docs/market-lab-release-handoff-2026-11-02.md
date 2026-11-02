@@ -30,7 +30,7 @@
 ## Current PR/release state
 
 - Repository default branch: `main`.
-- PR #11: open, draft, unmerged, and GitHub currently reports `mergeable=false`; head branch is `feat/bullseye-companion-terminal-memberships`, latest recorded head `ebb2383208b4cad43be9c940b05841a213562c08`. GitHub compare reports 69 commits ahead and 54 behind `main` (diverged). Resolve the base divergence/conflicts before merge. The feature branch is not in production.
+- PR #11: open, draft, unmerged, and GitHub currently reports `mergeable=false`; head branch is `feat/bullseye-companion-terminal-memberships`. GitHub compare reports 69 commits ahead and 54 behind `main` (diverged). Resolve the base divergence/conflicts before merge. The feature branch is not in production.
 - PR #14: open draft; targets the Market Lab feature branch (not `main`). It documents schema hardening and compatibility work; SQL has not been applied to live Supabase.
 - PR #27: open draft, targets `main`; progress primary-key/RLS repair is not applied to live Supabase.
 - PR #29: open draft, targets `main`; SECURITY DEFINER search-path migration is not applied to production.
