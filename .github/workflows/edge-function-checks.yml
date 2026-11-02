@@ -10,6 +10,7 @@ on:
       - ".assetsignore"
       - "scripts/test-cloudflare-entitlement-worker.ts"
       - "scripts/check-cloudflare-entitlement-gate.sh"
+      - "scripts/check-course-asset-protection.mjs"
       - "lesson-*.html"
       - "lesson-secure-client.js"
       - "scripts/check-secure-lessons.sh"
@@ -42,3 +43,5 @@ jobs:
         run: npx --yes wrangler@4 deploy --dry-run --outdir .wrangler-dry-run
       - name: Check static course asset gate wiring
         run: bash scripts/check-cloudflare-entitlement-gate.sh
+      - name: Inventory every lesson and course resource path
+        run: node scripts/check-course-asset-protection.mjs
