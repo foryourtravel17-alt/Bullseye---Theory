@@ -30,12 +30,12 @@
 ## Current PR/release state
 
 - Repository default branch: `main`.
-- PR #11: open, draft, unmerged, and GitHub currently reports `mergeable=false`; head branch is `feat/bullseye-companion-terminal-memberships`. Resolve its base divergence/conflicts before merge. The feature branch is not in production.
+- PR #11: open, draft, unmerged, and GitHub currently reports `mergeable=false`; head branch is `feat/bullseye-companion-terminal-memberships`, latest recorded head `ebb2383208b4cad43be9c940b05841a213562c08`. GitHub compare reports 69 commits ahead and 54 behind `main` (diverged). Resolve the base divergence/conflicts before merge. The feature branch is not in production.
 - PR #14: open draft; targets the Market Lab feature branch (not `main`). It documents schema hardening and compatibility work; SQL has not been applied to live Supabase.
 - PR #27: open draft, targets `main`; progress primary-key/RLS repair is not applied to live Supabase.
 - PR #29: open draft, targets `main`; SECURITY DEFINER search-path migration is not applied to production.
 - PR #30, #31 and #32: open drafts, target `main`; server-side quiz grading/completion and all-lesson client migration are not deployed. PR #32's prior recorded workflows passed on its current reported head, but its new no-secrets source-contract check still needs a fresh run. Local Supabase integration tests and schema reconciliation remain outstanding.
-- Raw factory state: the separate `ai-trending-content-factory` repository is public and historical raw `data/state.json` remains readable from its Git history. The sanitized feed does not make this state private. A private raw-state store, migration, credential setup and history/secret review are required. Do not assume deleting the current file alone removes historical exposure.
+- Raw factory state: the separate `ai-trending-content-factory` repository is public and the current `main/data/state.json` is directly accessible (approximately 720 KB); it contains signal-related fields. A key-name scan of the current file found no obvious token/password/secret field names, but this is not a complete value or Git-history secret scan. The sanitized feed does not make this state private. A private raw-state store, migration, credential setup and history/secret review are required. Do not assume deleting the current file alone removes historical exposure.
 - Membership: planned ₹999 course and ₹1,999 Premium bundle including course. Payments remain disabled. Billing duration, renewal/cancellation/refund terms, support, payment gateway and server-side verification must be finalised and tested before checkout.
 - Cloudflare Workers build failure, mobile/desktop browser QA and live Supabase migration verification remain release gates. No Cloudflare deploy was performed.
 
