@@ -44,7 +44,7 @@ PR #35 now carries three reviewed migration drafts in timestamp order:
 - 20261027180000_pin_security_definer_search_path.sql — pins the SECURITY DEFINER function search_path and uses a valid $function$ delimiter with schema-qualified auth.uid().
 - 20261102180000_restrict_quiz_answer_key_access.sql — removes broad authenticated access to quiz answer keys and restricts question reads to admins.
 
-Read-only live check on 2 Nov 2026: lesson_progress has 0 rows, no primary key, and the expected unique index on (user_id, lesson_number). This supports the guarded migration design, but does not replace local integration testing. No migration has been applied to the live project.
+Read-only live check on 2 Nov 2026: lesson_progress has 0 rows, no primary key, and the expected unique index on (user_id, lesson_number). This supports the guarded migration design, but does not replace local integration testing. No migration has been applied to the live project. The 85-day migration must be run in the disposable local Supabase stack and reviewed before it is ever considered for production.
 
 ## Safety
 - Do not use the live project ref `kjhdcpjztuzpysdauqdz` as local or staging.
