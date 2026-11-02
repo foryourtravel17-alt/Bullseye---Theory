@@ -37,3 +37,11 @@ need "$client" 'functions\.invoke\("grade-quiz"' "client invokes grading endpoin
 need "$client" 'functions\.invoke\("complete-lesson"' "client invokes completion endpoint"
 
 echo "PASS: free static edge-function contract checks. Live auth/database behavior still requires staging."
+
+# Quiz answer keys are stored in public.quiz_questions; browser roles must not read them.
+answer_policy="supabase/migrations/20261102180000_restrict_quiz_answer_key_access.sql"
+need "$answer_policy" 'drop policy if exists "Authenticated users can view quiz questions"' "removes broad authenticated quiz-question policy"
+need "$answer_policy" 'create policy "Admins can view quiz questions"' "restricts quiz-question reads to admins"
+need "$answer_policy" 'using \(\(select public\.is_admin\(\)\)\)' "checks admin role for quiz-question reads"
+need "$answer_policy" 'revoke all on table public\.quiz_questions from anon' "revokes anonymous quiz-question access"
+need "$answer_policy" 'revoke all on table public\.quiz_questions from public' "revokes inherited public quiz-question access"
