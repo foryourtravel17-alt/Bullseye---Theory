@@ -153,7 +153,7 @@ export default {
     const publicHeaders = new Headers(request.headers);
     publicHeaders.delete("Cookie");
     publicHeaders.delete("Authorization");
-    return env.ASSETS.fetch(new Request(url, { method: request.method, headers: publicHeaders }));
+    return env.ASSETS.fetch(new Request(request, { headers: publicHeaders }));
   },
 };
 
