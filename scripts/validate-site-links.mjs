@@ -59,7 +59,7 @@ if (existsSync(terminalPath)) {
     "Public Feed Paused",
     "Fictional prices only",
     "SIMULATED",
-    "30-day time lag"
+    "preceding 30 days"
   ]) {
     if (!terminal.toLowerCase().includes(marker.toLowerCase())) {
       errors.push("terminal.html is missing Market Lab guardrail: " + marker);
