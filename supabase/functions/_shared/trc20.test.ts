@@ -42,17 +42,17 @@ const pendingOrder: PendingOrder = {
 };
 
 Deno.test("accepts only confirmed incoming USDT TRC-20 transfers to the exact wallet", () => {
-  const valid = validateIncomingTransfer(baseTransfer);
+  const valid = validateIncomingTransfer(baseTransfer, TRON_RECEIVING_WALLET, true);
   assert(valid, "valid transfer should pass");
   same(valid.amountAtomic, "12500000", "atomic amount should be preserved");
   same(valid.txHash, HASH, "transaction hash should be preserved");
 
-  same(validateIncomingTransfer({ ...baseTransfer, confirmed: false }), null, "unconfirmed transfer rejected");
-  same(validateIncomingTransfer({ ...baseTransfer, to: "TWrongWallet111111111111111111111" }), null, "wrong recipient rejected");
-  same(validateIncomingTransfer({ ...baseTransfer, token_info: { address: "TWrongToken", decimals: 6 } }), null, "wrong token rejected");
-  same(validateIncomingTransfer({ ...baseTransfer, token_info: { address: TRON_MAINNET_USDT_CONTRACT, decimals: 18 } }), null, "wrong decimals rejected");
-  same(validateIncomingTransfer({ ...baseTransfer, value: "0" }), null, "zero transfer rejected");
-  same(validateIncomingTransfer({ ...baseTransfer, transaction_id: "not-a-tx" }), null, "invalid transaction hash rejected");
+  same(validateIncomingTransfer({ ...baseTransfer, confirmed: false }, TRON_RECEIVING_WALLET, false), null, "unconfirmed history is rejected");
+  same(validateIncomingTransfer({ ...baseTransfer, to: "TWrongWallet111111111111111111111" }, TRON_RECEIVING_WALLET, true), null, "wrong recipient rejected");
+  same(validateIncomingTransfer({ ...baseTransfer, token_info: { address: "TWrongToken", decimals: 6 } }, TRON_RECEIVING_WALLET, true), null, "wrong token rejected");
+  same(validateIncomingTransfer({ ...baseTransfer, token_info: { address: TRON_MAINNET_USDT_CONTRACT, decimals: 18 } }, TRON_RECEIVING_WALLET, true), null, "wrong decimals rejected");
+  same(validateIncomingTransfer({ ...baseTransfer, value: "0" }, TRON_RECEIVING_WALLET, true), null, "zero transfer rejected");
+  same(validateIncomingTransfer({ ...baseTransfer, transaction_id: "not-a-tx" }, TRON_RECEIVING_WALLET, true), null, "invalid transaction hash rejected");
 });
 
 Deno.test("USDT atomic parser requires positive integer base units and six decimals", () => {
