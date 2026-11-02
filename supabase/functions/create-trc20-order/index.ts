@@ -41,6 +41,9 @@ Deno.serve(async (req: Request) => {
   if (Deno.env.get("USDT_CHECKOUT_ENABLED") !== "true") {
     return respond({ error: "USDT checkout is not open yet. No payment has been created." }, 503);
   }
+  if (!Deno.env.get("TRONGRID_API_KEY") || !Deno.env.get("TRC20_SCANNER_CRON_SECRET")) {
+    return respond({ error: "Payment verification is not fully configured. Checkout remains closed." }, 503);
+  }
 
   const url = Deno.env.get("SUPABASE_URL");
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
@@ -83,8 +86,21 @@ Deno.serve(async (req: Request) => {
   const db = createClient(url, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
-  const inrAmount = selected.inrPaise / 100;
   const now = new Date();
+  const graceBoundary = new Date(now.getTime() - 60 * 60 * 1000).toISOString();
+  const { count: activeOrders, error: limitError } = await db.from("payment_orders")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userData.user.id)
+    .eq("status", "pending")
+    .gt("expires_at", graceBoundary);
+  if (limitError) {
+    console.error("Unable to apply Bullseye order rate limit:", limitError);
+    return respond({ error: "Unable to check existing orders. Please try again." }, 503);
+  }
+  if ((activeOrders || 0) >= 3) {
+    return respond({ error: "You already have three pending payment orders. Check their status or contact support before creating another." }, 429);
+  }
+  const inrAmount = selected.inrPaise / 100;
   const expiresAt = new Date(now.getTime() + 20 * 60 * 1000).toISOString();
   let order: { id: string; usdt_amount_atomic: string; expires_at: string } | null = null;
   let lastError: unknown = null;
