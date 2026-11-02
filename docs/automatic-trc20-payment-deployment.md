@@ -17,7 +17,7 @@ The QR encodes the receiving address only. It does not embed a chain selector, t
 
 ## Automated payment design
 
-1. The student signs in and chooses the Complete Course. Premium remains disabled until the offer's benefits and access period are published.
+1. The student signs in and chooses the Complete Course. Standard course access lasts exactly 85 days from verified payment. Premium remains disabled until its benefits, access period, and Telegram provisioning are published.
 2. `create-trc20-order` authenticates the Supabase user from their JWT. It does not accept a user ID or amount supplied by the browser.
 3. The server fetches a fresh USDT/INR spot quote, reserves the fixed INR plan price, adds a small unique six-decimal USDT suffix, and stores a 20-minute order. If the price provider is unavailable or an amount collision occurs, order creation fails closed.
 4. The page displays the exact amount, expiry, QR, network, and destination. A rounded or reused amount is not accepted as an order match.
@@ -49,7 +49,7 @@ Set these in Supabase Dashboard → Edge Functions → Secrets:
 
 - `USDT_CHECKOUT_ENABLED=false` initially. Change to `true` only after all gates pass.
 - `PREMIUM_CHECKOUT_ENABLED=false`. Keep false until Premium deliverables/access duration are final.
-- `COURSE_ACCESS_DAYS` — a positive integer from 1 to 3650 that exactly matches the published course access duration. Checkout will fail closed if this value is missing or invalid; do not set this to an arbitrary value to bypass the policy gate.
+- Course access duration is fixed in the database and checkout code at 85 days. There is no `COURSE_ACCESS_DAYS` secret to configure. Do not add an environment override.
 - `TRONGRID_API_KEY` — production TronGrid key. Do not rely on anonymous or undocumented rate limits.
 - `TRC20_SCANNER_CRON_SECRET` — independently generated random secret used only by the scheduled scanner.
 - `ALLOWED_SITE_ORIGIN=https://bullseye-theory.foryourtravel17.workers.dev`
