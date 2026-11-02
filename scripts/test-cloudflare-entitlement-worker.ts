@@ -103,3 +103,33 @@ Deno.test("expired or unentitled sessions never receive protected asset bytes", 
     globalThis.fetch = originalFetch;
   }
 });
+
+Deno.test("duplicate entitlement rows fail closed", async () => {
+  const originalFetch = globalThis.fetch;
+  const token = testToken(Math.floor(Date.now() / 1000) + 1800);
+  let assetFetched = false;
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const url = String(input);
+    if (url.endsWith("/auth/v1/user")) return new Response(JSON.stringify({ id: "student-duplicate" }), { status: 200 });
+    if (url.includes("/rest/v1/course_access?")) {
+      return new Response(JSON.stringify([
+        { is_active: true, payment_verified: true, expires_at: null },
+        { is_active: false, payment_verified: false, expires_at: null },
+      ]), { status: 200 });
+    }
+    throw new Error("Unexpected upstream request: " + url);
+  }) as typeof fetch;
+  try {
+    const response = await worker.fetch(new Request("https://bullseye-theory.foryourtravel17.workers.dev/lesson-5.html", {
+      headers: { Cookie: "bt_course_session=" + token },
+    }), {
+      SUPABASE_URL: "https://example.supabase.co",
+      SUPABASE_PUBLISHABLE_KEY: "public-key",
+      ASSETS: { fetch: async () => { assetFetched = true; return new Response("secret lesson"); } },
+    } as never);
+    if (response.status !== 403) throw new Error("Expected 403 for duplicate entitlement rows, got " + response.status);
+    if (assetFetched) throw new Error("Duplicate entitlement rows must never return asset bytes");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
