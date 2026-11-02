@@ -1,6 +1,5 @@
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { resolve, relative, extname, sep } from "node:path";
-import { readFileSync } from "node:fs";
 
 const root = process.cwd();
 const workerPath = resolve(root, "_worker.js");
@@ -12,10 +11,10 @@ if (!workerSource.includes("lesson-(?:[2-9]|1[01])")) {
 
 function isProtected(pathname) {
   let normalized = pathname;
-  try { normalized = decodeURIComponent(pathname); } catch { /* fail closed below */ }
+  try { normalized = decodeURIComponent(pathname); } catch { /* malformed paths fail closed */ }
   normalized = normalized.replace(/\\/g, "/");
-  const lessonFile = /(?:^|\\/)lesson-(?:[2-9]|1[01])(?:[-./]|$)/i.test(normalized);
-  const courseDirectory = /^\\/(?:lessons?|course-assets?|downloads?|pdf|pptx|videos?)\\/.+$/i.test(normalized);
+  const lessonFile = /(?:^|\/)lesson-(?:[2-9]|1[01])(?:[-./]|$)/i.test(normalized);
+  const courseDirectory = /^\/(?:lessons?|course-assets?|downloads?|pdf|pptx|videos?)\/.+$/i.test(normalized);
   return lessonFile || courseDirectory;
 }
 
@@ -41,13 +40,13 @@ for (let lesson = 2; lesson <= 11; lesson++) {
 let protectedResources = 0;
 for (const path of files) {
   const lower = path.toLowerCase();
-  const inCourseDirectory = /^\\/(?:lessons?|course-assets?|downloads?|pdf|pptx|videos?)\\//i.test(path);
-  const paidLessonNamed = /(?:^|\\/)lesson[-_](?:[2-9]|1[01])(?:[-_./]|$)/i.test(path);
+  const inCourseDirectory = /^\/(?:lessons?|course-assets?|downloads?|pdf|pptx|videos?)\//i.test(path);
+  const paidLessonNamed = /(?:^|\/)lesson[-_](?:[2-9]|1[01])(?:[-_./]|$)/i.test(path);
   const resourceType = [".pdf", ".pptx", ".mp4", ".mov", ".webm", ".zip"].includes(extname(lower));
   if ((inCourseDirectory || (paidLessonNamed && resourceType)) && !isProtected(path)) {
     errors.push("course resource path is not protected: " + path);
   }
-  if (isProtected(path) && (resourceType || /lesson-(?:[2-9]|1[01])\\.html$/i.test(path))) protectedResources++;
+  if (isProtected(path) && (resourceType || /lesson-(?:[2-9]|1[01])\.html$/i.test(path))) protectedResources++;
 }
 
 if (errors.length) {
