@@ -10,3 +10,14 @@ readme.txt
 lesson.html
 wrangler.toml
 .assetsignore
+
+# Internal project, review, and design files must not be publicly served
+AGENTS.md
+README.md
+DESIGN_SKILL_TRIAL.md
+.mcp.json
+package.json
+package-lock.json
+scripts/
+docs/
+design-system/
