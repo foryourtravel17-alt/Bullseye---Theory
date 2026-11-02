@@ -53,7 +53,7 @@ async function init(){
   const active=!!access?.is_active && !!access?.payment_verified && (!access.expires_at || new Date(access.expires_at)>new Date());
   if(active) await syncCourseCookie(session);
   document.getElementById("accessTitle").textContent=active?"COURSE ACTIVE":"ACCESS PENDING";
-  document.getElementById("accessText").textContent=active?"Your Bullseye Theory course is active.":"Payment verification is pending. Your account is ready, but lessons will unlock after activation.";
+  document.getElementById("accessText").textContent=active?"Your Bullseye Theory course is active.":"Your account is ready. Lesson 1 is available as a free preview; Lessons 2–11 unlock after verified payment.";
 
   const {data:progressRows}=await sb.from("lesson_progress").select("lesson_number,completed,progress_percent").eq("user_id",user.id);
   const completed=new Map((progressRows||[]).map(row=>[row.lesson_number,row]));
@@ -65,24 +65,30 @@ async function init(){
   document.getElementById("doneStat").textContent=completedCount+" / "+lessons.length;
   document.getElementById("statusStat").textContent=active?"Active":"Pending";
   const next=lessons.find(l=>!completed.get(Number(l[0]))?.completed);
-  if(active && next){ document.getElementById("continueBox").style.display="flex"; document.getElementById("continueTitle").textContent="Lesson "+next[0]+" — "+next[1]; document.getElementById("continueDesc").textContent=completedCount===0?"Start with the foundations and build forward step by step.":"Pick up where you left off and keep building your process."; document.getElementById("continueBtn").href=next[3]; }
+  if(!active && !completed.get(1)?.completed){ document.getElementById("continueBox").style.display="flex"; document.getElementById("continueEyebrow").textContent="FREE PREVIEW"; document.getElementById("continueTitle").textContent="Lesson 1 — What Is Trading?"; document.getElementById("continueDesc").textContent="Start with the free beginner preview. Lessons 2–11 unlock after verified payment."; document.getElementById("continueBtn").textContent="START FREE PREVIEW →"; document.getElementById("continueBtn").href="lesson-1.html"; }
+  if(active && next){ document.getElementById("continueBox").style.display="flex"; document.getElementById("continueEyebrow").textContent="CONTINUE LEARNING"; document.getElementById("continueTitle").textContent="Lesson "+next[0]+" — "+next[1]; document.getElementById("continueDesc").textContent=completedCount===0?"Start with the foundations and build forward step by step.":"Pick up where you left off and keep building your process."; document.getElementById("continueBtn").textContent="CONTINUE →"; document.getElementById("continueBtn").href=next[3]; }
   if(active && !next){ document.getElementById("continueBox").style.display="flex"; document.getElementById("continueEyebrow").textContent="COURSE COMPLETE"; document.getElementById("continueTitle").textContent="All 11 lessons completed"; document.getElementById("continueDesc").textContent="Review your lessons, quizzes and notes to reinforce the process."; document.getElementById("continueBtn").textContent="REVIEW LESSON 1 →"; document.getElementById("continueBtn").href="lesson-1.html"; }
 
   const box=document.getElementById("lessons");
   box.innerHTML=lessons.map(l=>{
     const num=Number(l[0]), row=completed.get(num), done=!!row?.completed;
     let action="";
-    if(active && l[3]){
+    const freePreview=num===1;
+    if(freePreview){
+      action='<a class="btn primary lesson-action" href="'+l[3]+'">'+(done?"REVIEW FREE LESSON →":"START FREE PREVIEW →")+'</a>';
+    }else if(active && l[3]){
       action='<a class="btn primary lesson-action" href="'+l[3]+'">'+(done?"REVIEW LESSON →":"START LESSON →")+'</a>';
     }else if(active && !l[3]){
       action='<span class="badge lesson-action">COMING NEXT</span>';
     }else{
-      action='<span class="badge lesson-action">LOCKED — WAITING FOR ACTIVATION</span>';
+      action='<span class="badge lesson-action">LOCKED — VERIFY PAYMENT</span>';
     }
-    return '<article class="lesson '+(active?"":"locked")+'"><small>LESSON '+l[0]+'</small><h3>'+l[1]+'</h3><p>'+l[2]+'</p><span class="badge '+(done?"complete-badge":"")+'">'+(done?"COMPLETED ✓":(active?"AVAILABLE IN COURSE":"LOCKED — WAITING FOR ACTIVATION"))+'</span><br>'+action+'</article>';
+    const isLocked=!active && !freePreview;
+    return '<article class="lesson '+(isLocked?"locked":"")+'"><small>LESSON '+l[0]+'</small><h3>'+l[1]+'</h3><p>'+l[2]+'</p><span class="badge '+(done?"complete-badge":(freePreview&&!active?"":""))+'">'+(done?"COMPLETED ✓":(freePreview&&!active?"FREE PREVIEW":(active?"AVAILABLE IN COURSE":"LOCKED — WAITING FOR ACTIVATION")))+'</span><br>'+action+'</article>';
   }).join("");
 
-  if(active) document.getElementById("notice").textContent="Course access is active. Start Lesson 1 to begin the native course experience. Your quiz and completion progress will be saved to your student account.";
+  if(active) document.getElementById("notice").textContent="Course access is active. All 11 lessons are available. Your quiz and completion progress will be saved to your student account.";
+  else document.getElementById("notice").textContent="Lesson 1 is your free preview and is available after sign-in. Lessons 2–11 remain locked until payment is independently verified.";
   if(error) document.getElementById("accessText").textContent="Account found, but course-access status could not be loaded yet.";
 }
 document.getElementById("logout").onclick=async()=>{
