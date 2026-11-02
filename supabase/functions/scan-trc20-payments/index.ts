@@ -49,11 +49,14 @@ Deno.serve(async (req: Request) => {
   }
 
   const admin = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
-  const now = new Date().toISOString();
+  const now = new Date();
+  // Keep expired orders pending for a one-hour indexing/finality grace period.
+  // This lets a transfer made before the deadline settle after its block is indexed.
+  const finalExpiry = new Date(now.getTime() - 60 * 60 * 1000).toISOString();
   const { data: expiredRows, error: expireError } = await admin.from("payment_orders")
     .update({ status: "expired" })
     .eq("status", "pending")
-    .lte("expires_at", now)
+    .lte("expires_at", finalExpiry)
     .select("id");
   if (expireError) {
     console.error("Unable to expire old Bullseye payment orders:", expireError);
@@ -63,7 +66,7 @@ Deno.serve(async (req: Request) => {
   const { data: orders, error: ordersError } = await admin.from("payment_orders")
     .select("id,user_id,plan_code,usdt_amount_atomic,created_at,expires_at,destination_wallet,token_contract,status")
     .eq("status", "pending")
-    .gt("expires_at", now)
+    .gt("expires_at", finalExpiry)
     .order("created_at", { ascending: true })
     .limit(500);
   if (ordersError) {
