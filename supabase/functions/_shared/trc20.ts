@@ -82,11 +82,11 @@ export function buildUsdtAmountAtomic(inrAmount: number, usdtInrRate: number, du
   return (BigInt(baseAtomic) + BigInt(dustUnits)).toString();
 }
 
-export function matchPendingOrder(
+export function findMatchingOrders(
   transfer: { amountAtomic: string; blockTimestamp: number },
   orders: PendingOrder[],
-): PendingOrder | null {
-  const matching = orders.filter((order) => {
+): PendingOrder[] {
+  return orders.filter((order) => {
     if (order.status !== "pending") return false;
     if (order.destination_wallet !== TRON_RECEIVING_WALLET) return false;
     if (order.token_contract !== TRON_MAINNET_USDT_CONTRACT) return false;
@@ -96,6 +96,13 @@ export function matchPendingOrder(
     return Number.isFinite(created) && Number.isFinite(expires) &&
       transfer.blockTimestamp >= created && transfer.blockTimestamp <= expires;
   });
+}
+
+export function matchPendingOrder(
+  transfer: { amountAtomic: string; blockTimestamp: number },
+  orders: PendingOrder[],
+): PendingOrder | null {
+  const matching = findMatchingOrders(transfer, orders);
   return matching.length === 1 ? matching[0] : null;
 }
 
