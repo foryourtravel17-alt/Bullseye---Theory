@@ -16,8 +16,22 @@ alter function public.admin_set_course_access(uuid, boolean, boolean, timestamp 
 alter function public.handle_new_student()
   set search_path = '';
 
-alter function public.is_admin()
-  set search_path = '';
+
+-- The existing helper originally resolved auth.uid() through the default
+-- search_path. Once search_path is empty it must be schema-qualified.
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $
+  select coalesce(
+    (select p.is_admin from public.profiles as p where p.id = auth.uid()),
+    false
+  );
+$;
+
 
 alter function public.issue_certificate(uuid)
   set search_path = '';
