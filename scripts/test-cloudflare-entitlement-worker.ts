@@ -6,12 +6,33 @@ function testToken(exp: number): string {
 }
 
 Deno.test("course asset matcher protects lesson pages and course resource directories", () => {
-  for (const path of ["/lesson-1.html", "/lesson-11.pdf", "/lesson-2-slides.pptx", "/lesson-3/video.mp4", "/assets/lesson-2.pdf", "/lesson-2%2Fslides.pdf", "/lessons/lesson-1.html", "/course-assets/chart.pdf", "/downloads/workbook.pdf"]) {
+  for (const path of ["/lesson-2.html", "/lesson-11.pdf", "/lesson-2-slides.pptx", "/lesson-3/video.mp4", "/assets/lesson-2.pdf", "/lesson-2%2Fslides.pdf", "/lessons/lesson-1.html", "/course-assets/chart.pdf", "/downloads/workbook.pdf"]) {
     if (!isProtectedCourseAsset(path)) throw new Error("Expected protected path: " + path);
   }
-  for (const path of ["/", "/index.html", "/auth.html", "/lesson-12.html", "/lesson-notes.html"]) {
+  for (const path of ["/", "/index.html", "/auth.html", "/lesson-1.html", "/lesson-12.html", "/lesson-notes.html"]) {
     if (isProtectedCourseAsset(path)) throw new Error("Unexpected protected path: " + path);
   }
+});
+
+
+Deno.test("signed-in free preview HTML is served without paid entitlement cookie", async () => {
+  let assetFetched = false;
+  const response = await worker.fetch(
+    new Request("https://bullseye-theory.foryourtravel17.workers.dev/lesson-1.html"),
+    {
+      SUPABASE_URL: "https://example.supabase.co",
+      SUPABASE_PUBLISHABLE_KEY: "public-key",
+      ASSETS: {
+        fetch: async () => {
+          assetFetched = true;
+          return new Response("free preview html", { status: 200 });
+        },
+      },
+    } as never,
+  );
+  if (response.status !== 200) throw new Error("Expected free preview response 200, got " + response.status);
+  if (!assetFetched) throw new Error("Free preview must reach the static asset binding");
+  if (await response.text() !== "free preview html") throw new Error("Unexpected free preview body");
 });
 
 Deno.test("cookie parser reads the exact session cookie", () => {
