@@ -28,4 +28,7 @@ need "_worker.js" 'decodeURIComponent' "normalizes encoded asset paths before au
 need "_worker.js" 'rows[.]length !== 1' "fails closed when entitlement rows are duplicated"
 need "_worker.js" 'responseHeaders[.]set[(]"Vary", "Cookie"[)]' "marks protected cache responses as cookie-varying"
 
-echo "PASS: static course-asset gate contract checks. Runtime behavior is covered by Deno tests; production deployment remains separate."\n\necho "Building Cloudflare Worker locally (dry-run only; no deployment)."\nnpx --yes wrangler@4 deploy --dry-run --outdir /tmp/bullseye-worker-dry-run
+echo "PASS: static course-asset gate contract checks. Runtime behavior is covered by Deno tests; production deployment remains separate."
+
+echo "Building Cloudflare Worker locally (dry-run only; no deployment)."
+npx --yes wrangler@4 deploy --dry-run --outdir /tmp/bullseye-worker-dry-run
