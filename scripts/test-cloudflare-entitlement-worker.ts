@@ -133,3 +133,54 @@ Deno.test("duplicate entitlement rows fail closed", async () => {
     globalThis.fetch = originalFetch;
   }
 });
+
+Deno.test("active entitled student receives the lesson with private cache headers", async () => {
+  const originalFetch = globalThis.fetch;
+  const token = testToken(Math.floor(Date.now() / 1000) + 1800);
+  let forwardedCookie = "";
+  let forwardedAuthorization = "";
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const url = String(input);
+    if (url.endsWith("/auth/v1/user")) return new Response(JSON.stringify({ id: "student-active" }), { status: 200 });
+    if (url.includes("/rest/v1/course_access?")) {
+      return new Response(JSON.stringify([{ is_active: true, payment_verified: true, expires_at: null }]), { status: 200 });
+    }
+    throw new Error("Unexpected upstream request: " + url);
+  }) as typeof fetch;
+  try {
+    const response = await worker.fetch(new Request("https://bullseye-theory.foryourtravel17.workers.dev/lesson-2.html", {
+      headers: { Cookie: "bt_course_session=" + token },
+    }), {
+      SUPABASE_URL: "https://example.supabase.co",
+      SUPABASE_PUBLISHABLE_KEY: "public-key",
+      ASSETS: { fetch: async (request: Request) => {
+        forwardedCookie = request.headers.get("Cookie") || "";
+        forwardedAuthorization = request.headers.get("Authorization") || "";
+        return new Response("<h1>Lesson content</h1>", { status: 200, headers: { "Content-Type": "text/html" } });
+      } },
+    } as never);
+    if (response.status !== 200) throw new Error("Expected 200, got " + response.status);
+    if (await response.text() !== "<h1>Lesson content</h1>") throw new Error("Unexpected lesson body");
+    if (response.headers.get("Cache-Control") !== "private, no-store, max-age=0") throw new Error("Protected asset cache policy missing");
+    if (response.headers.get("Vary") !== "Cookie") throw new Error("Protected asset must vary by cookie");
+    if (forwardedCookie || forwardedAuthorization) throw new Error("Credentials were forwarded to the static asset binding");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("cross-origin session exchange is rejected", async () => {
+  const token = testToken(Math.floor(Date.now() / 1000) + 1800);
+  const response = await worker.fetch(new Request("https://bullseye-theory.foryourtravel17.workers.dev/api/course-session", {
+    method: "POST",
+    headers: {
+      Origin: "https://attacker.example",
+      Authorization: "Bearer " + token,
+    },
+  }), {
+    SUPABASE_URL: "https://example.supabase.co",
+    SUPABASE_PUBLISHABLE_KEY: "public-key",
+    ASSETS: { fetch: async () => new Response("asset") },
+  } as never);
+  if (response.status !== 403) throw new Error("Expected 403 for cross-origin exchange, got " + response.status);
+});
