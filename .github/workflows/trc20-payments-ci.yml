@@ -49,6 +49,8 @@ jobs:
           deno-version: v2.x
       - name: Validate payment browser script syntax
         run: node --check payment-checkout.js
+      - name: Verify closed-checkout pending order guard
+        run: node scripts/check-payment-checkout-closed-order.mjs
       - name: Validate payment migration structure and privileges
         run: node scripts/validate-trc20-migration.mjs
       - name: Test strict TRC-20 matching and settlement rules
