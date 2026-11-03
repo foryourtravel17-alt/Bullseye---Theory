@@ -45,7 +45,7 @@
     return Number.isNaN(date.getTime()) ? "—" : date.toLocaleString();
   }
 
-  async function restorePendingOrder() {
+  async function restorePendingOrder(checkoutEnabled) {
     const savedOrderId = getSavedOrder();
     if (!savedOrderId) return false;
 
@@ -82,8 +82,13 @@
       return true;
     }
 
-    pollDeadline = new Date(data.expires_at).getTime() + 60 * 60 * 1000;
     button.disabled = true;
+    if (!checkoutEnabled) {
+      setStatus("Checkout is closed. Do not transfer funds to this pending order. If you already sent funds, do not send again; contact support with the order reference.", "error");
+      return true;
+    }
+
+    pollDeadline = new Date(data.expires_at).getTime() + 60 * 60 * 1000;
     setStatus("Your pending order has been restored. Send only the exact amount shown before its expiry; do not create another order.");
     pollOrder(savedOrderId);
     return true;
@@ -108,7 +113,7 @@
     const paymentStateNote = byId("paymentStateNote");
     const topPaymentStatus = byId("topPaymentStatus");
     if (sessionData.session) {
-      const restored = await restorePendingOrder();
+      const restored = await restorePendingOrder(data.checkout_enabled);
       if (restored) {
         if (paymentState) paymentState.textContent = data.checkout_enabled ? "ORDER IN PROGRESS" : "CHECKOUT CLOSED";
         if (paymentStateNote) paymentStateNote.textContent = "Your existing order is being checked. Do not create a second payment.";
