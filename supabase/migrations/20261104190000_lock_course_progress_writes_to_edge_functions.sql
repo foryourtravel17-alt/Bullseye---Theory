@@ -88,11 +88,11 @@ begin
 
   certificate_code := 'BT-' || upper(substr(replace(pg_catalog.gen_random_uuid()::text, '-', ''), 1, 12));
 
-  insert into public.certificates (user_id, student_name, certificate_id)
+  insert into public.certificates as existing (user_id, student_name, certificate_id)
   values (caller_id, coalesce(student_name, 'Student'), certificate_code)
   on conflict (user_id) do update
     set student_name = excluded.student_name,
-        certificate_id = public.certificates.certificate_id
+        certificate_id = existing.certificate_id
   returning public.certificates.certificate_id into certificate_code;
 
   return certificate_code;
