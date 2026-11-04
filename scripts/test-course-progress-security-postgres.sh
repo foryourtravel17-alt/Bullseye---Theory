@@ -159,16 +159,21 @@ echo "PASS: browser roles are read-only on authoritative progress and quiz attem
 psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
 insert into public.profiles (id, full_name) values
   ('00000000-0000-4000-8000-000000000001', 'Completed Student'),
-  ('00000000-0000-4000-8000-000000000002', 'Incomplete Student');
+  ('00000000-0000-4000-8000-000000000002', 'Incomplete Student'),
+  ('00000000-0000-4000-8000-000000000004', 'Expired Student');
 insert into public.course_access (user_id, is_active, payment_verified, expires_at) values
   ('00000000-0000-4000-8000-000000000001', true, true, now() + interval '1 day'),
-  ('00000000-0000-4000-8000-000000000002', true, true, now() + interval '1 day');
+  ('00000000-0000-4000-8000-000000000002', true, true, now() + interval '1 day'),
+  ('00000000-0000-4000-8000-000000000004', true, true, now() - interval '1 second');
 insert into public.lesson_progress (user_id, lesson_number, completed, quiz_passed, progress_percent)
 select '00000000-0000-4000-8000-000000000001', n, true, true, 100
 from generate_series(1, 11) n;
 insert into public.lesson_progress (user_id, lesson_number, completed, quiz_passed, progress_percent)
 select '00000000-0000-4000-8000-000000000002', n, true, true, 100
 from generate_series(1, 10) n;
+insert into public.lesson_progress (user_id, lesson_number, completed, quiz_passed, progress_percent)
+select '00000000-0000-4000-8000-000000000004', n, true, true, 100
+from generate_series(1, 11) n;
 SQL
 
 CERT_ONE="$(psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -qAtc "set role authenticated; set request.jwt.claim.sub = '00000000-0000-4000-8000-000000000001'; select public.issue_my_certificate(); reset role;")"
@@ -189,6 +194,19 @@ begin
   end;
 end;
 $assert_incomplete$;
+SQL
+psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
+do $assert_expired$
+begin
+  perform set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000004', false);
+  begin
+    perform public.issue_my_certificate();
+    raise exception 'Expired student unexpectedly received a certificate';
+  exception when insufficient_privilege then
+    null;
+  end;
+end;
+$assert_expired$;
 SQL
 CERT_COUNT="$(psql "$DATABASE_URL" -X -qAtc "select count(*) from public.certificates")"
 if [[ "$CERT_COUNT" != "1" ]]; then
