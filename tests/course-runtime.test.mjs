@@ -20,7 +20,7 @@ test("free Lesson 1 remains public", () => {
 });
 
 test("protected directory paths are gated", () => {
-  for (const p of ["/lessons/lesson-2.html", "/course-assets/chart.svg", "/downloads/guide.pdf", "/pdf/lesson-3.pdf", "/videos/lesson-4.mp4"]) {
+  for (const p of ["/lessons/lesson-2.html", "/course-assets/chart.svg", "/downloads/guide.pdf", "/pdf/lesson-3.pdf", "/videos/lesson-4.mp4", "/lessons/what-is-trading.pdf", "/lessons/lesson-2-how-financial-markets-work.pdf", "/lessons/lesson_10_trading_psychology_and_discipline.pptx"]) {
     assert.equal(isProtectedCourseAsset(p), true, p);
   }
 });
