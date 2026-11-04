@@ -63,4 +63,8 @@ need "$progress_write" "revoke insert, update, delete" "revokes direct authentic
 need "$progress_write" "grant select, insert, update on table public[.]lesson_progress to service_role" "grants trusted course progress writes to service_role"
 need "$progress_write" "grant select, insert on table public[.]quiz_attempts to service_role" "grants trusted quiz attempt writes to service_role"
 
+need "$progress_write" "create or replace function public[.]issue_my_certificate" "adds a student-owned certificate claim function"
+need "$progress_write" "caller_id := auth[.]uid[(][)]" "derives certificate identity from the authenticated session"
+need "$progress_write" "grant execute on function public[.]issue_my_certificate[(][)] to authenticated" "allows authenticated students to claim only their own certificate"
+
 echo "PASS: free static edge-function contract checks. Live auth/database behavior still requires staging."
