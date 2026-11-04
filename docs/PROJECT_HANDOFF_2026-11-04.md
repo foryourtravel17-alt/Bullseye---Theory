@@ -41,7 +41,7 @@ A separate Render **Free** Web Service already exists:
 - Start command: `npm start`
 - Health check: `/_health`
 - Runtime environment variables: `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` only. No service-role key is configured in Render.
-- Deployed server commit at last confirmed deploy: `92a7e6fb7aa061718fc3c083406cf56c5ded7080`
+- Current deployed preview commit: `4e0951748cec3596d2eddbf1946cbbd83a7787e5` (4 November 2026, 17:50 UTC; Render build and app startup succeeded)
 - Because auto-deploy is OFF, later branch commits are not automatically deployed. Trigger a new **preview-only** Render deploy after review and successful checks.
 
 Render Free services can sleep while idle; expect a cold start on the first visit. The existing service is a preview, not the final public production deployment.
