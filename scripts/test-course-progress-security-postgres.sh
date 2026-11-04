@@ -16,7 +16,9 @@ create function auth.uid()
 returns uuid
 language sql
 stable
-as $ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $;
+as $func$
+  select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid
+$func$;
 revoke all on function auth.uid() from public;
 grant execute on function auth.uid() to authenticated, service_role;
 
