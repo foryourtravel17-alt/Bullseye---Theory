@@ -107,6 +107,12 @@ begin
      or not has_table_privilege('service_role', 'public.quiz_attempts', 'INSERT') then
     raise exception 'service_role is missing required quiz_attempts privileges';
   end if;
+  if not has_sequence_privilege('service_role', 'public.quiz_attempts_id_seq', 'USAGE') then
+    raise exception 'service_role is missing quiz_attempts identity sequence usage';
+  end if;
+  if has_sequence_privilege('authenticated', 'public.quiz_attempts_id_seq', 'USAGE') then
+    raise exception 'Authenticated role retained quiz_attempts sequence usage';
+  end if;
   if exists (
     select 1 from pg_policies
     where schemaname = 'public'
