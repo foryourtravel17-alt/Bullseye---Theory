@@ -6,6 +6,8 @@ on:
       - "server.mjs"
       - "tests/**"
       - "package.json"
+      - "dashboard.html"
+      - "certificate.html"
       - ".github/workflows/course-runtime-check.yml"
   workflow_dispatch:
 
