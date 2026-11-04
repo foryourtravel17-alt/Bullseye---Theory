@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - "supabase/functions/**"
+      - "supabase/migrations/**"
+      - "scripts/check-edge-function-contracts.sh"
       - "server.mjs"
       - "tests/**"
       - "scripts/smoke-render-preview.mjs"
