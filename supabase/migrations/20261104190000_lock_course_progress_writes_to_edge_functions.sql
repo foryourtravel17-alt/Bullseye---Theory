@@ -66,6 +66,7 @@ begin
     where user_id = caller_id
       and is_active = true
       and payment_verified = true
+      and expires_at > now()
   ) then
     raise exception 'Verified course access is required' using errcode = '42501';
   end if;
