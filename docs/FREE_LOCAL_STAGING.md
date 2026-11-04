@@ -60,4 +60,4 @@ This is migration-history evidence only; it does not replace schema inspection o
 - Do not use the live project ref `kjhdcpjztuzpysdauqdz` as local or staging.
 - Do not use `supabase secrets set`, `supabase functions deploy`, or production migrations for local testing.
 - Do not use real student/payment data in local tests.
-- Keep PR #35 draft until local schema and function integration tests pass. PR #32 is consolidated into #35; do not merge #32 separately.
+- Keep the course release PR #36 in draft until local schema/function integration tests and preview browser QA pass. PR #32 is superseded by the consolidated release candidate; do not merge the older PR separately.
