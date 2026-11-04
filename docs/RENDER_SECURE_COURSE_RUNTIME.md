@@ -27,6 +27,8 @@ Migration `20261104190000_lock_course_progress_writes_to_edge_functions.sql` rem
 
 The migration has a disposable-PostgreSQL regression test in `scripts/test-course-progress-security-postgres.sh`. The test verifies browser writes are blocked, student reads remain available, and service-role inserts/updates still work. CI runs this test without changing the live Supabase database. **This migration is committed to the open PR but is not yet applied to the live project.** Apply it only after the PR has been reviewed and the migration deployment is explicitly approved.
 
+The same migration adds `public.issue_my_certificate()`: an authenticated student can claim only their own certificate after all eleven lesson records have both `completed=true` and `quiz_passed=true`. The function checks the student's verified active course record, creates a stable certificate ID once, and does not accept a client-supplied user ID. The certificate page invokes this RPC, loads only the signed-in student's certificate, and provides print / Save as PDF. The dashboard links to it after all eleven lessons are complete.
+
 ## Existing Render preview service
 
 The preview service is already created and live:
