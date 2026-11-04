@@ -93,7 +93,9 @@ function originAllowed(req) {
   if (!origin) return true;
   const host = req.headers.host;
   if (!host) return false;
-  const expected = (req.socket.encrypted ? "https://" : "http://") + host;
+  const forwardedProto = String(req.headers["x-forwarded-proto"] || "").split(",")[0].trim();
+  const protocol = forwardedProto === "https" || req.socket.encrypted ? "https://" : "http://";
+  const expected = protocol + host;
   return origin === expected;
 }
 
