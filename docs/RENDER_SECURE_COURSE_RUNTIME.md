@@ -19,6 +19,14 @@ Node.js 20 or newer is required. Run `npm test` and `npm start`. Health check: `
 
 For an entitlement integration test, use a dedicated test account and a known active entitlement. Do not use a real customer or real payment.
 
+## Authoritative learning-state write protection
+
+A database audit found that authenticated browser roles still had INSERT/UPDATE privileges and RLS policies on `lesson_progress`, plus INSERT on `quiz_attempts`. That would allow a signed-in student to fabricate a passing attempt or mark a lesson complete directly through the Data API, bypassing server-side quiz grading.
+
+Migration `20261104190000_lock_course_progress_writes_to_edge_functions.sql` removes all browser-role write policies on those two tables, revokes browser-role write privileges, preserves student SELECT policies, and grants the minimum required SELECT/INSERT/UPDATE permissions to `service_role` for the trusted `grade-quiz` and `complete-lesson` Edge Functions.
+
+The migration has a disposable-PostgreSQL regression test in `scripts/test-course-progress-security-postgres.sh`. The test verifies browser writes are blocked, student reads remain available, and service-role inserts/updates still work. CI runs this test without changing the live Supabase database. **This migration is committed to the open PR but is not yet applied to the live project.** Apply it only after the PR has been reviewed and the migration deployment is explicitly approved.
+
 ## Existing Render preview service
 
 The preview service is already created and live:
