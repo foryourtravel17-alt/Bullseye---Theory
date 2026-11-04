@@ -56,4 +56,11 @@ need "$answer_policy" 'using \(\(select public\.is_admin\(\)\)\)' "checks admin 
 need "$answer_policy" 'revoke all on table public\.quiz_questions from anon' "revokes anonymous quiz-question access"
 need "$answer_policy" 'revoke all on table public\.quiz_questions from public' "revokes inherited public quiz-question access"
 
+# Authoritative course state must only be written by trusted Edge Functions.
+progress_write="supabase/migrations/20261104190000_lock_course_progress_writes_to_edge_functions.sql"
+need "$progress_write" "drop policy %I on %I[.]%I" "removes browser-role INSERT/UPDATE/DELETE policies dynamically"
+need "$progress_write" "revoke insert, update, delete" "revokes direct authenticated writes to lesson progress"
+need "$progress_write" "grant select, insert, update on table public[.]lesson_progress to service_role" "grants trusted course progress writes to service_role"
+need "$progress_write" "grant select, insert on table public[.]quiz_attempts to service_role" "grants trusted quiz attempt writes to service_role"
+
 echo "PASS: free static edge-function contract checks. Live auth/database behavior still requires staging."
