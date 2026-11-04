@@ -65,3 +65,5 @@ jobs:
           deno check supabase/functions/get-trc20-order-status/index.ts
           deno check supabase/functions/get-trc20-payment-config/index.ts
           deno check supabase/functions/scan-trc20-payments/index.ts
+
+# The disposable course-progress security regression is part of this workflow; no live DB is used.
