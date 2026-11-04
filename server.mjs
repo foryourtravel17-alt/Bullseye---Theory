@@ -22,6 +22,8 @@ const MIME = {
   ".woff2": "font/woff2",
   ".mp4": "video/mp4",
   ".pdf": "application/pdf",
+  ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   ".txt": "text/plain; charset=utf-8",
   ".xml": "application/xml; charset=utf-8"
 };
