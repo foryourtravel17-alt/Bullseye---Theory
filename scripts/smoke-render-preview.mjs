@@ -15,7 +15,7 @@ const freeLesson = await request("/lesson-1.html");
 const freeBody = await freeLesson.text();
 assert(freeLesson.status === 200 && /Lesson 1/i.test(freeBody), "free Lesson 1 is publicly served");
 
-for (const route of ["/lesson-2.html", "/lesson-3.html", "/lesson-4.html", "/lesson-5.html", "/lesson-6.html", "/lesson-7.html", "/lesson-8.html", "/lesson-9.html", "/lesson-10.html", "/lesson-11.html", "/%6cesson-2.html", "/folder/../lesson-7.html", "/course-assets/sample.pdf", "/lessons/lesson-2.html", "/downloads/sample.pdf", "/videos/lesson-2.mp4"]) {
+for (const route of ["/lesson-2.html", "/lesson-3.html", "/lesson-4.html", "/lesson-5.html", "/lesson-6.html", "/lesson-7.html", "/lesson-8.html", "/lesson-9.html", "/lesson-10.html", "/lesson-11.html", "/%6cesson-2.html", "/folder/../lesson-7.html", "/course-assets/sample.pdf", "/lessons/lesson-2.html", "/downloads/sample.pdf", "/videos/lesson-2.mp4", "/lessons/what-is-trading.pdf", "/lessons/lesson-2-how-financial-markets-work.pdf", "/lessons/lesson_10_trading_psychology_and_discipline.pptx"]) {
   const response = await request(route);
   assert(response.status === 302 && response.headers.get("location") === "/auth.html", "unauthorised paid lesson is redirected: " + route);
   assert((response.headers.get("cache-control") || "").includes("no-store"), "unauthorised paid lesson response is not cached: " + route);
