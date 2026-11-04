@@ -93,7 +93,7 @@ begin
   on conflict (user_id) do update
     set student_name = excluded.student_name,
         certificate_id = existing.certificate_id
-  returning public.certificates.certificate_id into certificate_code;
+  returning existing.certificate_id into certificate_code;
 
   return certificate_code;
 end;
