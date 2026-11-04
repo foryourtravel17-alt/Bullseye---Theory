@@ -222,12 +222,13 @@ function sendText(res, status, body) {
   res.end(body);
 }
 
-function isInternalPath(pathname) {
+export function isInternalPath(pathname) {
   const normalized = normalizedPath(pathname);
   if (!normalized) return true;
   const rel = path.posix.normalize(normalized).replace(/^\/+/, "");
+  if (!rel) return false;
   const first = rel.split("/")[0].toLowerCase();
-  if (!first || first.startsWith(".")) return true;
+  if (first.startsWith(".")) return true;
   return [".git", ".github", ".claude", ".wrangler", "node_modules", "supabase", "docs", "scripts", "tests"].includes(first) ||
     ["package.json", "package-lock.json", "wrangler.toml", "server.mjs", "_worker.js", ".assetsignore", ".mcp.json", "agents.md", "readme.md", "readme.txt", "design_skill_trial.md"].includes(rel.toLowerCase());
 }
