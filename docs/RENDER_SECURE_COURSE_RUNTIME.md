@@ -19,6 +19,10 @@ Node.js 20 or newer is required. Run `npm test` and `npm start`. Health check: `
 
 For an entitlement integration test, use a dedicated test account and a known active entitlement. Do not use a real customer or real payment.
 
+## Preview-to-Supabase browser integration
+
+The secure Render preview uses the same Supabase Edge Functions for quiz grading and lesson completion. Both functions now use a strict CORS allowlist containing the production Cloudflare Worker origin and the approved Render preview origin. Additional exact origins can be configured with `ALLOWED_SITE_ORIGIN` or comma-separated `ALLOWED_SITE_ORIGINS`; unapproved browser origins receive 403. Responses vary by Origin. These function source changes are committed for review but have **not** been deployed to the live Supabase project.
+
 ## Authoritative learning-state write protection
 
 A database audit found that authenticated browser roles still had INSERT/UPDATE privileges and RLS policies on `lesson_progress`, plus INSERT on `quiz_attempts`. That would allow a signed-in student to fabricate a passing attempt or mark a lesson complete directly through the Data API, bypassing server-side quiz grading.
