@@ -211,7 +211,7 @@ async function serveProtected(req, res, pathname) {
 }
 
 function redirect(res, location) {
-  res.writeHead(302, { Location: location, "Cache-Control": PRIVATE_CACHE });
+  res.writeHead(302, { Location: location, "Cache-Control": PRIVATE_CACHE, "Vary": "Cookie" });
   res.end();
 }
 function sendText(res, status, body) {
