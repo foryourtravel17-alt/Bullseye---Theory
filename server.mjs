@@ -1,5 +1,5 @@
 import http from "node:http";
-import { createReadStream, statSync } from "node:fs";
+import { createReadStream, realpathSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -222,12 +222,25 @@ function sendText(res, status, body) {
   res.end(body);
 }
 
+function isInternalPath(pathname) {
+  const normalized = normalizedPath(pathname);
+  if (!normalized) return true;
+  const rel = path.posix.normalize(normalized).replace(/^\/+/, "");
+  const first = rel.split("/")[0].toLowerCase();
+  if (!first || first.startsWith(".")) return true;
+  return [".git", ".github", ".claude", ".wrangler", "node_modules", "supabase", "docs", "scripts", "tests"].includes(first) ||
+    ["package.json", "package-lock.json", "wrangler.toml", "server.mjs", "_worker.js", ".assetsignore", ".mcp.json", "agents.md", "readme.md", "readme.txt", "design_skill_trial.md"].includes(rel.toLowerCase());
+}
+
 function serveFile(req, res, pathname, isPrivate = false) {
+  if (isInternalPath(pathname)) return sendText(res, 404, "Not found");
   const file = safeFilePath(pathname);
   if (!file) return sendText(res, 400, "Invalid path");
   let info;
   try {
-    info = statSync(file);
+    const real = realpathSync(file);
+    if (real !== ROOT && !real.startsWith(ROOT + path.sep)) return sendText(res, 404, "Not found");
+    info = statSync(real);
     if (info.isDirectory()) {
       const indexPath = safeFilePath(pathname.replace(/\/$/, "") + "/index.html");
       if (!indexPath) return sendText(res, 400, "Invalid path");
