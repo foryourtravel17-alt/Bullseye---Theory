@@ -5,6 +5,7 @@ on:
       - "supabase/functions/**"
       - "server.mjs"
       - "tests/**"
+      - "scripts/smoke-render-preview.mjs"
       - "package.json"
       - "_worker.js"
       - "wrangler.toml"
@@ -42,6 +43,8 @@ jobs:
           node-version: "22"
       - name: Run secure Node course runtime and site tests
         run: npm test
+      - name: Smoke-test live Render preview access gates
+        run: node scripts/smoke-render-preview.mjs
       - name: Run quiz grading contract tests
         run: deno test supabase/functions/grade-quiz/grade.test.ts
       - name: Verify all lesson pages use server-side grading
