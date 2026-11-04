@@ -63,7 +63,7 @@ grant select on public.lesson_progress, public.quiz_attempts to service_role;
 grant select on public.profiles, public.course_access, public.certificates to authenticated, service_role;
 
 create policy "Students can view their own progress"
-  on public.lesson_progress for select to authenticated using (true);
+  on public.lesson_progress for select to authenticated using (user_id = auth.uid());
 create policy "Students can insert their own progress"
   on public.lesson_progress for insert to authenticated with check (true);
 create policy "Students can update their own progress"
@@ -72,9 +72,9 @@ create policy "Legacy authenticated write policy"
   on public.lesson_progress for all to authenticated using (true) with check (true);
 
 create policy "Students can view their own quiz attempts"
-  on public.quiz_attempts for select to authenticated using (true);
+  on public.quiz_attempts for select to authenticated using (user_id = auth.uid());
 create policy "Students can view their own certificate"
-  on public.certificates for select to authenticated using (true);
+  on public.certificates for select to authenticated using (user_id = auth.uid());
 create policy "Students can insert their own quiz attempts"
   on public.quiz_attempts for insert to authenticated with check (true);
 SQL
@@ -124,6 +124,20 @@ begin
   end if;
   if not (select rolbypassrls from pg_roles where rolname = 'service_role') then
     raise exception 'service_role must bypass RLS for trusted Edge Function writes';
+  end if;
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'lesson_progress'
+      and cmd = 'SELECT' and qual like '%auth.uid()%'
+  ) then
+    raise exception 'Own-row read policy for lesson progress was not preserved';
+  end if;
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'quiz_attempts'
+      and cmd = 'SELECT' and qual like '%auth.uid()%'
+  ) then
+    raise exception 'Own-row read policy for quiz attempts was not preserved';
   end if;
 end;
 $assertions$;
