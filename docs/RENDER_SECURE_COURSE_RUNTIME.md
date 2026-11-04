@@ -47,7 +47,7 @@ The preview service is already created and live:
 - Build/start: `npm run build` / `npm start`
 - Health check: `/_health`
 - Environment variables: `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` only; no service-role key
-- Current deployed commit: `92a7e6fb7aa061718fc3c083406cf56c5ded7080`
+- Current deployed commit: `4e0951748cec3596d2eddbf1946cbbd83a7787e5` (deployed to preview on 4 November 2026 at 17:50 UTC; Render build and app startup succeeded)
 - Latest hosted unauthenticated security smoke test: PASS on commit `5980cf2cb7b7539d5e5bbf38f759a3941dfbf4f6` (workflow run `41876548990`)
 
 The Render service runs a previously validated server commit; the expanded latest smoke test runs against the hosted URL. The service is not configured to auto-deploy later branch commits.
