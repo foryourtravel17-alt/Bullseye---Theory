@@ -62,6 +62,7 @@ need "$progress_write" "drop policy %I on %I[.]%I" "removes browser-role INSERT/
 need "$progress_write" "revoke insert, update, delete" "revokes direct authenticated writes to lesson progress"
 need "$progress_write" "grant select, insert, update on table public[.]lesson_progress to service_role" "grants trusted course progress writes to service_role"
 need "$progress_write" "grant select, insert on table public[.]quiz_attempts to service_role" "grants trusted quiz attempt writes to service_role"
+need "$progress_write" "grant usage, select on sequence public[.]quiz_attempts_id_seq to service_role" "grants trusted quiz attempt identity sequence usage"
 
 need "$progress_write" "create or replace function public[.]issue_my_certificate" "adds a student-owned certificate claim function"
 need "$progress_write" "caller_id := auth[.]uid[(][)]" "derives certificate identity from the authenticated session"
