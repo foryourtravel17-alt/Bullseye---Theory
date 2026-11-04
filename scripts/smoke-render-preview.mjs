@@ -19,6 +19,7 @@ for (const route of ["/lesson-2.html", "/lesson-3.html", "/lesson-4.html", "/les
   const response = await request(route);
   assert(response.status === 302 && response.headers.get("location") === "/auth.html", "unauthorised paid lesson is redirected: " + route);
   assert((response.headers.get("cache-control") || "").includes("no-store"), "unauthorised paid lesson response is not cached: " + route);
+  assert((response.headers.get("vary") || "").toLowerCase().includes("cookie"), "unauthorised paid lesson response varies by cookie: " + route);
 }
 
 for (const route of ["/server.mjs", "/.mcp.json", "/package.json", "/wrangler.toml", "/supabase/config.toml", "/docs/RENDER_SECURE_COURSE_RUNTIME.md"]) {
