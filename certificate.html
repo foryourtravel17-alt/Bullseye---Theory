@@ -1,1 +1,37 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Certificate — Bullseye Theory</title><style>body{margin:0;background:#050806;color:#eef8f0;font:16px Arial}.wrap{max-width:900px;margin:40px auto;padding:20px}.cert{border:1px solid #20e06a;padding:50px;text-align:center;background:#0b120e;border-radius:20px}.green{color:#20e06a}.id{color:#91a69a}</style></head><body><main class="wrap"><div class="cert"><p class="green">BULLSEYE THEORY</p><h1>CERTIFICATE OF COMPLETION</h1><p id="name">Loading…</p><p>has completed the Bullseye Theory trading education course.</p><p class="id" id="id"></p><p class="id" id="date"></p></div></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script><script>const sb=supabase.createClient(BULLSEYE_SUPABASE_URL,BULLSEYE_SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true}});(async()=>{const s=await sb.auth.getSession();if(!s.data.session){location.href="auth.html";return}const u=s.data.session.user;const c=await sb.from("certificates").select("*").eq("user_id",u.id).maybeSingle();if(!c.data){document.getElementById("name").textContent="Certificate not issued yet.";return}document.getElementById("name").textContent=c.data.student_name;document.getElementById("id").textContent="Certificate ID: "+c.data.certificate_id;document.getElementById("date").textContent=new Date(c.data.issued_at).toLocaleDateString()})();</script></body></html>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Certificate — Bullseye Theory</title><style>body{margin:0;background:#050806;color:#eef8f0;font:16px Arial}.wrap{max-width:900px;margin:40px auto;padding:20px}.cert{border:1px solid #20e06a;padding:50px;text-align:center;background:#0b120e;border-radius:20px}.green{color:#20e06a}.id{color:#91a69a}</style></head><body><main class="wrap"><div class="cert"><p class="green">BULLSEYE THEORY</p><h1>CERTIFICATE OF COMPLETION</h1><p id="name">Loading…</p><p>has completed the Bullseye Theory trading education course.</p><p class="id" id="id"></p><p class="id" id="date"></p></div></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script><style>
+@media print { body { background:#fff; color:#000; } .wrap { margin:0 auto; } .cert { border:3px solid #20a65a; background:#fff; color:#101510; } #printButton,#status { display:none !important; } }
+#printButton { display:block; margin:18px auto; padding:12px 18px; border:1px solid #20e06a; border-radius:8px; background:#a8ff61; color:#07100f; font-weight:800; cursor:pointer; }
+#status { text-align:center; color:#91a69a; margin:12px 0; }
+</style>
+<p id="status" role="status" aria-live="polite">Verifying course completion…</p>
+<button id="printButton" type="button" hidden onclick="window.print()">Print / Save as PDF</button>
+<script>
+const sb = supabase.createClient(BULLSEYE_SUPABASE_URL, BULLSEYE_SUPABASE_PUBLISHABLE_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
+(async () => {
+  const { data: { session }, error: sessionError } = await sb.auth.getSession();
+  if (sessionError || !session) { location.href = "auth.html"; return; }
+
+  const { data: certificateCode, error: issueError } = await sb.rpc("issue_my_certificate");
+  if (issueError) {
+    document.getElementById("name").textContent = "Certificate not ready yet.";
+    document.getElementById("status").textContent = issueError.message || "Complete all 11 lessons and quizzes to claim your certificate.";
+    return;
+  }
+
+  const { data, error } = await sb.from("certificates")
+    .select("student_name,certificate_id,issued_at")
+    .eq("user_id", session.user.id)
+    .maybeSingle();
+  if (error || !data || data.certificate_id !== certificateCode) {
+    document.getElementById("name").textContent = "Certificate could not be loaded.";
+    document.getElementById("status").textContent = "Please refresh or contact support.";
+    return;
+  }
+
+  document.getElementById("name").textContent = data.student_name;
+  document.getElementById("id").textContent = "Certificate ID: " + data.certificate_id;
+  document.getElementById("date").textContent = new Date(data.issued_at).toLocaleDateString();
+  document.getElementById("status").textContent = "All 11 lessons and quizzes verified.";
+  document.getElementById("printButton").hidden = false;
+})();
+</script></body></html>
