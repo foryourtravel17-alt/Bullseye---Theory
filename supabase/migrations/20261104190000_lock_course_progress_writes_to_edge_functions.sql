@@ -40,6 +40,7 @@ revoke insert, update, delete, truncate, references, trigger
 -- service_role has BYPASSRLS; grant only the operations the functions require.
 grant select, insert, update on table public.lesson_progress to service_role;
 grant select, insert on table public.quiz_attempts to service_role;
+grant usage, select on sequence public.quiz_attempts_id_seq to service_role;
 
 
 -- Let a student claim their own certificate after all eleven server-recorded lessons pass.
