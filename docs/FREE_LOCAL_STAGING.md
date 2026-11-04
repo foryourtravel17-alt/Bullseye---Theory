@@ -20,26 +20,31 @@ Before running the Edge Functions, inspect the current SQL migrations and confir
 
 If the repository does not contain authoritative migrations for these tables, STOP. Do not create guessed tables or import production data. Have the schema owner provide the approved schema or add a reviewed local-only fixture migration first.
 
-## 4. Configure local function secrets
-Use only disposable local test values. Never paste production service-role keys into GitHub or commit them.
+## 4. Configure local function environment — local only
+Create `supabase/.env.local` on your own machine and keep it out of Git. Use only disposable credentials printed by the local `supabase start` command. Set the local `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and a local `ALLOWED_SITE_ORIGIN` in that file.
+
+**Never run `supabase secrets set` for this local workflow.** That command writes secrets to the linked hosted Supabase project; it is not a local environment-file operation. Never put production service-role keys in this file, GitHub, or a commit.
+
+Before continuing, verify that `supabase/.env.local` is ignored by Git:
 ```bash
-supabase secrets set --env-file supabase/.env.local
+git check-ignore supabase/.env.local
 ```
-Create `supabase/.env.local` locally (do not commit it) with local values for `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and `ALLOWED_SITE_ORIGIN`. Get the first three from the local `supabase start` output; use a local origin only for local browser testing.
+If the command prints no matching path, STOP and add the file to the local Git ignore rules before creating it.
 
 ## 5. Serve functions locally
+Run each command in a separate terminal:
 ```bash
 supabase functions serve grade-quiz --env-file supabase/.env.local
 supabase functions serve complete-lesson --env-file supabase/.env.local
 ```
-Run each command in a separate terminal. Keep JWT verification enabled.
+These commands serve the functions against the local stack. Keep JWT verification enabled. Do not run `supabase functions deploy`.
 
 ## 6. Current automated tests
 GitHub Actions runs Deno type-checking, quiz grading contract tests, static checks across all 11 lesson pages, and free source-contract checks. These do not substitute for the end-to-end tests above.
 
 ## Draft migration inventory — 2 Nov 2026
 
-PR #35 now carries three reviewed migration drafts in timestamp order:
+PR #35 carried three reviewed migration drafts in timestamp order:
 - 20261027153000_repair_course_progress_key_and_policy_duplicates.sql — checks for null/duplicate keys, then promotes the existing unique (user_id, lesson_number) index to the primary key.
 - 20261027180000_pin_security_definer_search_path.sql — pins the SECURITY DEFINER function search_path and uses a valid $function$ delimiter with schema-qualified auth.uid().
 - 20261102180000_restrict_quiz_answer_key_access.sql — removes broad authenticated access to quiz answer keys and restricts question reads to admins.
@@ -48,7 +53,6 @@ Read-only live check on 2 Nov 2026: lesson_progress has 0 rows, no primary key, 
 
 ## Safety
 - Do not use the live project ref `kjhdcpjztuzpysdauqdz` as local or staging.
-- Do not deploy with `supabase functions deploy`.
-- Do not run production migrations.
+- Do not use `supabase secrets set`, `supabase functions deploy`, or production migrations for local testing.
 - Do not use real student/payment data in local tests.
 - Keep PR #35 draft until local schema and function integration tests pass. PR #32 is consolidated into #35; do not merge #32 separately.
