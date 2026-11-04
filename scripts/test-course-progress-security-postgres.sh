@@ -127,12 +127,12 @@ SQL
 psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
 set role service_role;
 insert into public.quiz_attempts (user_id, lesson_number, score, passed)
-values ('00000000-0000-4000-8000-000000000001', 1, 80, true);
+values ('00000000-0000-4000-8000-000000000003', 1, 80, true);
 insert into public.lesson_progress (user_id, lesson_number, completed, quiz_passed, progress_percent)
-values ('00000000-0000-4000-8000-000000000001', 1, false, true, 90);
+values ('00000000-0000-4000-8000-000000000003', 1, false, true, 90);
 update public.lesson_progress
 set completed = true, progress_percent = 100
-where user_id = '00000000-0000-4000-8000-000000000001' and lesson_number = 1;
+where user_id = '00000000-0000-4000-8000-000000000003' and lesson_number = 1;
 reset role;
 do $$
 begin
