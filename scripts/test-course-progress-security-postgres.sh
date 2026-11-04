@@ -7,9 +7,21 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
-create role anon nologin;
-create role authenticated nologin;
-create role service_role nologin bypassrls;
+do $ensure_test_roles$
+begin
+  if not exists (select 1 from pg_roles where rolname = 'anon') then
+    execute 'create role anon nologin';
+  end if;
+  if not exists (select 1 from pg_roles where rolname = 'authenticated') then
+    execute 'create role authenticated nologin';
+  end if;
+  if not exists (select 1 from pg_roles where rolname = 'service_role') then
+    execute 'create role service_role nologin bypassrls';
+  elsif not (select rolbypassrls from pg_roles where rolname = 'service_role') then
+    execute 'alter role service_role bypassrls';
+  end if;
+end;
+$ensure_test_roles$;
 
 create schema auth;
 create function auth.uid()
