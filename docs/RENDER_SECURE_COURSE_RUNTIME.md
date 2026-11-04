@@ -1,6 +1,6 @@
 # Secure Node course runtime (Render preview alternative)
 
-This is an alternative to the Cloudflare Worker runtime for a non-production preview. It is not deployed by this change.
+This is an alternative to the Cloudflare Worker runtime for a non-production preview. A separate Render preview service has already been created and deployed; this is not production.
 
 ## Security model
 
@@ -19,7 +19,26 @@ Node.js 20 or newer is required. Run `npm test` and `npm start`. Health check: `
 
 For an entitlement integration test, use a dedicated test account and a known active entitlement. Do not use a real customer or real payment.
 
-## Render preview setup (manual owner action after CI review)
+## Existing Render preview service
+
+The preview service is already created and live:
+
+- Service: `bullseye-theory-secure-preview`
+- Service ID: `srv-dblmgiuc6qcc73bmhqo0`
+- URL: `https://bullseye-theory-secure-preview.onrender.com`
+- Dashboard: `https://dashboard.render.com/web/srv-dblmgiuc6qcc73bmhqo0`
+- Plan/region: Free / Singapore
+- Branch: `feat/render-secure-course-runtime`
+- Auto-deploy: OFF
+- Build/start: `npm run build` / `npm start`
+- Health check: `/_health`
+- Environment variables: `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` only; no service-role key
+- Current deployed commit: `92a7e6fb7aa061718fc3c083406cf56c5ded7080`
+- Latest hosted unauthenticated security smoke test: PASS on commit `5980cf2cb7b7539d5e5bbf38f759a3941dfbf4f6` (workflow run `41876548990`)
+
+The Render service runs a previously validated server commit; the expanded latest smoke test runs against the hosted URL. The service is not configured to auto-deploy later branch commits.
+
+## Recreating the preview service (only if needed)
 
 Create a **new Web Service**, not a Static Site, from repository `foryourtravel17-alt/Bullseye---Theory` and branch `feat/render-secure-course-runtime`.
 
@@ -34,19 +53,19 @@ Create a **new Web Service**, not a Static Site, from repository `foryourtravel1
 - Do not repurpose `bullseye-theory-marketlab-preview` static site.
 - Do not enable checkout, scanner, or production deployment.
 
-Do not create the service until this PR's checks pass and the owner approves the preview URL. Missing Supabase configuration makes the session endpoint fail closed; the public landing pages may still render.
+The service already exists. Do not create a duplicate. Missing Supabase configuration makes the session endpoint fail closed; the public landing pages may still render.
 
-## Required hosted QA before launch
+## Hosted QA status and remaining checks
 
-1. Public home, auth, terms, privacy and refund pages load.
-2. `/lesson-1.html` loads without entitlement.
-3. `/lesson-2.html` through `/lesson-11.html` redirect to sign-in without a session.
-4. Authenticated user without active verified entitlement receives 403.
-5. Authenticated user with active verified entitlement can load paid lessons.
-6. Expired entitlement is denied immediately on next protected request.
-7. Encoded/case/path-normalized routes remain protected.
-8. Protected responses include `Cache-Control: private, no-store` and `Vary: Cookie`.
-9. Logout clears the cookie; replayed cookie is rejected.
-10. Direct asset URLs in protected directories are denied without entitlement.
+Automated hosted smoke test PASS (workflow run `41876548990`, commit `5980cf2cb7b7539d5e5bbf38f759a3941dfbf4f6`): health endpoint, public Lesson 1, all paid lesson routes unauthenticated, encoded/path-normalized paid routes, protected asset-directory routes, invalid Supabase token rejection, internal repository file blocking, and private/no-store response headers.
+
+Still requires a dedicated authorised test student (no real customer/payment):
+
+1. Authenticated user without active verified entitlement receives 403.
+2. Authenticated user with active verified entitlement can load paid lessons.
+3. Expired/revoked entitlement is denied on the next protected request.
+4. Logout clears the cookie; replayed cookie is rejected.
+
+Also manually confirm public home, auth, terms, privacy and refund pages on a browser before launch. Do not use a real customer account or payment for QA.
 
 This is a preview architecture only. Do not merge to `main`, deploy production, or enable payments as part of this work.
