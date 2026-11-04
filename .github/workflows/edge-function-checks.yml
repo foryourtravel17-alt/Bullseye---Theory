@@ -3,6 +3,9 @@ on:
   pull_request:
     paths:
       - "supabase/functions/**"
+      - "server.mjs"
+      - "tests/**"
+      - "package.json"
       - "_worker.js"
       - "wrangler.toml"
       - "auth.js"
@@ -33,6 +36,12 @@ jobs:
         run: deno check supabase/functions/grade-quiz/index.ts supabase/functions/complete-lesson/index.ts
       - name: Build Cloudflare Worker locally without deploying
         run: npx --yes wrangler@4 deploy --dry-run --outdir /tmp/bullseye-worker-dry-run
+      - name: Set up Node.js for secure course runtime tests
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run secure Node course runtime and site tests
+        run: npm test
       - name: Run quiz grading contract tests
         run: deno test supabase/functions/grade-quiz/grade.test.ts
       - name: Verify all lesson pages use server-side grading
