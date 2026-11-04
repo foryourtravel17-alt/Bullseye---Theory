@@ -68,4 +68,11 @@ need "$progress_write" "create or replace function public[.]issue_my_certificate
 need "$progress_write" "caller_id := auth[.]uid[(][)]" "derives certificate identity from the authenticated session"
 need "$progress_write" "grant execute on function public[.]issue_my_certificate[(][)] to authenticated" "allows authenticated students to claim only their own certificate"
 
+for file in supabase/functions/grade-quiz/index.ts supabase/functions/complete-lesson/index.ts; do
+  need "$file" 'bullseye-theory-secure-preview[.]onrender[.]com' "allows the approved secure Render preview origin"
+  need "$file" 'ALLOWED_SITE_ORIGINS' "supports an explicit additional-origin allowlist"
+  need "$file" 'Vary' "varies responses by request origin"
+  need "$file" 'Origin not allowed' "rejects unapproved browser origins"
+done
+
 echo "PASS: free static edge-function contract checks. Live auth/database behavior still requires staging."
