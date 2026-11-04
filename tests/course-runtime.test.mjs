@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   cookieValue,
   isProtectedCourseAsset,
+  isInternalPath,
   normalizedPath,
   safeFilePath,
   tokenExpiry
@@ -50,4 +51,12 @@ test("JWT expiry is parsed and malformed tokens fail closed", () => {
   const payload = Buffer.from(JSON.stringify({ exp: 2000000000 })).toString("base64url");
   assert.equal(tokenExpiry("header." + payload + ".signature"), 2000000000);
   assert.equal(tokenExpiry("not-a-jwt"), 0);
+});
+
+test("repository internals are never publicly served", () => {
+  for (const p of ["/.mcp.json", "/.github/workflows/deploy-cloudflare.yml", "/supabase/config.toml", "/docs/RENDER_SECURE_COURSE_RUNTIME.md", "/scripts/check_launch_pages.py", "/server.mjs", "/package.json"]) {
+    assert.equal(isInternalPath(p), true, p);
+  }
+  assert.equal(isInternalPath("/"), false);
+  assert.equal(isInternalPath("/assets/site.css"), false);
 });
