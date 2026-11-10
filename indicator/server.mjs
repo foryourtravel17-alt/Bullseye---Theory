@@ -8,7 +8,6 @@ const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 3000);
 const CACHE_TTL_MS = 60_000;
 const cache = new Map();
-const telegramSent = new Set();
 
 function send(res, status, body, type = 'application/json; charset=utf-8') {
   res.writeHead(status, { 'Content-Type': type, 'X-Content-Type-Options': 'nosniff' });
@@ -21,8 +20,7 @@ function indicators(raw) {
     open: Number(c[1]), high: Number(c[2]), low: Number(c[3]),
     close: Number(c[4]), volume: Number(c[5]), closeTime: Number(c[6])
   }));
-  let atr = null;
-  let trSeed = [];
+  const trSeed = [];
   let atrValue = null;
   const volumes = [];
   return candles.map((c, i) => {
@@ -67,37 +65,6 @@ function evaluate(candles, symbol, timeframe) {
   return { latestSignal, zones: latestZones };
 }
 
-async function notifyTelegram(signal) {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
-  if (process.env.BULLSEYE_TELEGRAM_ALERTS_ENABLED !== 'true' || !token || !chatId || !signal) return;
-  const key = [signal.symbol, signal.timeframe, signal.time, signal.zoneId, signal.direction].join(':');
-  if (telegramSent.has(key)) return;
-  telegramSent.add(key);
-  const text = [
-    `Bullseye Levels — ${signal.direction}`,
-    `${signal.symbol} · ${signal.timeframe}`,
-    `Entry: ${signal.entry}`,
-    `Stop loss: ${signal.stopLoss}`,
-    `Target (1:2): ${signal.target}`,
-    `Zone strength: ${signal.strength} touches`,
-    'Educational scenario only — not investment advice.'
-  ].join('\n');
-  try {
-    const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text })
-    });
-    if (!response.ok) throw new Error(`Telegram HTTP ${response.status}`);
-    const result = await response.json();
-    if (!result.ok) throw new Error('Telegram rejected the message');
-  } catch (error) {
-    telegramSent.delete(key);
-    console.error('Telegram alert failed:', error.message);
-  }
-}
-
 async function indicatorHandler(symbol, timeframe) {
   if (!/^[A-Z0-9]{3,20}$/.test(symbol) || !isSupportedTimeframe(timeframe)) {
     return { statusCode: 400, body: { status: 'NO_TRADE', reason: 'Unsupported symbol or timeframe. Use Binance symbols and 15m/1h only.' } };
@@ -132,7 +99,8 @@ async function indicatorHandler(symbol, timeframe) {
     signal
   };
   cache.set(key, { createdAt: Date.now(), body });
-  if (signal) await notifyTelegram(signal);
+  // Signals are displayed in the private dashboard only. No Telegram send path is
+  // included: every public Telegram post requires an explicit human approval step.
   return { statusCode: 200, body, cached: false };
 }
 
@@ -141,7 +109,7 @@ const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
     if (req.method !== 'GET') return send(res, 405, { error: 'Method not allowed' });
-    const match = url.pathname.match(/^\/api\/indicator\/([^/]+)\/([^/]+)$/);
+    const match = url.pathname.match(/^\\/api\\/indicator\\/([^/]+)\\/([^/]+)$/);
     if (match) {
       const result = await indicatorHandler(match[1].toUpperCase(), match[2]);
       return send(res, result.statusCode, result.body);
