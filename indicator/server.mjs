@@ -109,7 +109,7 @@ const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
     if (req.method !== 'GET') return send(res, 405, { error: 'Method not allowed' });
-    const match = url.pathname.match(/^\\/api\\/indicator\\/([^/]+)\\/([^/]+)$/);
+    const match = url.pathname.match(/^\/api\/indicator\/([^/]+)\/([^/]+)$/);
     if (match) {
       const result = await indicatorHandler(match[1].toUpperCase(), match[2]);
       return send(res, result.statusCode, result.body);
