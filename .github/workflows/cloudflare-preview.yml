@@ -1,0 +1,67 @@
+name: Bullseye Theory — Isolated Cloudflare Preview
+
+on:
+  push:
+    branches:
+      - release/secure-course-and-usdt-preview-2026-11-02
+    paths:
+      - ".github/workflows/cloudflare-preview.yml"
+      - "wrangler.toml"
+      - "_worker.js"
+      - "index.html"
+      - "auth.html"
+      - "dashboard.html"
+      - "lesson-*.html"
+      - "lessons/**"
+      - "course-assets/**"
+      - "payment.html"
+      - "membership.html"
+      - "package.json"
+      - "scripts/**"
+      - "tests/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bullseye-theory-isolated-preview
+  cancel-in-progress: false
+
+jobs:
+  validate-and-deploy-preview:
+    name: Test and deploy isolated preview Worker
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Checkout release candidate
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Run complete repository validation and course runtime tests
+        run: npm test
+
+      - name: Verify Cloudflare credentials are present
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo "::error::CLOUDFLARE_API_TOKEN is missing"; exit 1; }
+          test -n "${CLOUDFLARE_ACCOUNT_ID:-}" || { echo "::error::CLOUDFLARE_ACCOUNT_ID is missing"; exit 1; }
+          echo "Cloudflare credentials are configured (values masked)."
+
+      - name: Deploy to a separate preview Worker only
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4 deploy --name bullseye-theory-course-preview
+          echo "Preview Worker deployed. Production Worker bullseye-theory was not targeted."
