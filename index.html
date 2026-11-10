@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="bullseye-hero-bull.css?v=20261005-1">
 <link rel="stylesheet" href="bullseye-reel-context-v2.css?v=20261005-1">
 <link rel="stylesheet" href="bullseye-decision-engine.css?v=20261005-1">
+<link rel="stylesheet" href="bullseye-terminal-overhaul.css?v=20261110-1">
 </head>
 <body>
 <header class="v3-nav v5-nav">
@@ -19,7 +20,7 @@
     <span>BULLSEYE <strong>THEORY</strong></span>
   </a>
   <nav class="v3-navlinks" aria-label="Primary">
-    <a href="#top">HOME</a><a href="#method">COURSE</a><a href="#experience">TOOLS</a><a href="terminal.html">MARKET LAB</a><a href="#method">ABOUT</a><a href="#faq">CONTACT</a><a href="membership.html">ENROLLMENT STATUS</a>
+    <a href="#top">HOME</a><a href="#method">COURSE</a><a href="#experience">TOOLS</a><a href="terminal.html">MARKET LAB</a><a href="#method">ABOUT</a><a href="#pricing">PRICING</a><a href="#faq">CONTACT</a><a href="membership.html">ENROLLMENT STATUS</a>
   </nav>
   <a class="v3-btn v3-primary v5-login" href="auth.html">STUDENT LOGIN <span>→</span></a>
   <button class="v5-menu" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
@@ -38,6 +39,7 @@
       <a href="#experience">TOOLS</a>
       <a href="terminal.html">MARKET LAB</a>
       <a href="#method">ABOUT</a>
+      <a href="#pricing">PRICING</a>
       <a href="#faq">CONTACT</a>
       <a class="v3-btn v3-primary" href="auth.html">STUDENT LOGIN <span>→</span></a>
     </nav>
@@ -47,6 +49,7 @@
 <main id="top">
 <section class="v3-hero v4-hero v5-hero">
   <div class="v4-bg" aria-hidden="true"></div>
+  <img class="bt-hero-image" src="public/img/hero-radar.webp" width="1672" height="941" alt="" fetchpriority="high" decoding="async">
   <div class="v5-atmosphere" aria-hidden="true"></div>
   <div class="v4-scan" aria-hidden="true"></div>
 
@@ -114,10 +117,11 @@
   <div class="v4-chart" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
 
   <div class="v4-hero-copy v5-hero-copy">
-    <div class="v3-kicker">THE BULLSEYE SYSTEM / TRADING EDUCATION</div>
+    <div class="v3-kicker">// PRICE ACTION SYSTEM — v1</div>
     <h1>READ THE MARKET.<br><em>BUILD THE PROCESS.</em></h1>
     <p class="v3-sub">Structured education for market structure, price action, risk management and trading psychology — built for learning, practice and review.</p>
-    <div class="v3-actions"><a class="v3-btn v3-primary" href="auth.html">ENTER STUDENT AREA <span>→</span></a><a class="v3-btn v3-ghost" href="#curriculum">EXPLORE CURRICULUM</a><a class="v3-btn v3-ghost" href="membership.html">ENROLLMENT STATUS</a></div>
+    <div class="v3-actions"><a class="v3-btn v3-primary" href="auth.html">START THE COURSE</a><a class="v3-btn v3-ghost" href="#method">VIEW FREE LEVELS</a></div>
+    <div class="bt-hero-meta">11 LESSONS <span>·</span> 85 DAYS ACCESS <span>·</span> ₹999</div>
   </div>
 
   <div class="v5-bottom-strip">
@@ -127,6 +131,7 @@
     <span><b>◇</b><strong>EDUCATIONAL MODE</strong><small>Learn. Practice. Review.</small></span>
   </div>
 </section>
+<div class="bt-status-strip" role="status"><span class="bt-status-dot" aria-hidden="true"></span><span>MARKET DATA DISPLAY PAUSED · EDUCATIONAL DEMO</span><span class="bt-status-detail">Market Lab scenario and watchlist fixtures are simulated—not live prices or trading recommendations. No live or recent market-price ticker is displayed. Any future educational price-data use requires the applicable 30-day SEBI time lag, verified data permissions and compliance review.</span></div>
 
 <section class="bx-lab" id="system-lab">
   <div class="bx-lab-orb" aria-hidden="true"></div>
@@ -533,24 +538,27 @@
   </div>
 </div></section>
 
-<section class="v3-section"><div class="v3-container">
-  <div class="v3-price v3-reveal">
-    <div>
+<section class="v3-section bt-pricing-section" id="pricing"><div class="v3-container">
+  <div class="bt-section-head"><span class="bt-section-index">05</span><div><div class="v3-label">// 05 — PRICING</div><h2>CHOOSE YOUR<br><em>ACCESS LAYER.</em></h2></div></div>
+  <div class="bt-pricing-grid">
+    <article class="bt-price-panel">
       <div class="v3-label">BULLSEYE THEORY / COMPLETE COURSE</div>
-      <h2>START WITH<br>THE <em>PROCESS.</em></h2>
-      <p style="color:var(--muted);font-size:13px;margin:12px 0 20px;max-width:520px">Gain full access to all 11 structured lessons, downloadable PDF guides, recorded video breakdowns, and chart exercises.</p>
-      <div class="v3-price-tags">
-        <span>PDF GUIDES</span>
-        <span>VIDEO BREAKDOWNS</span>
-        <span>NO PROMISED PROFITS</span>
-        <span>STRICT RISK FRAMING</span>
-      </div>
-    </div>
-    <div class="v3-price-box">
-      <div class="v3-price-val">11 LESSONS</div>
-      <div class="v3-price-sub">ENROLLMENT CURRENTLY CLOSED</div>
-      <a class="v3-btn v3-primary v3-btn-lg" href="auth.html">ENTER STUDENT AREA &rarr;</a>
-    </div>
+      <h3>START WITH THE PROCESS.</h3>
+      <p>Gain full access to all 11 structured lessons, downloadable PDF guides, recorded video breakdowns, and chart exercises.</p>
+      <div class="bt-price-value">₹999</div><div class="bt-price-meta">ONE-TIME · 85 DAYS ACCESS</div>
+      <div class="v3-price-tags"><span>PDF GUIDES</span><span>VIDEO BREAKDOWNS</span><span>NO PROMISED PROFITS</span><span>STRICT RISK FRAMING</span></div>
+      <a class="v3-btn v3-primary v3-btn-lg" href="auth.html">START THE COURSE</a>
+      <small>ENROLLMENT CURRENTLY CLOSED</small>
+    </article>
+    <article class="bt-price-panel bt-price-premium">
+      <div class="bt-premium-tag">PREMIUM</div>
+      <div class="v3-label">BULLSEYE LEVELS / INDICATOR</div>
+      <h3>PRECISION LEVELS.</h3>
+      <p>Premium indicator access is a separate product from the course. Access is prepaid for a fixed term; TradingView invite-only access is granted manually after verification.</p>
+      <div class="bt-price-value">₹9,999</div><div class="bt-price-meta">ONE-TIME · 365 DAYS ACCESS</div>
+      <a class="v3-btn v3-ghost v3-btn-lg" href="membership.html">VIEW ACCESS STATUS</a>
+      <small>ENROLLMENT CURRENTLY CLOSED · NO AUTO-DEBIT</small>
+    </article>
   </div>
 </div></section>
 
