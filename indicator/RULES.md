@@ -41,7 +41,7 @@ Evaluate only a completed candle, only on 15m or 1h, and only against a valid zo
 - Equality at either price threshold or volume threshold is not a breakout.
 - If both directions were somehow eligible due to malformed/inverted zone data, reject the zone; valid zones must satisfy `bottom <= top`.
 - Missing/non-finite ATR or volume SMA, non-positive ATR, or invalid candle/zone values produce no signal.
-- A candle may qualify against more than one zone; each zone is evaluated independently.
+- Zones are evaluated independently in seed order. To keep Node and Pine alerts deterministic, at most one signal is emitted per candle: the first eligible zone in seed order wins; later eligible zones on that same candle are suppressed.
 
 ## 5. Entry, stop, target, and risk/reward
 
