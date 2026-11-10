@@ -1,4 +1,4 @@
-name: Bullseye Theory — Isolated Cloudflare Preview
+name: Bullseye Theory — Cloudflare Preview Preflight (No Deploy)
 
 on:
   push:
@@ -25,12 +25,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: bullseye-theory-isolated-preview
+  group: bullseye-theory-preview-preflight
   cancel-in-progress: false
 
 jobs:
-  validate-and-deploy-preview:
-    name: Test and deploy isolated preview Worker
+  validate-preview-candidate:
+    name: Test release candidate and validate Cloudflare bundle
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
@@ -59,9 +59,9 @@ jobs:
           test -n "${CLOUDFLARE_ACCOUNT_ID:-}" || { echo "::error::CLOUDFLARE_ACCOUNT_ID is missing"; exit 1; }
           echo "Cloudflare credentials are configured (values masked)."
 
-      - name: Deploy to a separate preview Worker only
+      - name: Validate Worker bundle without deployment
         shell: bash
         run: |
           set -euo pipefail
-          npx --yes wrangler@4 deploy --name bullseye-theory-course-preview
-          echo "Preview Worker deployed. Production Worker bullseye-theory was not targeted."
+          npx --yes wrangler@4 deploy --dry-run --outdir /tmp/bullseye-course-preview-dry-run
+          echo "PASS: preview bundle validated; no Worker was deployed."
