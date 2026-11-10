@@ -1,18 +1,18 @@
 //@version=6
 indicator("Bullseye Levels", "Bullseye Levels", overlay=true, max_boxes_count=200, max_labels_count=200)
 
-// All rule constants are configurable here. Defaults match RULES.md.
-leftBars       = input.int(3, "Pivot left bars", minval=1)
-rightBars      = input.int(3, "Pivot right bars", minval=1)
-atrLength      = input.int(14, "ATR length", minval=1)
-clusterAtr     = input.float(0.25, "Pivot cluster distance × ATR", minval=0.0, step=0.01)
-minTouches     = input.int(2, "Minimum zone touches", minval=2)
-breakoutAtr    = input.float(0.10, "Breakout close buffer × ATR", minval=0.0, step=0.01)
-volumeLength   = input.int(20, "Volume SMA length", minval=1)
-volumeMultiple = input.float(1.5, "Volume multiplier", minval=0.0, step=0.1)
-stopAtr        = input.float(0.20, "Stop buffer × ATR", minval=0.0, step=0.01)
-targetRR       = input.float(2.0, "Target reward/risk", minval=0.1, step=0.1)
-cooldownBars   = input.int(12, "Cooldown bars per zone", minval=0)
+// Calculation parameters are fixed to RULES.md so Pine and Node stay in parity.
+const int leftBars = 3
+const int rightBars = 3
+const int atrLength = 14
+const float clusterAtr = 0.25
+const int minTouches = 2
+const float breakoutAtr = 0.10
+const int volumeLength = 20
+const float volumeMultiple = 1.5
+const float stopAtr = 0.20
+const float targetRR = 2.0
+const int cooldownBars = 12
 showZones      = input.bool(true, "Show supply/demand zones")
 showLabels     = input.bool(true, "Show LONG/SHORT labels")
 enableAlerts   = input.bool(true, "Enable alert() messages")
