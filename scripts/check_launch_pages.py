@@ -39,6 +39,9 @@ class PageParser(HTMLParser):
             self.title.append(data)
 
 errors = []
+pages_workflow = ROOT / ".github/workflows/deploy-pages.yml"
+if pages_workflow.exists():
+    errors.append("deploy-pages.yml must remain absent: public static publishing bypasses the Worker entitlement gate")
 titles = {}
 for rel in PAGES:
     path = ROOT / rel
