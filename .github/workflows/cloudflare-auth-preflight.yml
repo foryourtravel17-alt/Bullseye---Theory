@@ -58,17 +58,33 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          verify="$(curl --fail --silent --show-error \
-            https://api.cloudflare.com/client/v4/user/tokens/verify \
-            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}")"
-          echo "$verify" | node -e '
-            let s=""; process.stdin.on("data", d => s += d);
-            process.stdin.on("end", () => {
-              const r=JSON.parse(s);
-              if (!r.success || r.result?.status !== "active") process.exit(1);
-              console.log("PASS: Cloudflare API token is active.");
-            });
-          '
+          auth_header="Authorization: Bearer ${CLOUDFLARE_API_TOKEN}"
+          account_code="$(curl --silent --show-error -o /tmp/cf-token-verify.json -w "%{http_code}" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/tokens/verify" \
+            -H "$auth_header")"
+          token_ok=false
+          if [[ "$account_code" == "200" ]] && node -e '
+            const r=require("/tmp/cf-token-verify.json");
+            process.exit(r.success && r.result?.status === "active" ? 0 : 1);
+          '; then
+            token_ok=true
+            echo "PASS: Account API token is active."
+          else
+            user_code="$(curl --silent --show-error -o /tmp/cf-user-token-verify.json -w "%{http_code}" \
+              https://api.cloudflare.com/client/v4/user/tokens/verify \
+              -H "$auth_header")"
+            if [[ "$user_code" == "200" ]] && node -e '
+              const r=require("/tmp/cf-user-token-verify.json");
+              process.exit(r.success && r.result?.status === "active" ? 0 : 1);
+            '; then
+              token_ok=true
+              echo "PASS: User API token is active."
+            fi
+          fi
+          if [[ "$token_ok" != "true" ]]; then
+            echo "::error::Cloudflare token verification failed for both account and user token endpoints. Replace the GitHub secret with a fresh active API token."
+            exit 1
+          fi
           account="$(curl --fail --silent --show-error \
             "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts?per_page=1" \
             -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}")"
