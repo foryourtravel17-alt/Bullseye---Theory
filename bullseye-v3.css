@@ -165,7 +165,6 @@ body.v5-menu-open{overflow:hidden}
 }
 
 /* BULLSEYE TERMINAL HUD — visual system override, no JS hooks renamed */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 :root{--bg:#05070a;--panel:#0b1016;--panel-2:#111820;--gold:#d4af37;--green:#22e07a;--muted:#8b96a5;--line:rgba(212,175,55,.18);--ui:Inter,system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace;color-scheme:dark}
 html{scroll-behavior:smooth;scroll-padding-top:72px}body{background:var(--bg);color:#f4f6f8;font-family:var(--ui)}
 *,*:before,*:after{box-sizing:border-box}button,a,input,summary{ -webkit-tap-highlight-color:transparent} :focus-visible{outline:2px solid var(--gold)!important;outline-offset:4px!important;box-shadow:0 0 0 3px rgba(212,175,55,.18)!important}
