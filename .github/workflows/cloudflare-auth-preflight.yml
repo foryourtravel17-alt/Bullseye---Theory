@@ -1,0 +1,99 @@
+name: Cloudflare Auth Preflight (No Production Deploy)
+
+on:
+  push:
+    branches:
+      - release/secure-course-and-usdt-preview-2026-11-02
+    paths:
+      - ".github/workflows/cloudflare-auth-preflight.yml"
+      - "wrangler.toml"
+      - "_worker.js"
+      - "index.html"
+      - "auth.html"
+      - "dashboard.html"
+      - "lesson-*.html"
+      - "lessons/**"
+      - "course-assets/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-auth-preflight
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Verify Cloudflare credentials and build only
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Check required GitHub secrets are present
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${CLOUDFLARE_API_TOKEN:-}" ]]; then
+            echo "::error::GitHub secret CLOUDFLARE_API_TOKEN is missing."
+            exit 1
+          fi
+          if [[ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]]; then
+            echo "::error::GitHub secret CLOUDFLARE_ACCOUNT_ID is missing."
+            exit 1
+          fi
+          echo "PASS: both Cloudflare secrets are configured (values hidden)."
+
+      - name: Verify token and account access without changing Cloudflare
+        shell: bash
+        run: |
+          set -euo pipefail
+          verify="$(curl --fail --silent --show-error \
+            https://api.cloudflare.com/client/v4/user/tokens/verify \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}")"
+          echo "$verify" | node -e '
+            let s=""; process.stdin.on("data", d => s += d);
+            process.stdin.on("end", () => {
+              const r=JSON.parse(s);
+              if (!r.success || r.result?.status !== "active") process.exit(1);
+              console.log("PASS: Cloudflare API token is active.");
+            });
+          '
+          account="$(curl --fail --silent --show-error \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts?per_page=1" \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}")"
+          echo "$account" | node -e '
+            let s=""; process.stdin.on("data", d => s += d);
+            process.stdin.on("end", () => {
+              const r=JSON.parse(s);
+              if (!r.success) process.exit(1);
+              console.log("PASS: account ID is valid and Workers Scripts read access works.");
+            });
+          '
+
+      - name: Verify Wrangler authentication (read-only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4 whoami >/tmp/wrangler-whoami.log 2>&1 || {
+            echo "::error::Wrangler authentication failed. Check token type, expiry, account scope and permissions. Details are intentionally not printed."
+            exit 1
+          }
+          echo "PASS: Wrangler authentication works."
+
+      - name: Validate production Worker bundle without deploying
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4 deploy --dry-run --outdir /tmp/bullseye-cloudflare-dry-run
+          echo "PASS: Worker bundle is valid. No Cloudflare deployment was performed."
