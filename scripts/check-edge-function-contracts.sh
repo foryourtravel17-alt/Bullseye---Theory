@@ -56,4 +56,23 @@ need "$answer_policy" 'using \(\(select public\.is_admin\(\)\)\)' "checks admin 
 need "$answer_policy" 'revoke all on table public\.quiz_questions from anon' "revokes anonymous quiz-question access"
 need "$answer_policy" 'revoke all on table public\.quiz_questions from public' "revokes inherited public quiz-question access"
 
+# Authoritative course state must only be written by trusted Edge Functions.
+progress_write="supabase/migrations/20261104190000_lock_course_progress_writes_to_edge_functions.sql"
+need "$progress_write" "drop policy %I on %I[.]%I" "removes browser-role INSERT/UPDATE/DELETE policies dynamically"
+need "$progress_write" "revoke insert, update, delete" "revokes direct authenticated writes to lesson progress"
+need "$progress_write" "grant select, insert, update on table public[.]lesson_progress to service_role" "grants trusted course progress writes to service_role"
+need "$progress_write" "grant select, insert on table public[.]quiz_attempts to service_role" "grants trusted quiz attempt writes to service_role"
+need "$progress_write" "grant usage, select on sequence public[.]quiz_attempts_id_seq to service_role" "grants trusted quiz attempt identity sequence usage"
+
+need "$progress_write" "create or replace function public[.]issue_my_certificate" "adds a student-owned certificate claim function"
+need "$progress_write" "caller_id := auth[.]uid[(][)]" "derives certificate identity from the authenticated session"
+need "$progress_write" "grant execute on function public[.]issue_my_certificate[(][)] to authenticated" "allows authenticated students to claim only their own certificate"
+
+for file in supabase/functions/grade-quiz/index.ts supabase/functions/complete-lesson/index.ts; do
+  need "$file" 'bullseye-theory-secure-preview[.]onrender[.]com' "allows the approved secure Render preview origin"
+  need "$file" 'ALLOWED_SITE_ORIGINS' "supports an explicit additional-origin allowlist"
+  need "$file" 'Vary' "varies responses by request origin"
+  need "$file" 'Origin not allowed' "rejects unapproved browser origins"
+done
+
 echo "PASS: free static edge-function contract checks. Live auth/database behavior still requires staging."

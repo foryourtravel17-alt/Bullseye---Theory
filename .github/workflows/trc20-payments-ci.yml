@@ -55,6 +55,11 @@ jobs:
         run: node scripts/validate-trc20-migration.mjs
       - name: Test strict TRC-20 matching and settlement rules
         run: deno test supabase/functions/_shared/trc20.test.ts
+      - name: Test authoritative course progress and quiz attempt write permissions
+        run: |
+          psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -c "CREATE DATABASE course_progress_security_test"
+          COURSE_DATABASE_URL="${DATABASE_URL%/postgres}/course_progress_security_test"
+          DATABASE_URL="$COURSE_DATABASE_URL" bash scripts/test-course-progress-security-postgres.sh
       - name: Run migrations and 85-day settlement tests in disposable PostgreSQL
         run: bash scripts/test-trc20-migration-postgres.sh
       - name: Type-check payment Edge Functions
@@ -63,3 +68,5 @@ jobs:
           deno check supabase/functions/get-trc20-order-status/index.ts
           deno check supabase/functions/get-trc20-payment-config/index.ts
           deno check supabase/functions/scan-trc20-payments/index.ts
+
+# The disposable course-progress security regression is part of this workflow; no live DB is used.
