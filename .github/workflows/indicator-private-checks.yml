@@ -1,16 +1,11 @@
 name: Bullseye Levels — Private Source Tests
 
 on:
-  push:
-    branches:
-      - feat/private-bullseye-levels-source
-    paths:
-      - "indicator/**"
-      - ".github/workflows/indicator-private-checks.yml"
   pull_request:
     paths:
       - "indicator/**"
       - ".github/workflows/indicator-private-checks.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
