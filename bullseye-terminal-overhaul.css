@@ -103,3 +103,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:15px
  .v3-footer small{grid-column:auto}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* Indexed section eyebrows */
+#method,#curriculum,#experience,#faq,.bt-pricing-section{position:relative}
+#method:before{content:"// 02 — METHOD"}
+#curriculum:before{content:"// 03 — CURRICULUM"}
+#experience:before{content:"// 04 — EXPERIENCE"}
+.bt-pricing-section:before{content:"// 05 — PRICING"}
+#faq:before{content:"// 06 — FAQ"}
+#method:before,#curriculum:before,#experience:before,.bt-pricing-section:before,#faq:before{display:block;max-width:1180px;margin:0 auto 22px;color:var(--gold);font:500 10px var(--mono);letter-spacing:.08em}
