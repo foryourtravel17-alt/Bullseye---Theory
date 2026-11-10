@@ -17,7 +17,7 @@ npm test
 node --check server.mjs
 npm start
 ```
-The local web app uses public Binance market klines. Telegram alerts are disabled unless `BULLSEYE_TELEGRAM_ALERTS_ENABLED=true` is explicitly set together with `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`. Do not set these in production before owner approval.
+The local web app uses public Binance market klines. Signal results are displayed in the dashboard only. There is deliberately no Telegram sending path in this release: public Telegram alerts require a separate human-review and approval workflow.
 
 ## Security note
-The source also exists in the public `ai-trending-content-factory` pull request. This private copy does not make the public copy private. Before commercial launch, change that repository to private and review the public PR, branches, forks and any cached copies. Do not assume a private copy retracts already-public source.
+The source repository `ai-trending-content-factory` was verified private on 10 Nov 2026. Previously created forks, clones, downloads and caches are not automatically recalled; review those before commercial launch.
