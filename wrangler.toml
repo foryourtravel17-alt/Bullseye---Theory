@@ -7,6 +7,11 @@ workers_dev = true
 SUPABASE_URL = "https://kjhdcpjztuzpysdauqdz.supabase.co"
 SUPABASE_PUBLISHABLE_KEY = "sb_publishable_1fo0yxL2uk_vwFGR5-Sh-A_z7t0RhXt"
 
+[previews.vars]
+# Deliberately non-routable Preview backend: hosted previews must not touch production Supabase.
+SUPABASE_URL = "https://preview.invalid"
+SUPABASE_PUBLISHABLE_KEY = "preview-disabled"
+
 [assets]
 directory = "."
 binding = "ASSETS"
