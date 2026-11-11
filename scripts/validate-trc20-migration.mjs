@@ -6,6 +6,12 @@ const policyPath = new URL("../supabase/migrations/20261102170555_set_course_acc
 const policySql = readFileSync(policyPath, "utf8");
 const scannerPath = new URL("../.github/workflows/trc20-payment-scan.yml", import.meta.url);
 const scannerWorkflow = readFileSync(scannerPath, "utf8");
+const scannerFunctionPath = new URL("../supabase/functions/scan-trc20-payments/index.ts", import.meta.url);
+const scannerFunction = readFileSync(scannerFunctionPath, "utf8");
+const orderFunctionPath = new URL("../supabase/functions/create-trc20-order/index.ts", import.meta.url);
+const orderFunction = readFileSync(orderFunctionPath, "utf8");
+const paymentConfigPath = new URL("../supabase/functions/get-trc20-payment-config/index.ts", import.meta.url);
+const paymentConfigFunction = readFileSync(paymentConfigPath, "utf8");
 const errors = [];
 
 function tableBlock(name) {
@@ -98,6 +104,13 @@ if (!scannerWorkflow.includes("vars.TRC20_SCANNER_ENABLED == 'true'")) errors.pu
 if (!scannerWorkflow.includes("TRC20_SCANNER_CRON_SECRET")) errors.push("scheduled payment scanner must use its dedicated cron secret");
 if (!scannerWorkflow.includes("/functions/v1/scan-trc20-payments")) errors.push("scheduled payment scanner must call only the scanner Edge Function");
 if (scannerWorkflow.includes("SUPABASE_SERVICE_ROLE_KEY")) errors.push("GitHub scanner workflow must not receive the Supabase service-role key");
+if (!scannerWorkflow.includes('secrets.TRC20_SCANNER_CRON_SECRET')) errors.push("GitHub scanner workflow must pass the exact TRC20_SCANNER_CRON_SECRET repository secret");
+if (!scannerFunction.includes('Deno.env.get("TRC20_SCANNER_CRON_SECRET")')) errors.push("scanner Edge Function must read the exact TRC20_SCANNER_CRON_SECRET Supabase secret");
+if (scannerFunction.includes('Deno.env.get("TRC20SCANNERCRONSECRET")')) errors.push("scanner Edge Function must not use the legacy misspelled cron-secret alias");
+if (!orderFunction.includes('Deno.env.get("USDT_CHECKOUT_ENABLED") !== "true"')) errors.push("course order creation must fail closed unless USDT checkout is explicitly enabled");
+if (!orderFunction.includes('Deno.env.get("PREMIUM_CHECKOUT_ENABLED") !== "true"')) errors.push("premium order creation must remain independently gated");
+if (!paymentConfigFunction.includes('Deno.env.get("USDT_CHECKOUT_ENABLED") === "true"')) errors.push("public payment config must report checkout closed unless explicitly enabled");
+if (!paymentConfigFunction.includes('Deno.env.get("PREMIUM_CHECKOUT_ENABLED") === "true"')) errors.push("public payment config must independently gate premium checkout");
 if ((sql.match(/create or replace function public\.finalize_trc20_payment/gi) || []).length !== 1) errors.push("payment migration must contain exactly one finalizer definition");
 if (/expires_at\s*=\s*null/i.test(sql)) errors.push("payment finalizer must never write a null course expiry");
 if (!/now\(\)\s*\+\s*make_interval\(days\s*=>\s*v_order\.access_days\)/i.test(sql)) errors.push("initial verified payment must grant the order's fixed access duration");
