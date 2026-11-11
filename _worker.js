@@ -144,6 +144,19 @@ async function serveProtectedAsset(request, env) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    // Serve environment-specific browser config through the Worker. Preview
+    // builds therefore use Preview vars, never the production Supabase project.
+    if (url.pathname === "/supabase-config.js") {
+      const browserConfig =
+        "window.BULLSEYE_SUPABASE_URL = " + JSON.stringify(env.SUPABASE_URL || "") + ";\n" +
+        "window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY = " + JSON.stringify(env.SUPABASE_PUBLISHABLE_KEY || "") + ";\n";
+      return new Response(browserConfig, {
+        headers: {
+          "Content-Type": "application/javascript; charset=utf-8",
+          "Cache-Control": "no-store, max-age=0",
+        },
+      });
+    }
     if (url.pathname === "/api/course-session" && request.method === "POST") {
       return setSession(request, env);
     }
