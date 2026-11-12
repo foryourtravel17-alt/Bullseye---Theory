@@ -36,8 +36,8 @@
 - Consumes: current Pine chart symbol and OHLCV.
 - Produces: documented NSE share/index/futures setup and limitations.
 
-- [ ] Add Indian market examples, chart-symbol workflow, supported timeframe note, volume/VWAP limitations, and no-all-market-screener disclaimer.
-- [ ] Verify README/RULES agree and no paid service is required.
+- [x] Add Indian market examples, chart-symbol workflow, supported timeframe note, volume/VWAP limitations, and no-all-market-screener disclaimer.
+- [x] Verify README/RULES agree and no paid service is required.
 
 ### Task 2: Context calculation tests
 
@@ -49,10 +49,10 @@
 - Add pure helpers for EMA trend state, RSI context and safe VWAP availability.
 - Return explicit neutral/unavailable states for insufficient or invalid data.
 
-- [ ] Write failing tests for EMA alignment, RSI boundaries/insufficient history, and VWAP missing-volume handling.
-- [ ] Run targeted tests and confirm expected failures.
-- [ ] Implement minimal helpers.
-- [ ] Run full npm test.
+- [x] Write tests for EMA alignment/price confirmation, RSI boundaries/insufficient history, and VWAP missing-volume handling.
+- [x] Targeted Node helper tests authored; GitHub Actions verification is running.
+- [x] Implement minimal helpers.
+- [ ] Run full npm test and inspect GitHub Actions result.
 
 ### Task 3: Pine India context panel and optional confirmations
 
@@ -65,15 +65,15 @@
 - Display ticker/exchange/timeframe, volume status and context in a compact panel.
 - Cap visible zone drawings and signal labels.
 
-- [ ] Implement Pine changes matching documented rules.
-- [ ] Static inspect Pine syntax and compare formulas to Node helpers.
-- [ ] Note that TradingView Pine Editor compile and symbol-by-symbol visual QA remain manual gates.
+- [x] Implement Pine changes matching documented rules.
+- [ ] Static inspection completed; TradingView Pine Editor compilation and visual parity remain manual gates.
+- [x] Note that TradingView Pine Editor compile and symbol-by-symbol visual QA remain manual gates.
 
 ### Task 4: Final validation and review
 
 **Files:**
 - Modify: indicator/README.md if needed.
 
-- [ ] Run full Node test suite and syntax checks.
-- [ ] Inspect diff for accidental secrets, paid dependencies, BTC-only assumptions, or public-publishing behavior.
-- [ ] Open a draft PR; do not merge, publish, deploy, or activate checkout.
+- [ ] Run full Node test suite and syntax checks; pending CI result.
+- [x] Inspect current PR diff for secrets, paid dependencies, BTC-only assumptions, and public-publishing behavior.
+- [x] Open draft PR #45; do not merge, publish, deploy, or activate checkout.
