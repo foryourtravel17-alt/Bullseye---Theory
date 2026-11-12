@@ -95,6 +95,9 @@ f_addPivot(float price, float pAtr, int pivotBar, int kind) =>
                 if array.size(visibleBoxes) > maxVisibleZones
                     box oldest = array.shift(visibleBoxes)
                     box.delete(oldest)
+                    for zoneIndex = 0 to array.size(zoneBoxes) - 1
+                        if array.get(zoneBoxes, zoneIndex) == oldest
+                            array.set(zoneBoxes, zoneIndex, na)
             else
                 box.set_top(existing, newTop)
                 box.set_bottom(existing, newBottom)
