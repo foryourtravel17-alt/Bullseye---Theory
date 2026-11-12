@@ -13,8 +13,9 @@ export function emaTrend(closes, fastPeriod = 20, slowPeriod = 50) {
   const fast = ema(closes, fastPeriod);
   const slow = ema(closes, slowPeriod);
   if (!Number.isFinite(fast) || !Number.isFinite(slow)) return 'UNAVAILABLE';
-  if (fast > slow) return 'BULLISH';
-  if (fast < slow) return 'BEARISH';
+  const latestClose = closes[closes.length - 1];
+  if (fast > slow && latestClose > fast) return 'BULLISH';
+  if (fast < slow && latestClose < fast) return 'BEARISH';
   return 'NEUTRAL';
 }
 
@@ -42,6 +43,7 @@ export function rsiValue(closes, period = 14) {
   return 100 - (100 / (1 + rs));
 }
 
+// Pass only candles from the current exchange session; this mirrors session VWAP.
 export function vwapValue(candles) {
   if (!Array.isArray(candles) || candles.length === 0) return null;
   let cumulativePriceVolume = 0;
