@@ -2,9 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { emaTrend, rsiValue, vwapValue } from '../lib/context.mjs';
 
-test('EMA trend reports bullish, bearish and neutral alignment', () => {
+test('EMA trend requires both EMA alignment and price confirmation', () => {
   assert.equal(emaTrend([1, 2, 3, 4, 5], 2, 3), 'BULLISH');
   assert.equal(emaTrend([5, 4, 3, 2, 1], 2, 3), 'BEARISH');
+  assert.equal(emaTrend([1, 2, 3, 2.5], 2, 3), 'NEUTRAL');
   assert.equal(emaTrend([1, 2], 2, 3), 'UNAVAILABLE');
 });
 
