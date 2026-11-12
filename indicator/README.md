@@ -21,3 +21,14 @@ The local web app uses public Binance market klines. Signal results are displaye
 
 ## Security note
 The source repository `ai-trending-content-factory` was verified private on 10 Nov 2026. Previously created forks, clones, downloads and caches are not automatically recalled; review those before commercial launch.
+
+## India-market first use
+- Open a TradingView chart for the NSE symbol you want to study, then add Bullseye India. Example symbols include NSE:RELIANCE, NSE:TCS, NSE:INFY, NSE:NIFTY and NSE:BANKNIFTY when available in the user's TradingView data entitlement.
+- The Pine indicator reads the active chart's own OHLCV. It is not BTC-specific and does not need a separate script for every share.
+- Decision signals are supported on 15-minute and 1-hour charts only. Other intervals display an unsupported-timeframe warning.
+- Some index feeds may not provide usable volume. When volume is absent or zero, the indicator explicitly blocks volume-qualified signals. VWAP may show N/A when session volume is unavailable.
+- It does not scan the whole NSE market in one click. Use TradingView watchlists and open each chart; automatic multi-symbol scanning requires a separate data service and is outside the free-first v1.
+- This is an educational chart-analysis tool, not a buy/sell recommendation, guaranteed outcome, or broker execution system.
+
+## Free context tools
+The Pine chart includes EMA 20/50 trend, RSI 14 momentum, and intraday VWAP context. These are informational by default. The optional strict-confirmation switch is OFF by default; if enabled, only the confirmation toggles selected by the user gate new signals. The panel marks missing data as N/A.
