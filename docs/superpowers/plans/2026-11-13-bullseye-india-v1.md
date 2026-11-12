@@ -1,0 +1,79 @@
+# Bullseye India v1 Implementation Plan
+
+> For agentic workers: use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox syntax for tracking.
+
+**Goal:** Make Bullseye Levels more useful for Indian-market clients without paid data or hosting, while preserving universal chart-symbol support.
+
+**Architecture:** Pine Script v6 reads the active TradingView chart symbol and computes optional context filters locally. Node.js remains the deterministic reference for core levels and receives tests for any shared rule changes. Documentation explains Indian symbol selection and free-tier limitations.
+
+**Tech Stack:** Pine Script v6, Node.js 20+, node:test, GitHub Actions.
+
+**Spec:** docs/superpowers/specs/2026-11-13-bullseye-india-v1-design.md
+
+## Global Constraints
+- No paid API, hosting, or market data dependency.
+- Core timeframes remain 15m and 1h.
+- Completed candles only; no repainting by design.
+- No broker execution or automatic public alerts.
+- Do not merge to release or deploy production.
+
+## Review Focus
+- NSE symbols with no usable volume must show a warning and never create volume-qualified signals.
+- Index symbols with missing VWAP/session volume must show N/A without runtime errors.
+- Switching symbols/timeframes must not leak old zone drawings or cooldown state.
+- EMA/RSI filters disabled must preserve existing core signal behavior.
+- Large history must stay within Pine drawing-object limits.
+
+---
+
+### Task 1: Indian-market usage contract
+
+**Files:**
+- Modify: indicator/README.md
+- Modify: indicator/RULES.md
+
+**Interfaces:**
+- Consumes: current Pine chart symbol and OHLCV.
+- Produces: documented NSE share/index/futures setup and limitations.
+
+- [ ] Add Indian market examples, chart-symbol workflow, supported timeframe note, volume/VWAP limitations, and no-all-market-screener disclaimer.
+- [ ] Verify README/RULES agree and no paid service is required.
+
+### Task 2: Context calculation tests
+
+**Files:**
+- Modify: indicator/lib/levels.mjs
+- Modify: indicator/tests/levels.test.mjs
+
+**Interfaces:**
+- Add pure helpers for EMA trend state, RSI context and safe VWAP availability.
+- Return explicit neutral/unavailable states for insufficient or invalid data.
+
+- [ ] Write failing tests for EMA alignment, RSI boundaries/insufficient history, and VWAP missing-volume handling.
+- [ ] Run targeted tests and confirm expected failures.
+- [ ] Implement minimal helpers.
+- [ ] Run full npm test.
+
+### Task 3: Pine India context panel and optional confirmations
+
+**Files:**
+- Modify: indicator/bullseye.pine
+
+**Interfaces:**
+- Preserve core zone/breakout equations.
+- Add user toggles for EMA trend, RSI momentum and VWAP context; optional confirmation mode defaults OFF.
+- Display ticker/exchange/timeframe, volume status and context in a compact panel.
+- Cap visible zone drawings and signal labels.
+
+- [ ] Implement Pine changes matching documented rules.
+- [ ] Static inspect Pine syntax and compare formulas to Node helpers.
+- [ ] Note that TradingView Pine Editor compile and symbol-by-symbol visual QA remain manual gates.
+
+### Task 4: Final validation and review
+
+**Files:**
+- Modify: indicator/README.md if needed.
+
+- [ ] Run full Node test suite and syntax checks.
+- [ ] Inspect diff for accidental secrets, paid dependencies, BTC-only assumptions, or public-publishing behavior.
+- [ ] Open a draft PR; do not merge, publish, deploy, or activate checkout.
