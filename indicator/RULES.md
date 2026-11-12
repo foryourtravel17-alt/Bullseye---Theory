@@ -75,3 +75,14 @@ Evaluate only a completed candle, only on 15m or 1h, and only against a valid zo
 - Both implementations must use the same strict pivot comparisons, ATR-at-pivot clustering rule, seed-anchored clustering, zone boundaries, thresholds, strict volume test, stop/target equations, and cooldown boundary.
 - Supported timeframe identifiers are `15m` and `1h`; API adapters must normalize exchange interval strings to these identifiers before evaluation.
 - Tests use fixed candles and exact expected numeric outputs. Any intentional rule change requires updating this document and both implementations together.
+
+
+## 9. Optional market context (v1)
+
+- EMA 20 and EMA 50 are calculated from the active chart close. Trend is BULLISH when EMA20 > EMA50 and close > EMA20; BEARISH when EMA20 < EMA50 and close < EMA20; otherwise NEUTRAL. Insufficient history is UNAVAILABLE.
+- RSI uses TradingView RSI(14). Bullish context is RSI > 50 and < 75; bearish context is RSI < 50 and > 25. Values outside those bands are neutral context, not a standalone trade signal.
+- VWAP is intraday session VWAP of hlc3. It is unavailable when the chart is not intraday or the feed lacks usable volume.
+- Context is informational by default and does not alter the core breakout signal. Strict-confirmation mode is optional and OFF by default. Only selected confirmation toggles are applied as gates.
+- Volume unavailable/zero means no volume-qualified signal. The status panel must show N/A or an explicit warning rather than infer missing values.
+- Visible zone drawings and signal labels are capped by user settings to reduce chart clutter; the cap affects display only, not the core zone calculations or signal cooldown state.
+- The indicator reads the active chart symbol. It does not scan all NSE tickers simultaneously. Exchange data availability and symbol naming depend on the user's TradingView feed/entitlement.
