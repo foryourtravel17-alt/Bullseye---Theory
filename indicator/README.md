@@ -32,3 +32,11 @@ The source repository `ai-trending-content-factory` was verified private on 10 N
 
 ## Free context tools
 The Pine chart includes EMA 20/50 trend, RSI 14 momentum, and intraday VWAP context. These are informational by default. The optional strict-confirmation switch is OFF by default; if enabled, only the confirmation toggles selected by the user gate new signals. The panel marks missing data as N/A.
+
+
+## Expanded intraday toolkit (v1.1 draft)
+- Previous Day High/Low reference levels from the prior completed daily candle.
+- EMA 200 long-term trend reference.
+- Relative volume (chart-bar volume / 20-bar average) and ATR percentage context.
+- These are optional visual/context tools; they do not silently change the core breakout rules or guarantee a setup.
+- The same universal indicator is intended for liquid NSE symbols; no stock-specific duplicate scripts are required. Example watchlist for owner/client QA: HDFCBANK, ICICIBANK, SBIN, AXISBANK, KOTAKBANK, RELIANCE, BHARTIARTL, BAJFINANCE, INFY, TCS, TATASTEEL and PNB. Check current liquidity and spreads before trading; symbol activity changes day to day.
