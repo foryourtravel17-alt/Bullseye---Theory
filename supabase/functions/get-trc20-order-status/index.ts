@@ -49,7 +49,8 @@ Deno.serve(async (req: Request) => {
   }
   if (!order) return respond({ error: "Payment order not found" }, 404);
   let indicatorEntitlement: { is_active: boolean; payment_verified: boolean; expires_at: string | null } | null = null;
-  if (order.plan_code === "indicator" && order.status === "paid") {
+  let courseEntitlement: { is_active: boolean; payment_verified: boolean; expires_at: string | null } | null = null;
+  if (order.status === "paid" && order.plan_code === "indicator") {
     const { data: access, error: accessError } = await admin.from("indicator_access")
       .select("is_active,payment_verified,expires_at")
       .eq("user_id", userData.user.id)
@@ -59,6 +60,16 @@ Deno.serve(async (req: Request) => {
       return respond({ error: "Unable to verify indicator entitlement" }, 503);
     }
     indicatorEntitlement = access;
+  } else if (order.status === "paid") {
+    const { data: access, error: accessError } = await admin.from("course_access")
+      .select("is_active,payment_verified,expires_at")
+      .eq("user_id", userData.user.id)
+      .maybeSingle();
+    if (accessError) {
+      console.error("Bullseye course entitlement read failed:", accessError);
+      return respond({ error: "Unable to verify course entitlement" }, 503);
+    }
+    courseEntitlement = access;
   }
 
   const atomic = String(order.usdt_amount_atomic).padStart(7, "0");
@@ -73,5 +84,7 @@ Deno.serve(async (req: Request) => {
     access_days: order.plan_code === "indicator" ? 365 : 85,
     indicator_access_active: indicatorEntitlement ? indicatorEntitlement.is_active && indicatorEntitlement.payment_verified && !!indicatorEntitlement.expires_at && Date.parse(indicatorEntitlement.expires_at) > Date.now() : null,
     indicator_access_expires_at: indicatorEntitlement?.expires_at ?? null,
+    course_access_active: courseEntitlement ? courseEntitlement.is_active && courseEntitlement.payment_verified && !!courseEntitlement.expires_at && Date.parse(courseEntitlement.expires_at) > Date.now() : null,
+    course_access_expires_at: courseEntitlement?.expires_at ?? null,
   });
 });
