@@ -1,9 +1,11 @@
 function ema(values, period) {
   if (!Array.isArray(values) || !Number.isInteger(period) || period < 1 || values.length < period) return null;
   if (!values.every(Number.isFinite)) return null;
+  // TradingView ta.ema seeds from the first available source value, then applies
+  // alpha = 2 / (period + 1) on every subsequent bar.
   const alpha = 2 / (period + 1);
-  let current = values.slice(0, period).reduce((sum, value) => sum + value, 0) / period;
-  for (let i = period; i < values.length; i += 1) current = values[i] * alpha + current * (1 - alpha);
+  let current = values[0];
+  for (let i = 1; i < values.length; i += 1) current = values[i] * alpha + current * (1 - alpha);
   return current;
 }
 
