@@ -41,3 +41,10 @@ Turn Bullseye Levels into a symbol-agnostic indicator whose default guidance and
 - A compact status panel reports symbol, exchange, timeframe support, volume availability, trend, RSI and VWAP context.
 - Limit visible historical zones to a user-configurable small maximum; keep zone state and signal cooldown deterministic.
 - NSE is a product focus, not a symbol lock: indicator remains usable on any supported chart symbol.
+
+
+## v1.1 intraday toolkit extension
+- Add optional previous completed day high/low levels, EMA 200, relative volume, and ATR percentage context.
+- Keep all new context informational by default; core signal gates and risk model remain unchanged.
+- Keep one universal symbol-agnostic script. Maintain a documented liquid-NSE watchlist for QA rather than forking a separate script per stock.
+- Verify prior-day levels do not repaint, panel layout remains readable, and no unavailable-volume data is fabricated.
