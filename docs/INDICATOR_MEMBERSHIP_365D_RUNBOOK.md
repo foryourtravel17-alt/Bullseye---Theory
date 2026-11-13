@@ -74,7 +74,7 @@ These are CI and disposable-database tests. They do not authorize a production m
 1. Confirm the order's plan is `indicator` and server status is `paid`.
 2. Confirm `get-indicator-access` reports `access_active=true` and a future `expires_at`.
 3. Collect the customer's TradingView username/profile link.
-4. Owner manually issues invite-only access to the private TradingView script.
+4. Owner manually grants access to the **public invite-only** TradingView script; commercial access must not be sold through a private publication.
 5. Record the invitation date and entitlement expiry in the business's customer records.
 6. At expiry, owner manually removes or renews TradingView invite-only access. Database entitlement alone does not invite/revoke a TradingView user.
 
@@ -91,6 +91,60 @@ These are CI and disposable-database tests. They do not authorize a production m
 
 - Do not enable either checkout flag while staging, policy and manual access checks are incomplete.
 - Do not use a real USDT transfer as a test.
-- Do not publish the Pine script publicly.
+- Do not publish the Pine script as open-source or protected. Only publish as **Public + Invite-only** after Premium/Ultimate eligibility, moderator review and all release gates are satisfied.
 - Do not promise automatic TradingView invite delivery.
 - Do not deploy or merge merely because CI is green.
+
+
+## TradingView invite-only publishing and customer access — owner runbook
+
+**Current owner account:** TradingView Basic (shown in the owner's TradingView screenshots, 13 Nov 2026). Basic cannot publish invite-only scripts. TradingView requires an active **Premium or Ultimate** plan to publish/manage invite-only scripts. Do not purchase an upgrade now; keep the project on the ₹0-investment path and defer this step until the business is ready to fund the required TradingView tier.
+
+### Correct publication type for a paid commercial indicator
+
+- Use **Public publication + Invite-only access**. This is the supported commercial model when selling access outside TradingView.
+- Do **not** sell a private invite-only publication. TradingView says private publications are for private/internal use, are capped at five users, and must not be used to sell access.
+- A public invite-only script is visible as a publication, but only users whom the author explicitly grants access can add/run it; the Pine source remains closed.
+- Open-source and Protected scripts are not valid paid-access substitutes: anyone can use them, and TradingView says they must remain free.
+- Since Bullseye intends to serve more than five customers, do not start on a private invite-only publication.
+
+Official TradingView guidance:
+- Publishing invite-only scripts: https://www.tradingview.com/support/solutions/43000614617-publishing-invite-only-scripts/
+- Vendor Requirements: https://www.tradingview.com/support/solutions/43000549951-vendor-requirements/
+- Invite-only Script Rules: https://www.tradingview.com/support/solutions/43000797311-invite-only-script-rules/
+- Selling scripts FAQ: https://www.tradingview.com/support/solutions/43000797373-selling-scripts-on-tradingview/
+
+### One-time author setup (only after Premium/Ultimate is active and final script QA passes)
+
+1. Sign in to the **owner's own** TradingView account on the web and open the final saved Bullseye India Pine script in Pine Editor.
+2. Select **Publish script**. Choose a **Public** publication and **Invite-only** access. Do not select Open-source or Protected.
+3. Use the approved product title and write a truthful description of the script's original features, supported intervals (15m and 1h), supported chart-symbol workflow, volume/data limitations, non-broker-execution nature, and risk disclaimer. Do not promise accuracy, profits, win-rate, or guaranteed returns.
+4. Fill the **Author's instructions** field with a simple process explaining that a customer must first request access and provide their exact TradingView username after the business has independently verified their order. Avoid soliciting/spamming users who have not requested access.
+5. Submit for TradingView moderation. Wait for publication approval; do not assume submission means the script is already available. Keep the Pine source in the private GitHub product repository and do not paste it into public descriptions, comments, posts or screenshots.
+6. Once approved, open the script's publication page. The author should see **Manage access**. If that button is absent, stop and check plan, publication type and moderation status rather than publishing a second copy.
+
+### Grant one customer access (manual; database entitlement does not grant TradingView access)
+
+1. First, independently verify the paid order and confirm the server's indicator entitlement is active with a future `expires_at`. (Payment verification is intentionally deferred to the owner's separate manual process.)
+2. Ask the customer for their exact TradingView username/profile URL. Do not grant access to users who did not explicitly request it.
+3. Open the public invite-only script page → **Manage access** → add the customer's TradingView username.
+4. Set the access start/end dates. Set the end date to the same 365-day entitlement expiry recorded in the business ledger, then confirm the grant.
+5. Tell the customer to open TradingView, search the author's published script / open the publication link, and add it to their chart. Only invited users can run it.
+6. Record TradingView username, order reference, grant timestamp, expiry timestamp, and operator in the restricted business access ledger. Never record passwords or API tokens.
+
+### Renewal, expiry, refund and removal
+
+- On a separately verified renewal, edit the user's access end date in **Manage access** to match the newly confirmed entitlement expiry.
+- On expiry, cancellation, refund, chargeback or confirmed access withdrawal, remove/revoke the TradingView user promptly in **Manage access** and record the action. Do not assume Supabase expiry automatically revokes TradingView access.
+- Reconcile the TradingView access list against the business entitlement ledger on a regular schedule. Only the owner/admin performs these operations; no supported API integration has been verified.
+- From 1 Feb 2027, TradingView's published rules introduce seats for active users of public/private invite-only scripts (Paid Space users are treated differently). Recheck the then-current rules and seat allowance before scaling access.
+
+### TradingView vendor-compliance requirements
+
+- Grant access only to users who explicitly requested it; honour removal requests.
+- Explain what the indicator does and its limitations. Avoid deceptive or unsupported performance claims.
+- Do not use a private invite-only script to charge customers. Do not use an Open or Protected publication for paid access.
+- Do not publish multiple near-identical scripts as separate market/timeframe suites; keep Bullseye as one universal symbol-agnostic script with the supported markets/timeframes explained.
+- Do not spam TradingView users or use the script publication description/comments to promote external businesses. Keep access instructions factual and use the allowed author-signature/profile areas for permitted links.
+- TradingView's vendor and publishing rules can change; recheck the linked official pages before the actual publication date.
+
