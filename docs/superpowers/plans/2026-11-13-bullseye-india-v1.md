@@ -67,7 +67,10 @@
 
 - [x] Implement Pine changes matching documented rules.
 - [x] TradingView Pine Editor compiled and added the indicator to a BTCUSD 15-minute chart; the context panel rendered successfully (owner screenshot, 13 Nov 2026).
-- [ ] Verify on NSE equity, index and futures charts; BTCUSD smoke test does not establish Indian-market feed compatibility.
+- [x] Verify NSE equity charts: RELIANCE and TCS on 15m and 1h; owner screenshots show indicator panel, confirmed timeframe and available volume (13 Nov 2026).
+- [x] Verify NSE index charts: NIFTY 50 and BANKNIFTY on 15m and 1h; owner screenshots show indicator panel, confirmed timeframe and available volume (13 Nov 2026).
+- [ ] Verify NSE stock/index futures feeds separately; not required for the initial equity/index release and not yet tested.
+- [ ] Validate historical signal parity, completed-bar behaviour and non-repainting across fixed candle fixtures; visual chart loading is not a profitability or signal-accuracy test.
 
 ### Task 4: Final validation and review
 
