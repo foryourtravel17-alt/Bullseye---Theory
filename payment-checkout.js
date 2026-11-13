@@ -77,6 +77,11 @@
         setStatus("Payment verified. Your 365-day indicator entitlement is active. TradingView invite-only access is issued separately by the owner; wait for the private invitation.", "success");
         paidLink.hidden = true;
       } else {
+        if (!data.course_access_active) {
+          setStatus("Payment is marked paid, but course entitlement could not be confirmed. Do not send again; contact support with your order reference.", "error");
+          button.disabled = true;
+          return true;
+        }
         if (data.course_access_expires_at) expiryNode.textContent = formatExpiry(data.course_access_expires_at);
         if (expiryLabel) expiryLabel.textContent = "COURSE ACCESS EXPIRES";
         setStatus("This order is already paid and verified. Course access is active for your account.", "success");
@@ -185,6 +190,11 @@
           setStatus("Payment verified on TRON Mainnet. Your annual indicator entitlement is active. TradingView invite-only access will be issued manually by the owner.", "success");
           paidLink.hidden = true;
         } else {
+          if (!data.course_access_active) {
+            setStatus("Payment is marked paid, but course entitlement is not confirmed. Do not send again; contact support with your order reference.", "error");
+            button.disabled = true;
+            return;
+          }
           if (data.course_access_expires_at) expiryNode.textContent = formatExpiry(data.course_access_expires_at);
           if (expiryLabel) expiryLabel.textContent = "COURSE ACCESS EXPIRES";
           setStatus("Payment verified on TRON Mainnet. Course access has been activated for your account.", "success");
