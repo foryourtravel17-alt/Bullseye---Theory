@@ -27,3 +27,6 @@ jobs:
       - name: Check server syntax
         working-directory: indicator
         run: node --check server.mjs
+      - name: Check historical CSV validator syntax
+        working-directory: indicator
+        run: node --check scripts/validate-tradingview-export.mjs
