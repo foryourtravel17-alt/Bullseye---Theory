@@ -1,4 +1,5 @@
 import { TRON_MAINNET_USDT_CONTRACT, TRON_RECEIVING_WALLET } from "../_shared/trc20.ts";
+import { isProductEnabled } from "../_shared/product-plans.ts";
 
 const SITE_ORIGIN = Deno.env.get("ALLOWED_SITE_ORIGIN") || "https://bullseye-theory.foryourtravel17.workers.dev";
 const headers = {
@@ -17,24 +18,31 @@ Deno.serve((req: Request) => {
     });
   }
 
-  const accessDays = 85;
   const checkoutEnabled =
     Deno.env.get("USDT_CHECKOUT_ENABLED") === "true" &&
     Boolean(Deno.env.get("TRONGRID_API_KEY")) &&
     Boolean(Deno.env.get("TRC20_SCANNER_CRON_SECRET")) &&
     Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"));
-  const premiumEnabled = checkoutEnabled && Deno.env.get("PREMIUM_CHECKOUT_ENABLED") === "true";
+  const flags = {
+    checkout: checkoutEnabled,
+    premium: Deno.env.get("PREMIUM_CHECKOUT_ENABLED") === "true",
+    indicator: Deno.env.get("INDICATOR_CHECKOUT_ENABLED") === "true",
+  };
+  const premiumEnabled = isProductEnabled("premium", flags);
+  const indicatorEnabled = isProductEnabled("indicator", flags);
   return new Response(JSON.stringify({
     checkout_enabled: checkoutEnabled,
     course_enabled: checkoutEnabled,
     premium_enabled: premiumEnabled,
+    indicator_enabled: indicatorEnabled,
     network: "TRON Mainnet · TRC-20",
     wallet_address: TRON_RECEIVING_WALLET,
     token_contract: TRON_MAINNET_USDT_CONTRACT,
-    plans: { course_inr: 999, premium_inr: 1999 },
-    course_access_days: checkoutEnabled ? accessDays : null,
+    plans: { course_inr: 999, premium_inr: 1999, indicator_inr: 9999 },
+    course_access_days: checkoutEnabled ? 85 : null,
+    indicator_access_days: indicatorEnabled ? 365 : null,
     message: checkoutEnabled
-      ? "Course checkout is configured. Sign in to create a time-limited payment order."
+      ? "Payment checkout is configured. Sign in to create a time-limited order for an enabled product."
       : "Checkout is closed while payment verification is being configured and tested.",
   }), { headers: { ...headers, "Content-Type": "application/json" } });
 });
