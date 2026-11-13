@@ -169,3 +169,12 @@ This indicator does not scan every NSE symbol at once, execute broker orders, gu
 To request access, first complete the order process through the owner's official customer channel. After the owner independently confirms the applicable entitlement, send your exact TradingView username (not your password) so the owner can add the account through Manage access. Allow time for manual access review. Access expires on the date assigned by the author and must be renewed separately.
 
 Do not include customer prices, performance claims, external promotional links or testimonials in the script description. Final text must be reviewed against the current TradingView Vendor Requirements before submission.
+
+
+## Owner preference: payment verification stays manual for now
+
+- The owner has deferred wallet/payment-verification decisions and explicitly wants payment verification and customer fulfilment to remain manual for the initial launch phase.
+- Do not request wallet details, publish transfer instructions, perform real-money tests, enable USDT_CHECKOUT_ENABLED, enable INDICATOR_CHECKOUT_ENABLED, or turn on the TRC-20 scanner.
+- The TRC-20 finalizer/order code in this draft is dormant future plumbing only; passing CI is not authorization to accept payments or claim funds have been verified.
+- When the owner is ready, payment verification method, proof requirements, operator record, refund handling and any manual admin entitlement action must be agreed as a separate owner-controlled procedure. No automated verification should be switched on without a new explicit decision.
+- TradingView invitation remains a separate manual action after the owner has independently approved the payment and the correct 365-day entitlement period.
