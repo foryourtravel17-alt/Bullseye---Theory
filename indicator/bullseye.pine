@@ -204,6 +204,6 @@ if barstate.islast
         table.cell(statusTable, 0, 8, "Rel. Volume", text_color=color.silver)
         table.cell(statusTable, 1, 8, na(relativeVolume) ? "N/A" : str.tostring(relativeVolume, "#.00") + "x", text_color=not na(relativeVolume) and relativeVolume >= volumeMultiple ? color.lime : color.silver)
         table.cell(statusTable, 0, 9, "ATR %", text_color=color.silver)
-        table.cell(statusTable, 1, 9, na(atrPercent) ? "N/A" : str.tostring(atrPercent, "#.00") + "%", text_color=color.white)
+        table.cell(statusTable, 1, 9, na(atrPercent) ? "N/A" : str.tostring(atrPercent, "#.00") + "%", text_color=color.black, bgcolor=color.new(color.silver, 75))
     else
         table.clear(statusTable, 0, 0, 1, 9)
