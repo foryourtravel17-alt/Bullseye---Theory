@@ -24,6 +24,9 @@ on:
       - "scripts/check-edge-function-contracts.sh"
       - "supabase/config.toml"
       - "docs/FREE_LOCAL_STAGING.md"
+      - "market-briefs.json"
+      - "scripts/validate-market-briefs.mjs"
+      - "docs/market-review-*.md"
       - ".github/workflows/edge-function-checks.yml"
   workflow_dispatch:
 permissions:
