@@ -78,6 +78,7 @@
 - Modify: indicator/README.md if needed.
 
 - [x] Full Node test suite and server syntax checks passed in GitHub Actions run #16; v1.1 overlay contract tests and engine suite passed in run #21.
-- [x] Fixed ATR % panel value contrast for light-theme charts and added a regression contract test; GitHub Actions run #26 passed on the resulting head.
+- [x] Fixed ATR % panel value contrast for light-theme charts and added a regression contract test; GitHub Actions run #27 passed.
+- [x] Added Pine rule-parity contract tests for fixed thresholds, completed-candle gates and prior-day levels; GitHub Actions run #28 passed.
 - [x] Inspect current PR diff for secrets, paid dependencies, BTC-only assumptions, and public-publishing behavior.
 - [x] Open draft PR #45; do not merge, publish, deploy, or activate checkout.
