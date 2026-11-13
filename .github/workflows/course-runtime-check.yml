@@ -8,6 +8,9 @@ on:
       - "package.json"
       - "dashboard.html"
       - "certificate.html"
+      - "market-briefs.json"
+      - "scripts/validate-market-briefs.mjs"
+      - "docs/market-review-*.md"
       - ".github/workflows/course-runtime-check.yml"
   workflow_dispatch:
 
