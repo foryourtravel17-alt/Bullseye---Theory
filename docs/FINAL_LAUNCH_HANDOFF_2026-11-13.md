@@ -23,7 +23,7 @@ Prices remain planned presentation values. Enrollment is closed, checkout/paymen
 
 ## India indicator implementation in PR #49
 - Removed Binance-only live crypto klines from the web dashboard.
-- Added a user-supplied TradingView CSV upload flow for NSE/BSE symbols.
+- Added a user-supplied OHLCV CSV upload flow for NSE/BSE symbols.
 - Added 5 MB upload limit, in-memory parsing, chronological/OHLC validation, 15m/1h selection and historical report.
 - Added candlestick chart, signal history table and mobile layout.
 - Added HTTP API tests for valid CSV, unsupported intervals, malformed input and private-source file access.
