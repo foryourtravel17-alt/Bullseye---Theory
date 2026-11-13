@@ -148,3 +148,24 @@ Official TradingView guidance:
 - Do not spam TradingView users or use the script publication description/comments to promote external businesses. Keep access instructions factual and use the allowed author-signature/profile areas for permitted links.
 - TradingView's vendor and publishing rules can change; recheck the linked official pages before the actual publication date.
 
+
+
+### Draft TradingView publication copy (owner review before publishing)
+
+**Suggested script title:** Bullseye India — Intraday Context & Confirmed Breakouts
+
+**Description draft:**
+
+Bullseye India is a chart-symbol-based educational analysis indicator for supported NSE equities and indices where the user's TradingView data feed provides usable OHLCV. It is designed for 15-minute and 1-hour charts.
+
+The chart combines confirmed supply/demand zones and completed-candle breakout conditions with entry, stop and 1:2 reward/risk reference levels. Additional context includes EMA 20/50, EMA 200, RSI 14, intraday VWAP, previous completed-day high/low, relative volume and ATR percentage.
+
+Signals require a confirmed candle and the configured volume condition. Missing or unusable volume blocks a volume-qualified signal. Context overlays are informational by default; optional confirmation filters are disabled by default and only apply when the user enables them.
+
+This indicator does not scan every NSE symbol at once, execute broker orders, guarantee a trade, or guarantee returns. The user must verify exchange data availability, liquidity, spreads, execution costs and personal risk before acting. Historical examples are not promises of future performance.
+
+**Author's instructions draft:**
+
+To request access, first complete the order process through the owner's official customer channel. After the owner independently confirms the applicable entitlement, send your exact TradingView username (not your password) so the owner can add the account through Manage access. Allow time for manual access review. Access expires on the date assigned by the author and must be renewed separately.
+
+Do not include customer prices, performance claims, external promotional links or testimonials in the script description. Final text must be reviewed against the current TradingView Vendor Requirements before submission.
