@@ -6,13 +6,37 @@
 <title>Bullseye Theory — Student Access</title>
 <style>
 :root{--bg:#050b0a;--panel:#0b1815;--line:#214238;--text:#eff8f3;--muted:#91aaa1;--green:#a8ff61;--gold:#e4b957;--danger:#ff8f8f}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 85% 0,#123b31 0,transparent 35%),var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif;display:grid;place-items:center;padding:24px}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 85% 0,#123b31 0,transparent 35%),var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif;display:grid;place-items:center;padding:24px}
 .shell{width:min(1050px,100%);display:grid;grid-template-columns:1.05fr .95fr;border:1px solid var(--line);border-radius:24px;overflow:hidden;background:#081310ee;box-shadow:0 30px 100px #0009}
-.brand{padding:48px;background:linear-gradient(145deg,#0b211b,#07100e);border-right:1px solid var(--line)}
-.logo{font-weight:900;letter-spacing:2px}.logo i{color:var(--green);font-style:normal}.eyebrow{color:var(--green);font-size:10px;font-weight:900;letter-spacing:2px;margin-top:70px}.brand h1{font-size:clamp(40px,6vw,68px);line-height:.98;letter-spacing:-3px;margin:16px 0}.brand h1 span{color:var(--green)}.brand p{color:var(--muted);line-height:1.8;max-width:520px}.points{margin-top:30px;display:grid;gap:12px}.point{border:1px solid var(--line);padding:14px;border-radius:12px;color:#cfe0d9}.point b{color:var(--green);margin-right:7px}
-.card{padding:36px;background:#081511}.tabs{display:flex;gap:8px;margin-bottom:25px}.tab{flex:1;border:1px solid var(--line);background:#0b1b17;color:var(--muted);padding:12px;border-radius:10px;font-weight:800;cursor:pointer}.tab.active{background:var(--green);color:#07100f}.form{display:none}.form.active{display:block}.form h2{margin:0 0 8px}.sub{color:var(--muted);font-size:13px;margin:0 0 22px}.field{margin:14px 0}.field label{display:block;font-size:12px;color:#b6cbc3;margin-bottom:7px}.field input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;background:#06100e;color:var(--text);outline:none}.field input:focus{border-color:var(--green)}.submit{width:100%;border:0;background:var(--green);color:#07100f;padding:14px;border-radius:10px;font-weight:900;cursor:pointer;margin-top:8px}.link{background:none;border:0;color:var(--green);padding:10px 0;cursor:pointer}.message{margin:16px 0;padding:12px;border-radius:10px;font-size:13px;line-height:1.5}.message[hidden]{display:none}.message.error{background:#321719;border:1px solid #6c3033;color:#ffc0c0}.message.success{background:#102a1c;border:1px solid #315b40;color:#c9ffd4}.footer{color:#647d73;font-size:11px;margin-top:20px;text-align:center}@media(max-width:800px){.shell{grid-template-columns:1fr}.brand{display:none}.card{padding:28px 22px}}
+.brand{padding:48px;background:linear-gradient(145deg,#0b211b,#07100e);border-right:1px solid var(--line);min-width:0}
+.logo{font-weight:900;letter-spacing:2px}.logo i{color:var(--green);font-style:normal}
+.eyebrow{color:var(--green);font-size:10px;font-weight:900;letter-spacing:2px;margin-top:70px}
+.brand h1{font-size:clamp(34px,4.2vw,56px);line-height:1.04;letter-spacing:-2px;margin:16px 0;max-width:100%;overflow-wrap:normal;word-break:normal;hyphens:none}
+.brand h1 span{color:var(--green)}
+.brand p{color:var(--muted);line-height:1.8;max-width:520px}
+.points{margin-top:30px;display:grid;gap:12px}
+.point{border:1px solid var(--line);padding:14px;border-radius:12px;color:#cfe0d9}
+.point b{color:var(--green);margin-right:7px}
+.card{padding:36px;background:#081511;min-width:0}
+.tabs{display:flex;gap:8px;margin-bottom:25px}
+.tab{flex:1;border:1px solid var(--line);background:#0b1b17;color:var(--muted);padding:12px;border-radius:10px;font-weight:800;cursor:pointer}
+.tab.active{background:var(--green);color:#07100f}
+.form{display:none}.form.active{display:block}
+.form h2{margin:0 0 8px}.sub{color:var(--muted);font-size:13px;margin:0 0 22px}
+.field{margin:14px 0}.field label{display:block;font-size:12px;color:#b6cbc3;margin-bottom:7px}
+.field input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;background:#06100e;color:var(--text);outline:none}
+.field input:focus{border-color:var(--green)}
+.submit{width:100%;border:0;background:var(--green);color:#07100f;padding:14px;border-radius:10px;font-weight:900;cursor:pointer;margin-top:8px}
+.link{background:none;border:0;color:var(--green);padding:10px 0;cursor:pointer}
+.message{margin:16px 0;padding:12px;border-radius:10px;font-size:13px;line-height:1.5}
+.message[hidden]{display:none}.message.error{background:#321719;border:1px solid #6c3033;color:#ffc0c0}
+.message.success{background:#102a1c;border:1px solid #315b40;color:#c9ffd4}
+.footer{color:#647d73;font-size:11px;margin-top:20px;text-align:center}
+@media(max-width:800px){.shell{grid-template-columns:1fr}.brand{display:none}.card{padding:28px 22px}}
 </style>
-<link rel="stylesheet" href="motion-system.css?v=20260929">\n</head>
+<link rel="stylesheet" href="motion-system.css?v=20260929">
+</head>
 <body>
 <div class="shell">
 <section class="brand">
@@ -31,9 +55,7 @@
     <button class="tab active" id="loginTab">LOGIN</button>
     <button class="tab" id="signupTab">CREATE ACCOUNT</button>
   </div>
-
   <div id="message" class="message" hidden></div>
-
   <form id="loginForm" class="form active">
     <h2>Student Login</h2><p class="sub">Use the email and password you registered with.</p>
     <div class="field"><label>Email</label><input id="loginEmail" type="email" required autocomplete="email"></div>
@@ -41,7 +63,6 @@
     <button class="submit" type="submit">ENTER STUDENT AREA →</button>
     <button class="link" id="forgotBtn" type="button">Forgot password?</button>
   </form>
-
   <form id="signupForm" class="form">
     <h2>Create your student account</h2><p class="sub">Create an account now. Course access is activated separately after payment verification.</p>
     <div class="field"><label>Full name</label><input id="signupName" type="text" required autocomplete="name"></div>
@@ -50,7 +71,6 @@
     <div class="field"><label>Confirm password</label><input id="signupConfirm" type="password" required minlength="8" autocomplete="new-password"></div>
     <button class="submit" type="submit">CREATE ACCOUNT →</button>
   </form>
-
   <form id="resetForm" class="form">
     <h2>Reset password</h2><p class="sub">Enter your email and we’ll send a reset link.</p>
     <div class="field"><label>Email</label><input id="resetEmail" type="email"></div>
@@ -68,5 +88,6 @@ function tab(which){loginTab.classList.toggle("active",which==="login");signupTa
 loginTab.onclick=()=>tab("login");signupTab.onclick=()=>tab("signup");
 document.getElementById("forgotBtn").onclick=async()=>{const email=document.getElementById("loginEmail").value.trim();if(!email){setMessage("Enter your email first.","error");return}const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:new URL("reset-password.html",location.href).href});setMessage(error?error.message:"Password reset email sent. Check your inbox.","success")};
 </script>
-<script src="motion-system.js?v=20260929"></script>\n</body>
+<script src="motion-system.js?v=20260929"></script>
+</body>
 </html>
