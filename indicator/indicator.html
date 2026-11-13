@@ -75,7 +75,8 @@ document.getElementById('analyze').addEventListener('click',async()=>{
  const button=document.getElementById('analyze');button.disabled=true;button.textContent='Analyzing…';
  try{
   const csv=await file.text();
-  const response=await fetch('/api/analyze-csv',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({csv,timeframe:document.getElementById('timeframe').value,symbol:document.getElementById('symbol').value})});
+  const query=new URLSearchParams({timeframe:document.getElementById('timeframe').value,symbol:document.getElementById('symbol').value});
+  const response=await fetch('/api/analyze-csv?'+query.toString(),{method:'POST',headers:{'Content-Type':'text/csv'},body:csv});
   const data=await response.json();if(!response.ok)throw new Error(data.error||'Analysis failed');
   render(data);
   setMessage('Validated '+data.fileRows+' rows. '+(data.hasVolumeColumn?'Volume column found.':'Volume column missing — volume-qualified signals will be blocked.')+' Last row excluded: '+data.lastRowExcluded+'.','success');
