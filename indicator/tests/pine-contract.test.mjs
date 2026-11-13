@@ -35,3 +35,15 @@ test('Pine drawing cleanup tracks zone indices without comparing drawing object 
   assert.match(source, /array.set\(zoneBoxes, oldestZoneIndex, na\)/);
   assert.doesNotMatch(source, /array\.get\(zoneBoxes, zoneIndex\) == oldest/);
 });
+
+test('India intraday toolkit includes prior-day levels, EMA200, relative volume and ATR context', () => {
+  assert.ok(source.includes('request.security(syminfo.tickerid, "D", high[1], lookahead=barmerge.lookahead_on)'));
+  assert.ok(source.includes('request.security(syminfo.tickerid, "D", low[1], lookahead=barmerge.lookahead_on)'));
+  assert.ok(source.includes('plot(showPriorDayLevels ? previousDayHigh'));
+  assert.ok(source.includes('plot(showPriorDayLevels ? previousDayLow'));
+  assert.ok(source.includes('plot(showEma200 ? emaLong'));
+  assert.ok(source.includes('relativeVolume = volumeAvailable ? volume / volumeAverage : na'));
+  assert.ok(source.includes('"Rel. Volume"'));
+  assert.ok(source.includes('"ATR %"'));
+  assert.ok(source.includes('table.new(position.top_right, 2, 10'));
+});
