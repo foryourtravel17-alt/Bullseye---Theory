@@ -51,6 +51,7 @@ SQL
 
 psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f supabase/migrations/20261102170543_add_automatic_trc20_payment_orders.sql
 psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f supabase/migrations/20261102170555_set_course_access_validity_85_days.sql
+psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f supabase/migrations/20261113140000_add_indicator_membership_365d.sql
 
 psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
 insert into auth.users(id, email) values
@@ -94,6 +95,31 @@ insert into public.payment_orders (
    'TRON_MAINNET_TRC20', 'test_fixture', now(), 'pending',
    now() - interval '1 minute', now() + interval '20 minutes');
 SQL
+
+psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
+insert into public.payment_orders (
+  id, user_id, plan_code, inr_amount_paise, access_days,
+  usdt_inr_rate, usdt_amount_atomic, destination_wallet, token_contract,
+  network, quote_source, quote_observed_at, status, created_at, expires_at
+) values
+  ('10000000-0000-4000-8000-000000000005',
+   '00000000-0000-4000-8000-000000000002',
+   'indicator', 999900, 365, 83.5, 12500004,
+   'TF8aiK6Q8kboLBcaHtckapVpsEQyR3oWwV',
+   'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+   'TRON_MAINNET_TRC20', 'test_fixture', now(), 'pending',
+   now() - interval '2 minutes', now() + interval '20 minutes'),
+  ('10000000-0000-4000-8000-000000000006',
+   '00000000-0000-4000-8000-000000000002',
+   'indicator', 999900, 365, 83.5, 12500005,
+   'TF8aiK6Q8kboLBcaHtckapVpsEQyR3oWwV',
+   'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+   'TRON_MAINNET_TRC20', 'test_fixture', now(), 'pending',
+   now() - interval '1 minute', now() + interval '20 minutes');
+SQL
+
+HASH_D="$(printf 'd%.0s' {1..64})"
+HASH_E="$(printf 'e%.0s' {1..64})"
 
 HASH_A="$(printf 'a%.0s' {1..64})"
 HASH_B="$(printf 'b%.0s' {1..64})"
@@ -156,6 +182,58 @@ assert_result "paid" "SELECT public.finalize_trc20_payment(
   '$HASH_C', 12500003, '$FROM', '$WALLET', '$TOKEN', now(), 12345679
 )"
 
+assert_result "paid" "SELECT public.finalize_trc20_payment(
+  '10000000-0000-4000-8000-000000000005',
+  '$HASH_D', 12500004, '$FROM', '$WALLET', '$TOKEN', now(), 12345680
+)"
+FIRST_INDICATOR_EXPIRY="$(psql "$DATABASE_URL" -X -qAtc "select extract(epoch from expires_at) from public.indicator_access where user_id='00000000-0000-4000-8000-000000000002'")"
+FIRST_INDICATOR_ACTIVATED="$(psql "$DATABASE_URL" -X -qAtc "select extract(epoch from activated_at) from public.indicator_access where user_id='00000000-0000-4000-8000-000000000002'")"
+
+assert_result "paid" "SELECT public.finalize_trc20_payment(
+  '10000000-0000-4000-8000-000000000006',
+  '$HASH_E', 12500005, '$FROM', '$WALLET', '$TOKEN', now(), 12345681
+)"
+SECOND_INDICATOR_EXPIRY="$(psql "$DATABASE_URL" -X -qAtc "select extract(epoch from expires_at) from public.indicator_access where user_id='00000000-0000-4000-8000-000000000002'")"
+SECOND_INDICATOR_ACTIVATED="$(psql "$DATABASE_URL" -X -qAtc "select extract(epoch from activated_at) from public.indicator_access where user_id='00000000-0000-4000-8000-000000000002'")"
+python - "$FIRST_INDICATOR_EXPIRY" "$SECOND_INDICATOR_EXPIRY" "$FIRST_INDICATOR_ACTIVATED" "$SECOND_INDICATOR_ACTIVATED" <<'PY'
+import sys, time
+first_expiry, second_expiry, first_activated, second_activated = map(float, sys.argv[1:])
+if not (364.9 * 86400 <= first_expiry - time.time() <= 365.1 * 86400):
+    raise SystemExit("First indicator payment did not grant approximately 365 days.")
+if not (364.9 * 86400 <= second_expiry - first_expiry <= 365.1 * 86400):
+    raise SystemExit("Indicator renewal did not extend the existing expiry by 365 days.")
+if first_activated != second_activated:
+    raise SystemExit("Indicator renewal unexpectedly reset the original activation timestamp.")
+print("PASS: indicator payment grants 365 days; renewal adds 365 days without resetting activation.")
+PY
+
+psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -qAtc "SET ROLE authenticated; SELECT public.admin_set_indicator_access('00000000-0000-4000-8000-000000000003', true, true, null); RESET ROLE;"
+ADMIN_INDICATOR_EXPIRY="$(psql "$DATABASE_URL" -X -qAtc "select extract(epoch from expires_at) from public.indicator_access where user_id='00000000-0000-4000-8000-000000000003'")"
+python - "$ADMIN_INDICATOR_EXPIRY" <<'PY'
+import sys, time
+expiry = float(sys.argv[1])
+if not (364.9 * 86400 <= expiry - time.time() <= 365.1 * 86400):
+    raise SystemExit("Admin indicator grant without explicit expiry did not default to 365 days.")
+print("PASS: blank admin indicator expiry defaults to 365 days.")
+PY
+
+psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
+do $indicator_separation$
+begin
+  if exists (select 1 from public.course_access where user_id='00000000-0000-4000-8000-000000000002' and is_active and payment_verified) then
+    raise exception 'Indicator purchase incorrectly granted course access';
+  end if;
+  if exists (select 1 from public.indicator_access where user_id='00000000-0000-4000-8000-000000000001' and is_active and payment_verified) then
+    raise exception 'Course purchase incorrectly granted indicator access';
+  end if;
+  if has_table_privilege('anon', 'public.indicator_access', 'SELECT')
+     or has_table_privilege('authenticated', 'public.indicator_access', 'SELECT') then
+    raise exception 'Browser roles must not directly read indicator entitlement rows';
+  end if;
+end;
+$indicator_separation$;
+SQL
+
 SECOND_EXPIRY="$(psql "$DATABASE_URL" -X -qAtc "select extract(epoch from expires_at) from public.course_access where user_id='00000000-0000-4000-8000-000000000001'")"
 SECOND_ACTIVATED="$(psql "$DATABASE_URL" -X -qAtc "select extract(epoch from activated_at) from public.course_access where user_id='00000000-0000-4000-8000-000000000001'")"
 python - "$FIRST_EXPIRY" "$SECOND_EXPIRY" "$FIRST_ACTIVATED" "$SECOND_ACTIVATED" <<'PY'
@@ -183,8 +261,8 @@ PY
 psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
 do $$
 begin
-  if (select count(*) from public.payment_transactions) <> 2 then
-    raise exception 'Expected exactly two recorded payment transactions';
+  if (select count(*) from public.payment_transactions) <> 4 then
+    raise exception 'Expected exactly four recorded payment transactions';
   end if;
   if (select status from public.payment_orders where id = '10000000-0000-4000-8000-000000000001') <> 'paid' then
     raise exception 'Successful payment order not marked paid';
@@ -196,10 +274,19 @@ begin
     raise exception 'Expired order was not marked expired';
   end if;
   if (select count(*) from public.course_access where is_active and payment_verified and expires_at is null) <> 0 then
-    raise exception 'Active verified access without expiry was found';
+    raise exception 'Active verified course access without expiry was found';
+  end if;
+  if (select status from public.payment_orders where id = '10000000-0000-4000-8000-000000000005') <> 'paid' then
+    raise exception 'Successful indicator order not marked paid';
+  end if;
+  if (select count(*) from public.indicator_access where user_id='00000000-0000-4000-8000-000000000002' and is_active and payment_verified and expires_at > now()) <> 1 then
+    raise exception 'Verified indicator entitlement not active';
+  end if;
+  if (select count(*) from public.indicator_access where is_active and payment_verified and expires_at is null) <> 0 then
+    raise exception 'Active verified indicator access without expiry was found';
   end if;
 end;
 $$;
 SQL
 
-echo "PASS: TRC-20 PostgreSQL migrations, payment finalization, renewal and 85-day admin expiry integration tests."
+echo "PASS: TRC-20 payment finalization, isolated course/indicator entitlements, 85-day course renewal and 365-day indicator renewal/admin grants."

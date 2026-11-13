@@ -6,6 +6,7 @@
   const orderPanel = byId("orderPanel");
   const amountNode = byId("orderAmount");
   const expiryNode = byId("orderExpiry");
+  const expiryLabel = byId("orderExpiryLabel");
   const copyButton = byId("copyOrderWallet");
   const paidLink = byId("paidDashboard");
   if (!button || !window.supabase || !window.BULLSEYE_SUPABASE_URL || !window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY) {
@@ -65,8 +66,27 @@
 
     if (data.status === "paid") {
       clearActiveOrder();
-      setStatus("This order is already paid and verified. Course access is active for your account.", "success");
-      paidLink.hidden = false;
+      if (data.plan === "indicator") {
+        if (!data.indicator_access_active) {
+          setStatus("Payment is marked paid, but the 365-day indicator entitlement could not be confirmed. Do not send again; contact support with your order reference.", "error");
+          button.disabled = true;
+          return true;
+        }
+        if (data.indicator_access_expires_at) expiryNode.textContent = formatExpiry(data.indicator_access_expires_at);
+        if (expiryLabel) expiryLabel.textContent = "INDICATOR ACCESS EXPIRES";
+        setStatus("Payment verified. Your 365-day indicator entitlement is active. TradingView invite-only access is issued separately by the owner; wait for the private invitation.", "success");
+        paidLink.hidden = true;
+      } else {
+        if (!data.course_access_active) {
+          setStatus("Payment is marked paid, but course entitlement could not be confirmed. Do not send again; contact support with your order reference.", "error");
+          button.disabled = true;
+          return true;
+        }
+        if (data.course_access_expires_at) expiryNode.textContent = formatExpiry(data.course_access_expires_at);
+        if (expiryLabel) expiryLabel.textContent = "COURSE ACCESS EXPIRES";
+        setStatus("This order is already paid and verified. Course access is active for your account.", "success");
+        paidLink.hidden = false;
+      }
       button.disabled = true;
       return true;
     }
@@ -139,7 +159,12 @@
     if (data.premium_enabled) {
       planSelect.querySelector('option[value="premium"]').disabled = false;
     }
-    setStatus("Course checkout is available. Each order gets a unique amount and a 20-minute payment window.", "success");
+    if (data.indicator_enabled) {
+      planSelect.querySelector('option[value="indicator"]').disabled = false;
+    }
+    setStatus(data.indicator_enabled
+      ? "Course and annual indicator checkout are available. Indicator access is a separate 365-day entitlement; TradingView invitation is manual."
+      : "Course checkout is available. Annual indicator checkout remains closed until its separate entitlement and invitation process are approved.", "success");
   }
 
   async function pollOrder(orderId) {
@@ -154,8 +179,27 @@
       }
       if (data.status === "paid") {
         clearActiveOrder();
-        setStatus("Payment verified on TRON Mainnet. Course access has been activated for your account.", "success");
-        paidLink.hidden = false;
+        if (data.plan === "indicator") {
+          if (!data.indicator_access_active) {
+            setStatus("Payment is marked paid, but indicator entitlement is not confirmed. Do not send again; contact support with your order reference.", "error");
+            button.disabled = true;
+            return;
+          }
+          if (data.indicator_access_expires_at) expiryNode.textContent = formatExpiry(data.indicator_access_expires_at);
+          if (expiryLabel) expiryLabel.textContent = "INDICATOR ACCESS EXPIRES";
+          setStatus("Payment verified on TRON Mainnet. Your annual indicator entitlement is active. TradingView invite-only access will be issued manually by the owner.", "success");
+          paidLink.hidden = true;
+        } else {
+          if (!data.course_access_active) {
+            setStatus("Payment is marked paid, but course entitlement is not confirmed. Do not send again; contact support with your order reference.", "error");
+            button.disabled = true;
+            return;
+          }
+          if (data.course_access_expires_at) expiryNode.textContent = formatExpiry(data.course_access_expires_at);
+          if (expiryLabel) expiryLabel.textContent = "COURSE ACCESS EXPIRES";
+          setStatus("Payment verified on TRON Mainnet. Course access has been activated for your account.", "success");
+          paidLink.hidden = false;
+        }
         button.disabled = true;
         return;
       }
@@ -195,7 +239,7 @@
       return;
     }
     const selectedPlan = planSelect.value;
-    if (selectedPlan !== "course" && selectedPlan !== "premium") {
+    if (selectedPlan !== "course" && selectedPlan !== "premium" && selectedPlan !== "indicator") {
       setStatus("Choose a valid plan.", "error");
       button.disabled = false;
       return;
@@ -214,7 +258,9 @@
     amountNode.textContent = data.usdt_amount + " USDT";
     expiryNode.textContent = formatExpiry(data.expires_at);
     pollDeadline = new Date(data.expires_at).getTime() + 60 * 60 * 1000;
-    setStatus("Order created. Scan the QR, select TRON Mainnet / TRC-20, and send the exact amount shown. Do not send a rounded amount.");
+    setStatus(data.plan === "indicator"
+      ? "Indicator order created. Send only the exact amount shown on TRON Mainnet / TRC-20 before expiry. After verified payment, the 365-day entitlement is activated; TradingView invite-only access is a separate manual step."
+      : "Order created. Scan the QR, select TRON Mainnet / TRC-20, and send the exact amount shown. Do not send a rounded amount.");
     button.disabled = true;
     pollOrder(activeOrderId);
   });

@@ -1,8 +1,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { buildUsdtAmountAtomic, TRON_MAINNET_USDT_CONTRACT, TRON_RECEIVING_WALLET } from "../_shared/trc20.ts";
+import { isProductEnabled, resolveProductPlan } from "../_shared/product-plans.ts";
 
 const SITE_ORIGIN = Deno.env.get("ALLOWED_SITE_ORIGIN") || "https://bullseye-theory.foryourtravel17.workers.dev";
-const COURSE_ACCESS_DAYS = 85;
 const corsHeaders = {
   "Access-Control-Allow-Origin": SITE_ORIGIN,
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -45,10 +45,6 @@ Deno.serve(async (req: Request) => {
   if (!Deno.env.get("TRONGRID_API_KEY") || !Deno.env.get("TRC20_SCANNER_CRON_SECRET")) {
     return respond({ error: "Payment verification is not fully configured. Checkout remains closed." }, 503);
   }
-  // Access duration is a fixed product rule enforced by the database migration.
-  // Do not make the entitlement duration depend on a separately managed secret.
-  const accessDays = COURSE_ACCESS_DAYS;
-
   const url = Deno.env.get("SUPABASE_URL");
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -68,17 +64,23 @@ Deno.serve(async (req: Request) => {
   let body: { plan?: unknown };
   try { body = await req.json(); } catch { return respond({ error: "Invalid request body" }, 400); }
   const plan = body?.plan;
-  const plans = {
-    course: { inrPaise: 99900 },
-    premium: { inrPaise: 199900 },
-  } as const;
-  if (typeof plan !== "string" || !(plan in plans)) {
-    return respond({ error: "Select a valid Bullseye plan" }, 400);
+  const selected = resolveProductPlan(plan);
+  if (!selected) return respond({ error: "Select a valid Bullseye plan" }, 400);
+
+  const checkoutFlags = {
+    checkout: Deno.env.get("USDT_CHECKOUT_ENABLED") === "true",
+    premium: Deno.env.get("PREMIUM_CHECKOUT_ENABLED") === "true",
+    indicator: Deno.env.get("INDICATOR_CHECKOUT_ENABLED") === "true",
+  };
+  if (!isProductEnabled(selected.plan, checkoutFlags)) {
+    if (selected.plan === "indicator") {
+      return respond({ error: "Annual indicator checkout is not open yet. Do not transfer funds; no order was created." }, 503);
+    }
+    if (selected.plan === "premium") {
+      return respond({ error: "Premium checkout remains closed until its benefits and access duration are formally published." }, 503);
+    }
+    return respond({ error: "USDT checkout is not open yet. No payment has been created." }, 503);
   }
-  if (plan === "premium" && Deno.env.get("PREMIUM_CHECKOUT_ENABLED") !== "true") {
-    return respond({ error: "Premium checkout remains closed until its benefits and access duration are formally published." }, 503);
-  }
-  const selected = plans[plan as keyof typeof plans];
 
   let rate: number;
   try {
@@ -105,6 +107,7 @@ Deno.serve(async (req: Request) => {
     return respond({ error: "You already have three pending payment orders. Check their status or contact support before creating another." }, 429);
   }
   const inrAmount = selected.inrPaise / 100;
+  const accessDays = selected.accessDays;
   const expiresAt = new Date(now.getTime() + 20 * 60 * 1000).toISOString();
   let order: { id: string; usdt_amount_atomic: string; expires_at: string } | null = null;
   let lastError: unknown = null;
@@ -158,5 +161,6 @@ Deno.serve(async (req: Request) => {
     wallet_address: TRON_RECEIVING_WALLET,
     token_contract: TRON_MAINNET_USDT_CONTRACT,
     status: "pending",
+    access_days: accessDays,
   }, 201);
 });

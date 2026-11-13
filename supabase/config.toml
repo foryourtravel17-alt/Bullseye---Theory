@@ -33,3 +33,6 @@ verify_jwt = true
 
 [functions.scan-trc20-payments]
 verify_jwt = false
+
+[functions.get-indicator-access]
+verify_jwt = true
