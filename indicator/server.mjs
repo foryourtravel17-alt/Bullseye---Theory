@@ -27,41 +27,32 @@ function send(res, status, body, type = 'application/json; charset=utf-8') {
   res.end(type.startsWith('application/json') ? JSON.stringify(body) : body);
 }
 
-async function readJson(req) {
+async function readCsv(req) {
   const chunks = [];
   let size = 0;
   for await (const chunk of req) {
     size += chunk.length;
-    if (size > MAX_CSV_BYTES + 32_768) {
+    if (size > MAX_CSV_BYTES) {
       const error = new Error('CSV upload exceeds the 5 MB limit.');
       error.statusCode = 413;
       throw error;
     }
     chunks.push(chunk);
   }
-  try {
-    return JSON.parse(Buffer.concat(chunks).toString('utf8'));
-  } catch {
-    const error = new Error('Request must contain valid JSON.');
-    error.statusCode = 400;
-    throw error;
-  }
+  return Buffer.concat(chunks).toString('utf8');
 }
 
-async function analyzeCsv(req, res) {
-  const payload = await readJson(req);
-  if (typeof payload.csv !== 'string' || Buffer.byteLength(payload.csv, 'utf8') > MAX_CSV_BYTES) {
-    return send(res, 413, { error: 'Provide a CSV file no larger than 5 MB.' });
-  }
-  const timeframe = payload.timeframe;
+async function analyzeCsv(req, res, url) {
+  const csv = await readCsv(req);
+  if (!csv.trim()) return send(res, 400, { error: 'CSV file is empty.' });
+  const timeframe = url.searchParams.get('timeframe');
   if (timeframe !== '15m' && timeframe !== '1h') {
     return send(res, 400, { error: 'Only 15m and 1h timeframes are supported.' });
   }
-  const symbol = typeof payload.symbol === 'string'
-    ? payload.symbol.trim().slice(0, 32)
-    : 'Uploaded market';
+  const rawSymbol = url.searchParams.get('symbol') || 'Uploaded market';
+  const symbol = rawSymbol.trim().slice(0, 32) || 'Uploaded market';
   try {
-    const parsed = parseTradingViewCsv(payload.csv);
+    const parsed = parseTradingViewCsv(csv);
     const report = runHistoricalBacktest(parsed.candles, timeframe);
     return send(res, 200, {
       symbol: symbol || 'Uploaded market',
@@ -84,10 +75,10 @@ const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
     if (req.method === 'POST' && url.pathname === '/api/analyze-csv') {
-      if (!req.headers['content-type']?.includes('application/json')) {
-        return send(res, 415, { error: 'Content-Type must be application/json.' });
+      if (!req.headers['content-type']?.includes('text/csv')) {
+        return send(res, 415, { error: 'Content-Type must be text/csv.' });
       }
-      return await analyzeCsv(req, res);
+      return await analyzeCsv(req, res, url);
     }
     if (req.method !== 'GET') return send(res, 405, { error: 'Method not allowed.' });
     if (url.pathname === '/health') return send(res, 200, { ok: true });
