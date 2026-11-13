@@ -179,9 +179,9 @@ test('streaming Pine execution model matches Node batch zones and signals on fix
   const pineModel = runPineStreamingModel(candles);
   const nodeReference = runNodeBatchReference(candles);
 
-  const normalizeZones = (items) => items.map((zone) => ({
+  const normalizeZones = (items) => items.filter((zone) => zone.touches >= MIN_TOUCHES).map((zone) => ({
     id: zone.id,
-    type: zone.type,
+    type: typeof zone.type === 'number' ? (zone.type === 1 ? 'supply' : 'demand') : zone.type,
     seedIndex: zone.seedIndex,
     bottom: zone.bottom,
     top: zone.top,
