@@ -52,3 +52,35 @@ test('India intraday toolkit includes prior-day levels, EMA200, relative volume 
 test('ATR percentage value uses a contrasting panel cell style on light charts', () => {
   assert.match(source, /table\.cell\(statusTable, 1, 9, na\(atrPercent\) \? "N\/A" : str\.tostring\(atrPercent, "#\.00"\) \+ "%", text_color=color\.black, bgcolor=color\.new\(color\.silver, 75\)\)/);
 });
+
+
+test('Pine and deterministic engine retain the documented pivot, zone, breakout, risk and cooldown contract', () => {
+  assert.match(source, /const int leftBars = 3/);
+  assert.match(source, /const int rightBars = 3/);
+  assert.match(source, /const float clusterAtr = 0\.25/);
+  assert.match(source, /const int minTouches = 2/);
+  assert.match(source, /const float breakoutAtr = 0\.10/);
+  assert.match(source, /const float volumeMultiple = 1\.5/);
+  assert.match(source, /const float stopAtr = 0\.20/);
+  assert.match(source, /const float targetRR = 2\.0/);
+  assert.match(source, /const int cooldownBars = 12/);
+  assert.match(source, /close > top \+ breakoutAtr \* atrValue/);
+  assert.match(source, /close < bottom - breakoutAtr \* atrValue/);
+  assert.match(source, /entryPrice \+ risk \* targetRR/);
+  assert.match(source, /entryPrice - risk \* targetRR/);
+  assert.match(source, /bar_index - lastSignal >= cooldownBars/);
+});
+
+test('Pine confirms pivots and signals only on completed candles', () => {
+  assert.match(source, /if barstate\.isconfirmed and pivotHigh/);
+  assert.match(source, /if barstate\.isconfirmed and pivotLow/);
+  assert.match(source, /if barstate\.isconfirmed and supportedTf and volumeAvailable/);
+  assert.match(source, /alert\(message, alert\.freq_once_per_bar_close\)/);
+  assert.match(source, /high\[rightBars\]/);
+  assert.match(source, /low\[rightBars\]/);
+});
+
+test('previous-day levels use prior completed daily candle without lookahead leakage', () => {
+  assert.match(source, /request\.security\(syminfo\.tickerid, "D", high\[1\], lookahead=barmerge\.lookahead_on\)/);
+  assert.match(source, /request\.security\(syminfo\.tickerid, "D", low\[1\], lookahead=barmerge\.lookahead_on\)/);
+});
