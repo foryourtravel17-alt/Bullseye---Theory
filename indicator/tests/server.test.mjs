@@ -78,3 +78,15 @@ test('CSV API rejects unsupported intervals and malformed candle data', async ()
   });
   assert.equal(malformed.status, 400);
 });
+
+test('server exposes only the dashboard and chart library, not private source files', async () => {
+  const page = await fetch(baseUrl + '/');
+  assert.equal(page.status, 200);
+  assert.match(page.headers.get('content-type'), /text\/html/);
+  const source = await fetch(baseUrl + '/server.mjs');
+  assert.equal(source.status, 404);
+  const engine = await fetch(baseUrl + '/lib/levels.mjs');
+  assert.equal(engine.status, 404);
+  const packageFile = await fetch(baseUrl + '/package.json');
+  assert.equal(packageFile.status, 404);
+});
