@@ -86,3 +86,13 @@ Evaluate only a completed candle, only on 15m or 1h, and only against a valid zo
 - Volume unavailable/zero means no volume-qualified signal. The status panel must show N/A or an explicit warning rather than infer missing values.
 - Visible zone drawings and signal labels are capped by user settings to reduce chart clutter; the cap affects display only, not the core zone calculations or signal cooldown state.
 - The indicator reads the active chart symbol. It does not scan all NSE tickers simultaneously. Exchange data availability and symbol naming depend on the user's TradingView feed/entitlement.
+
+
+## 10. Intraday context overlays (v1.1)
+
+- Previous Day High/Low use the prior completed daily candle via request.security with high[1] / low[1] and barmerge.lookahead_on; current-day developing highs/lows must not be substituted.
+- EMA 200 is a long-term trend reference only. It does not change the core breakout decision by default.
+- Relative volume is current chart-bar volume divided by the 20-bar volume SMA. If volume or its average is unavailable, display N/A; never infer a value.
+- ATR percentage is ATR(14) divided by close × 100, shown as volatility context only.
+- These overlays are informational and do not change signal generation. Users may hide prior-day levels and EMA 200 independently.
+- Pine/Node parity remains mandatory for core breakout signals; contextual overlays are not trade signals and must not be described as predictive.
