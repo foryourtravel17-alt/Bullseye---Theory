@@ -51,6 +51,7 @@ SQL
 
 psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f supabase/migrations/20261102170543_add_automatic_trc20_payment_orders.sql
 psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f supabase/migrations/20261102170555_set_course_access_validity_85_days.sql
+psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f supabase/migrations/20261113140000_add_indicator_membership_365d.sql
 
 psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
 insert into auth.users(id, email) values
