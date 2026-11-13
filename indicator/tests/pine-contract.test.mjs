@@ -27,3 +27,11 @@ test('Pine source includes chart symbol context and bounded chart drawings', () 
   assert.match(source, /maxVisibleLabels/);
   assert.match(source, /N\/A · NO SIGNAL/);
 });
+
+test('Pine drawing cleanup tracks zone indices without comparing drawing object IDs', () => {
+  assert.match(source, /var array<int> visibleZoneIndices = array.new_int\(\)/);
+  assert.match(source, /array.push\(visibleZoneIndices, bestIndex\)/);
+  assert.match(source, /int oldestZoneIndex = array.shift\(visibleZoneIndices\)/);
+  assert.match(source, /array.set\(zoneBoxes, oldestZoneIndex, na\)/);
+  assert.doesNotMatch(source, /array\.get\(zoneBoxes, zoneIndex\) == oldest/);
+});
