@@ -74,3 +74,13 @@ Repository: `foryourtravel17-alt/ai-trending-content-factory`.
 - Public TradingView script publication.
 - Scheduled public Telegram/Instagram auto-publishing.
 - Any broker execution or real-money trading tests.
+
+
+## TradingView invite-only owner gate — verified 13 Nov 2026
+
+- The owner's screenshots show a TradingView Basic account. Basic cannot publish invite-only scripts; TradingView's current Vendor Requirements require an active Premium or Ultimate account.
+- The intended commercial distribution for more than five customers is **Public publication + Invite-only access**. A private invite-only publication is capped at five users and must not be used to sell access. Open-source and Protected scripts are not paid-access substitutes.
+- TradingView access is not granted by Supabase. After payment is manually verified (owner's deferred process), the owner must collect the customer's exact TradingView username, use the script page's **Manage access** dialog, set the access start/end dates to the entitlement period, and log the grant. Renewal/expiry/removal also requires manual reconciliation.
+- Do not buy Premium/Ultimate or publish now under the zero-investment hold. This is a known commercial-release dependency. Reconsider only when the indicator is validated, customer revenue justifies the TradingView plan cost, and the owner explicitly approves.
+- The full step-by-step, compliant publication copy, customer grant, renewal and removal runbook is in `docs/INDICATOR_MEMBERSHIP_365D_RUNBOOK.md`.
+- Official current guidance: https://www.tradingview.com/support/solutions/43000549951-vendor-requirements/ ; https://www.tradingview.com/support/solutions/43000797311-invite-only-script-rules/ ; https://www.tradingview.com/support/solutions/43000797373-selling-scripts-on-tradingview-faq/ .
