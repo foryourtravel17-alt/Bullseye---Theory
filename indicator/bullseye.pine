@@ -54,6 +54,7 @@ var array<int> lastSignalBars = array.new_int()
 var array<box> zoneBoxes = array.new_box()
 var array<label> signalLabels = array.new_label()
 var array<box> visibleBoxes = array.new_box()
+var array<int> visibleZoneIndices = array.new_int()
 
 f_addPivot(float price, float pAtr, int pivotBar, int kind) =>
     int bestIndex = -1
@@ -92,12 +93,12 @@ f_addPivot(float price, float pAtr, int pivotBar, int kind) =>
                 box created = box.new(left=array.get(seedBars, bestIndex), top=newTop, right=bar_index, bottom=newBottom, xloc=xloc.bar_index, extend=extend.right, bgcolor=fillColor, border_color=edgeColor)
                 array.set(zoneBoxes, bestIndex, created)
                 array.push(visibleBoxes, created)
+                array.push(visibleZoneIndices, bestIndex)
                 if array.size(visibleBoxes) > maxVisibleZones
                     box oldest = array.shift(visibleBoxes)
+                    int oldestZoneIndex = array.shift(visibleZoneIndices)
                     box.delete(oldest)
-                    for zoneIndex = 0 to array.size(zoneBoxes) - 1
-                        if array.get(zoneBoxes, zoneIndex) == oldest
-                            array.set(zoneBoxes, zoneIndex, na)
+                    array.set(zoneBoxes, oldestZoneIndex, na)
             else
                 box.set_top(existing, newTop)
                 box.set_bottom(existing, newBottom)
