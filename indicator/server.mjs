@@ -92,10 +92,12 @@ const server = http.createServer(async (req, res) => {
     if (req.method !== 'GET') return send(res, 405, { error: 'Method not allowed.' });
     if (url.pathname === '/health') return send(res, 200, { ok: true });
     const relative = url.pathname === '/' ? 'indicator.html' : decodeURIComponent(url.pathname.slice(1));
+    const allowedAssets = new Set([
+      'indicator.html',
+      'node_modules/lightweight-charts/dist/lightweight-charts.standalone.production.js'
+    ]);
+    if (!allowedAssets.has(relative)) return send(res, 404, { error: 'Not found.' });
     const file = path.resolve(ROOT, relative);
-    if (file !== path.join(ROOT, 'indicator.html') && !file.startsWith(ROOT + path.sep)) {
-      return send(res, 403, { error: 'Forbidden.' });
-    }
     const data = await readFile(file);
     return send(res, 200, data, MIME[path.extname(file)] || 'application/octet-stream');
   } catch (error) {
