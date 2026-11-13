@@ -48,10 +48,12 @@ function csvFixture(count = 45) {
 }
 
 test('CSV API returns a historical-only report and excludes the final row', async () => {
-  const response = await fetch(`${baseUrl}/api/analyze-csv`, {
+  const response = await fetch(`${baseUrl}/api/analyze-csv?timeframe=15m&symbol=NSE%3ARELIANCE`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ csv: csvFixture(), timeframe: '15m', symbol: 'NSE:RELIANCE' })
+    headers: { 'content-type': 'text/csv' },
+    body: csvFixture(),
+    });
+  // The query parameters identify the timeframe and chart symbol without JSON-escaping CSV bytes.
   });
   assert.equal(response.status, 200);
   const report = await response.json();
@@ -65,13 +67,13 @@ test('CSV API returns a historical-only report and excludes the final row', asyn
 });
 
 test('CSV API rejects unsupported intervals and malformed candle data', async () => {
-  const unsupported = await fetch(`${baseUrl}/api/analyze-csv`, {
+  const unsupported = await fetch(`${baseUrl}/api/analyze-csv?timeframe=5m`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ csv: csvFixture(), timeframe: '5m' })
+    headers: { 'content-type': 'text/csv' },
+    body: csvFixture()
   });
   assert.equal(unsupported.status, 400);
-  const malformed = await fetch(`${baseUrl}/api/analyze-csv`, {
+  const malformed = await fetch(`${baseUrl}/api/analyze-csv?timeframe=1h`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ csv: 'time,open,high,low,close,volume\nnot-a-time,1,2,0,1,5', timeframe: '1h' })
