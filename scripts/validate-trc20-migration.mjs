@@ -108,7 +108,7 @@ if (!scannerWorkflow.includes('secrets.TRC20_SCANNER_CRON_SECRET')) errors.push(
 if (!scannerFunction.includes('Deno.env.get("TRC20_SCANNER_CRON_SECRET")')) errors.push("scanner Edge Function must read the exact TRC20_SCANNER_CRON_SECRET Supabase secret");
 if (scannerFunction.includes('Deno.env.get("TRC20SCANNERCRONSECRET")')) errors.push("scanner Edge Function must not use the legacy misspelled cron-secret alias");
 if (!orderFunction.includes('Deno.env.get("USDT_CHECKOUT_ENABLED") !== "true"')) errors.push("course order creation must fail closed unless USDT checkout is explicitly enabled");
-if (!orderFunction.includes('Deno.env.get("PREMIUM_CHECKOUT_ENABLED") !== "true"')) errors.push("premium order creation must remain independently gated");
+if (!orderFunction.includes('Deno.env.get("PREMIUM_CHECKOUT_ENABLED") === "true"')) errors.push("premium order creation must remain independently gated");
 if (!paymentConfigFunction.includes('Deno.env.get("USDT_CHECKOUT_ENABLED") === "true"')) errors.push("public payment config must report checkout closed unless explicitly enabled");
 if (!paymentConfigFunction.includes('Deno.env.get("PREMIUM_CHECKOUT_ENABLED") === "true"')) errors.push("public payment config must independently gate premium checkout");
 if ((sql.match(/create or replace function public\.finalize_trc20_payment/gi) || []).length !== 1) errors.push("payment migration must contain exactly one finalizer definition");
