@@ -6,6 +6,7 @@
   const orderPanel = byId("orderPanel");
   const amountNode = byId("orderAmount");
   const expiryNode = byId("orderExpiry");
+  const expiryLabel = byId("orderExpiryLabel");
   const copyButton = byId("copyOrderWallet");
   const paidLink = byId("paidDashboard");
   if (!button || !window.supabase || !window.BULLSEYE_SUPABASE_URL || !window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY) {
@@ -71,9 +72,13 @@
           button.disabled = true;
           return true;
         }
+        if (data.indicator_access_expires_at) expiryNode.textContent = formatExpiry(data.indicator_access_expires_at);
+        if (expiryLabel) expiryLabel.textContent = "INDICATOR ACCESS EXPIRES";
         setStatus("Payment verified. Your 365-day indicator entitlement is active. TradingView invite-only access is issued separately by the owner; wait for the private invitation.", "success");
         paidLink.hidden = true;
       } else {
+        if (data.course_access_expires_at) expiryNode.textContent = formatExpiry(data.course_access_expires_at);
+        if (expiryLabel) expiryLabel.textContent = "COURSE ACCESS EXPIRES";
         setStatus("This order is already paid and verified. Course access is active for your account.", "success");
         paidLink.hidden = false;
       }
@@ -175,9 +180,13 @@
             button.disabled = true;
             return;
           }
+          if (data.indicator_access_expires_at) expiryNode.textContent = formatExpiry(data.indicator_access_expires_at);
+          if (expiryLabel) expiryLabel.textContent = "INDICATOR ACCESS EXPIRES";
           setStatus("Payment verified on TRON Mainnet. Your annual indicator entitlement is active. TradingView invite-only access will be issued manually by the owner.", "success");
           paidLink.hidden = true;
         } else {
+          if (data.course_access_expires_at) expiryNode.textContent = formatExpiry(data.course_access_expires_at);
+          if (expiryLabel) expiryLabel.textContent = "COURSE ACCESS EXPIRES";
           setStatus("Payment verified on TRON Mainnet. Course access has been activated for your account.", "success");
           paidLink.hidden = false;
         }
