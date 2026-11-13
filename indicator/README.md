@@ -8,7 +8,7 @@
 
 ## India-first free workflow
 The indicator web app now accepts a user-supplied TradingView OHLCV CSV for NSE/BSE symbols. It does not fetch Binance klines or claim to provide live NSE market data.
-- Export candles from the chart/data source the user is entitled to access.
+- Export candles from a broker, charting platform or market-data source that permits your use. No paid TradingView plan or particular vendor export feature is required by this app.
 - Required CSV columns: time/date/timestamp, open, high, low, close. Volume is required for volume-qualified signals; when missing, the reference engine cannot emit signals.
 - Supported intervals: 15m and 1h only.
 - Upload limit: 5 MB. The server parses the file in memory; it does not save uploaded files.
