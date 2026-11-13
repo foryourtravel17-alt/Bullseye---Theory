@@ -48,6 +48,19 @@ Deno.serve(async (req: Request) => {
     return respond({ error: "Unable to read payment status" }, 503);
   }
   if (!order) return respond({ error: "Payment order not found" }, 404);
+  let indicatorEntitlement: { is_active: boolean; payment_verified: boolean; expires_at: string | null } | null = null;
+  if (order.plan_code === "indicator" && order.status === "paid") {
+    const { data: access, error: accessError } = await admin.from("indicator_access")
+      .select("is_active,payment_verified,expires_at")
+      .eq("user_id", userData.user.id)
+      .maybeSingle();
+    if (accessError) {
+      console.error("Bullseye indicator entitlement read failed:", accessError);
+      return respond({ error: "Unable to verify indicator entitlement" }, 503);
+    }
+    indicatorEntitlement = access;
+  }
+
   const atomic = String(order.usdt_amount_atomic).padStart(7, "0");
   const amount = atomic.slice(0, -6) + "." + atomic.slice(-6);
   return respond({
@@ -57,5 +70,8 @@ Deno.serve(async (req: Request) => {
     usdt_amount: amount,
     expires_at: order.expires_at,
     paid_at: order.paid_at,
+    access_days: order.plan_code === "indicator" ? 365 : 85,
+    indicator_access_active: indicatorEntitlement ? indicatorEntitlement.is_active && indicatorEntitlement.payment_verified && !!indicatorEntitlement.expires_at && Date.parse(indicatorEntitlement.expires_at) > Date.now() : null,
+    indicator_access_expires_at: indicatorEntitlement?.expires_at ?? null,
   });
 });
