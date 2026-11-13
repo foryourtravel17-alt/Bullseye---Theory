@@ -18,6 +18,8 @@ showZones = input.bool(true, "Show supply/demand zones")
 showLabels = input.bool(true, "Show LONG/SHORT labels")
 enableAlerts = input.bool(true, "Enable alert() messages")
 showContext = input.bool(true, "Show India market context panel")
+showPriorDayLevels = input.bool(true, "Show previous day high/low")
+showEma200 = input.bool(true, "Show EMA 200 trend line")
 maxVisibleZones = input.int(18, "Maximum visible zones", minval=4, maxval=40)
 maxVisibleLabels = input.int(30, "Maximum visible signal labels", minval=5, maxval=100)
 strictConfirmations = input.bool(false, "Require enabled confirmations for signals")
@@ -31,16 +33,28 @@ atrValue = ta.atr(atrLength)
 volumeAverage = ta.sma(volume, volumeLength)
 emaFast = ta.ema(close, 20)
 emaSlow = ta.ema(close, 50)
+emaLong = ta.ema(close, 200)
+previousDayHigh = request.security(syminfo.tickerid, "D", high[1], lookahead=barmerge.lookahead_on)
+previousDayLow = request.security(syminfo.tickerid, "D", low[1], lookahead=barmerge.lookahead_on)
+relativeVolume = volumeAvailable ? volume / volumeAverage : na
+atrPercent = close > 0 ? (atrValue / close) * 100 : na
 rsiValue = ta.rsi(close, 14)
 vwapValue = timeframe.isintraday ? ta.vwap(hlc3) : na
 volumeAvailable = not na(volume) and volume > 0 and not na(volumeAverage) and volumeAverage > 0
 emaBull = emaFast > emaSlow and close > emaFast
 emaBear = emaFast < emaSlow and close < emaFast
+emaLongBull = not na(emaLong) and close > emaLong
+emaLongBear = not na(emaLong) and close < emaLong
 rsiBull = rsiValue > 50 and rsiValue < 75
 rsiBear = rsiValue < 50 and rsiValue > 25
 vwapAvailable = not na(vwapValue) and volumeAvailable
 vwapBull = vwapAvailable and close > vwapValue
 vwapBear = vwapAvailable and close < vwapValue
+
+// Prior-session levels and long-term trend are informational overlays.
+plot(showPriorDayLevels ? previousDayHigh : na, "Previous Day High", color=color.new(color.orange, 10), linewidth=1, style=plot.style_linebr)
+plot(showPriorDayLevels ? previousDayLow : na, "Previous Day Low", color=color.new(color.aqua, 10), linewidth=1, style=plot.style_linebr)
+plot(showEma200 ? emaLong : na, "EMA 200", color=color.new(color.yellow, 0), linewidth=2)
 
 // Parallel arrays retain seed-anchored clusters and independent cooldowns.
 var array<float> seedPrices = array.new_float()
@@ -168,7 +182,7 @@ if barstate.isconfirmed and supportedTf and volumeAvailable and not na(atrValue)
                         alert(message, alert.freq_once_per_bar_close)
 
 // Compact context panel; unavailable data is explicitly marked rather than guessed.
-var table statusTable = table.new(position.top_right, 2, 7, border_width=1)
+var table statusTable = table.new(position.top_right, 2, 10, border_width=1)
 if barstate.islast
     if showContext
         table.cell(statusTable, 0, 0, "BULLSEYE INDIA", text_color=color.white, bgcolor=color.new(color.blue, 20))
@@ -185,5 +199,11 @@ if barstate.islast
         table.cell(statusTable, 1, 5, na(rsiValue) ? "N/A" : str.tostring(rsiValue, "#.0"), text_color=rsiBull ? color.lime : rsiBear ? color.red : color.silver)
         table.cell(statusTable, 0, 6, "VWAP", text_color=color.silver)
         table.cell(statusTable, 1, 6, not vwapAvailable ? "N/A" : vwapBull ? "ABOVE" : vwapBear ? "BELOW" : "AT VWAP", text_color=vwapBull ? color.lime : vwapBear ? color.red : color.silver)
+        table.cell(statusTable, 0, 7, "EMA 200", text_color=color.silver)
+        table.cell(statusTable, 1, 7, na(emaLong) ? "N/A" : emaLongBull ? "ABOVE" : emaLongBear ? "BELOW" : "AT EMA", text_color=emaLongBull ? color.lime : emaLongBear ? color.red : color.silver)
+        table.cell(statusTable, 0, 8, "Rel. Volume", text_color=color.silver)
+        table.cell(statusTable, 1, 8, na(relativeVolume) ? "N/A" : str.tostring(relativeVolume, "#.00") + "x", text_color=not na(relativeVolume) and relativeVolume >= volumeMultiple ? color.lime : color.silver)
+        table.cell(statusTable, 0, 9, "ATR %", text_color=color.silver)
+        table.cell(statusTable, 1, 9, na(atrPercent) ? "N/A" : str.tostring(atrPercent, "#.00") + "%", text_color=color.white)
     else
-        table.clear(statusTable, 0, 0, 1, 6)
+        table.clear(statusTable, 0, 0, 1, 9)
