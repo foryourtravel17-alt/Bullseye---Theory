@@ -47,3 +47,8 @@ test('India intraday toolkit includes prior-day levels, EMA200, relative volume 
   assert.ok(source.includes('"ATR %"'));
   assert.ok(source.includes('table.new(position.top_right, 2, 10'));
 });
+
+
+test('ATR percentage value uses a contrasting panel cell style on light charts', () => {
+  assert.match(source, /table\.cell\(statusTable, 1, 9, na\(atrPercent\) \? "N\/A" : str\.tostring\(atrPercent, "#\.00"\) \+ "%", text_color=color\.black, bgcolor=color\.new\(color\.silver, 75\)\)/);
+});
