@@ -20,8 +20,8 @@ Status: development and automated checks advanced; production release intentiona
 - Adds server-owned pricing and duration, a dedicated indicator checkout flag, JWT-protected own-entitlement endpoint, admin reconciliation RPCs, customer messaging and a manual TradingView invite note.
 - Disposable PostgreSQL suite verifies first issue, renewal, 365-day admin grant, cross-product separation and browser-role denial.
 - Latest verified checks on the PR head:
-  - TRC20 Payment Checks run #128: PASS.
-  - Edge Function Checks run #162: PASS.
+  - TRC20 Payment Checks run #129: PASS.
+  - Edge Function Checks run #163: PASS.
   - Launch Page Checks run #240: PASS.
   - Admin Course Access run #217: PASS.
   - Daily Course Integrity Watch run #203: PASS.
