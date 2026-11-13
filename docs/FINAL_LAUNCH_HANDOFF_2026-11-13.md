@@ -17,7 +17,7 @@ The three prices are presentation/plan contracts. Payment checkout and automated
 - Pre-launch acceptance checklist: https://github.com/foryourtravel17-alt/Bullseye---Theory/issues/48
 - Isolated enrollment preview: https://bullseye-theory-enrollment-preview.onrender.com/
 - Preview publishes only `membership-preview/`; it is not the production domain.
-- Render secure Node preview: `bullseye-theory-secure-preview`; latest failed build was caused by stale Market Lab review dates, not a code compile/runtime defect. A content-only review dated 2026-11-12 has now been documented and its metadata synchronized to `market-briefs.json`; a preview redeploy was triggered and must be checked for completion.
+- Render secure Node preview: `bullseye-theory-secure-preview` is LIVE on the free plan. The 13 Nov redeploy passed Market Lab, site-link and compliance build checks; server started successfully. The stale review date was fixed using the documented 2026-11-12 content-only review, and membership payment guardrails were restored.
 - Unsafe root-publishing Render service `bullseye-theory-membership-preview` (`srv-dbrdq35g1s2s73871ncg`) was deleted by the owner and verified absent from Render service inventory.
 
 ## Automated implementation included in release candidate
