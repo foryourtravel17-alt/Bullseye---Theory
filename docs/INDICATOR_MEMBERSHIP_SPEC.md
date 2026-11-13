@@ -1,3 +1,5 @@
+This document is retained as a historical schema/payment design reference. The current indicator delivery route is the website-based CSV historical analyzer in PR #49. Do not treat TradingView invite-only publication, TradingView Premium/Ultimate eligibility, or TradingView username grants as launch requirements for the current v1 product. Keep all payment flags disabled; any future payment integration requires separate owner approval.
+
 # Bullseye Theory — Annual Indicator Membership Technical Specification
 
 Status: implementation specification. No production schema, payment flag or TradingView access has been changed.
