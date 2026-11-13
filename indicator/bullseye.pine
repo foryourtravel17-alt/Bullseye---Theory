@@ -36,11 +36,11 @@ emaSlow = ta.ema(close, 50)
 emaLong = ta.ema(close, 200)
 previousDayHigh = request.security(syminfo.tickerid, "D", high[1], lookahead=barmerge.lookahead_on)
 previousDayLow = request.security(syminfo.tickerid, "D", low[1], lookahead=barmerge.lookahead_on)
-relativeVolume = volumeAvailable ? volume / volumeAverage : na
 atrPercent = close > 0 ? (atrValue / close) * 100 : na
 rsiValue = ta.rsi(close, 14)
 vwapValue = timeframe.isintraday ? ta.vwap(hlc3) : na
 volumeAvailable = not na(volume) and volume > 0 and not na(volumeAverage) and volumeAverage > 0
+relativeVolume = volumeAvailable ? volume / volumeAverage : na
 emaBull = emaFast > emaSlow and close > emaFast
 emaBear = emaFast < emaSlow and close < emaFast
 emaLongBull = not na(emaLong) and close > emaLong
