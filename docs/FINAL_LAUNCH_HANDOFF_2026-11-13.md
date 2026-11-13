@@ -17,6 +17,7 @@ Prices remain planned presentation values. Enrollment is closed, checkout/paymen
 - Pre-launch acceptance issue #48: https://github.com/foryourtravel17-alt/Bullseye---Theory/issues/48
 - Secure preview: https://bullseye-theory-secure-preview.onrender.com/
 - Isolated enrollment preview: https://bullseye-theory-enrollment-preview.onrender.com/
+- Isolated India analyzer preview (Render Free, feature branch only): https://bullseye-india-analyzer-preview.onrender.com/
 - Secure preview runs on Render Free; enrollment preview serves only membership-preview/.
 - The unsafe root-publishing Render static service was deleted and verified absent.
 
@@ -28,7 +29,8 @@ Prices remain planned presentation values. Enrollment is closed, checkout/paymen
 - Added HTTP API tests for valid CSV, unsupported intervals, malformed input and private-source file access.
 - Public static serving is allowlisted to the dashboard and chart library.
 - No market feed is fetched, no CSV is persisted, no live NSE data or automatic NSE scanner is claimed.
-- GitHub Actions Bullseye Levels — Private Source Tests #42 passed: dependency install, all indicator tests, server syntax and CSV validator syntax.
+- GitHub Actions Bullseye Levels — Private Source Tests #49 passed: dependency install, all indicator tests (including CSV API and static asset allowlist tests), server syntax and CSV validator syntax.
+- GitHub Actions Launch Page Checks #268 passed after the website analyzer membership copy update.
 
 ## Fixed Bullseye Levels rules — do not change without owner approval
 - 15m and 1h only.
