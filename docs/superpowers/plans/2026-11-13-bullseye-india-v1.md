@@ -50,9 +50,9 @@
 - Return explicit neutral/unavailable states for insufficient or invalid data.
 
 - [x] Write tests for EMA alignment/price confirmation, RSI boundaries/insufficient history, and VWAP missing-volume handling.
-- [x] Targeted Node helper tests authored; GitHub Actions verification is running.
+- [x] Targeted Node helper tests authored.
 - [x] Implement minimal helpers.
-- [ ] Run full npm test and inspect GitHub Actions result.
+- [x] Full Node test suite passed in GitHub Actions run #16 on the latest commit (indicator-tests job, deterministic engine tests and server syntax check).
 
 ### Task 3: Pine India context panel and optional confirmations
 
@@ -66,14 +66,14 @@
 - Cap visible zone drawings and signal labels.
 
 - [x] Implement Pine changes matching documented rules.
-- [ ] Static inspection completed; TradingView Pine Editor compilation and visual parity remain manual gates.
-- [x] Note that TradingView Pine Editor compile and symbol-by-symbol visual QA remain manual gates.
+- [x] TradingView Pine Editor compiled and added the indicator to a BTCUSD 15-minute chart; the context panel rendered successfully (owner screenshot, 13 Nov 2026).
+- [ ] Verify on NSE equity, index and futures charts; BTCUSD smoke test does not establish Indian-market feed compatibility.
 
 ### Task 4: Final validation and review
 
 **Files:**
 - Modify: indicator/README.md if needed.
 
-- [ ] Run full Node test suite and syntax checks; pending CI result.
+- [x] Full Node test suite and server syntax checks passed in GitHub Actions run #16 on latest head.
 - [x] Inspect current PR diff for secrets, paid dependencies, BTC-only assumptions, and public-publishing behavior.
 - [x] Open draft PR #45; do not merge, publish, deploy, or activate checkout.
