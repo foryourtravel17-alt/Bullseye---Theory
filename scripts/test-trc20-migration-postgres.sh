@@ -96,6 +96,31 @@ insert into public.payment_orders (
    now() - interval '1 minute', now() + interval '20 minutes');
 SQL
 
+psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
+insert into public.payment_orders (
+  id, user_id, plan_code, inr_amount_paise, access_days,
+  usdt_inr_rate, usdt_amount_atomic, destination_wallet, token_contract,
+  network, quote_source, quote_observed_at, status, created_at, expires_at
+) values
+  ('10000000-0000-4000-8000-000000000005',
+   '00000000-0000-4000-8000-000000000002',
+   'indicator', 999900, 365, 83.5, 12500004,
+   'TF8aiK6Q8kboLBcaHtckapVpsEQyR3oWwV',
+   'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+   'TRON_MAINNET_TRC20', 'test_fixture', now(), 'pending',
+   now() - interval '2 minutes', now() + interval '20 minutes'),
+  ('10000000-0000-4000-8000-000000000006',
+   '00000000-0000-4000-8000-000000000002',
+   'indicator', 999900, 365, 83.5, 12500005,
+   'TF8aiK6Q8kboLBcaHtckapVpsEQyR3oWwV',
+   'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+   'TRON_MAINNET_TRC20', 'test_fixture', now(), 'pending',
+   now() - interval '1 minute', now() + interval '20 minutes');
+SQL
+
+HASH_D="$(printf 'd%.0s' {1..64})"
+HASH_E="$(printf 'e%.0s' {1..64})"
+
 HASH_A="$(printf 'a%.0s' {1..64})"
 HASH_B="$(printf 'b%.0s' {1..64})"
 HASH_C="$(printf 'c%.0s' {1..64})"
