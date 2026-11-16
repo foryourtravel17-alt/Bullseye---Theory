@@ -72,7 +72,7 @@ before(async () => {
 
   const port = await freePort();
   baseUrl = `http://127.0.0.1:${port}`;
-  child = spawn(process.execPath, ['server.mjs'], {
+  let childError = '';\n  child = spawn(process.execPath, ['server.mjs'], {
     cwd: new URL('..', import.meta.url),
     env: {
       ...process.env,
