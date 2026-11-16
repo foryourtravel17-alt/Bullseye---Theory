@@ -236,3 +236,10 @@ test('CSV API rejects a missing bearer token before reading or parsing the uploa
   });
   assert.equal(response.status, 401);
 });
+
+test('access endpoint denies anonymous callers and never caches entitlement responses', async () => {
+  const response = await fetch(baseUrl + '/api/access');
+  assert.equal(response.status, 401);
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+  assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
+});
