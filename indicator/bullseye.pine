@@ -39,7 +39,8 @@ previousDayLow = request.security(syminfo.tickerid, "D", low[1], lookahead=barme
 atrPercent = close > 0 ? (atrValue / close) * 100 : na
 rsiValue = ta.rsi(close, 14)
 vwapValue = timeframe.isintraday ? ta.vwap(hlc3) : na
-volumeAvailable = not na(volume) and volume > 0 and not na(volumeAverage) and volumeAverage > 0
+volumeWindowComplete = ta.sma(not na(volume) ? 1.0 : 0.0, volumeLength) == 1
+volumeAvailable = volumeWindowComplete and not na(volume) and volume > 0 and not na(volumeAverage) and volumeAverage > 0
 relativeVolume = volumeAvailable ? volume / volumeAverage : na
 emaBull = emaFast > emaSlow and close > emaFast
 emaBear = emaFast < emaSlow and close < emaFast
