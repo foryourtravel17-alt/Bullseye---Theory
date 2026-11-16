@@ -76,7 +76,8 @@ before(async () => {
       ...process.env,
       PORT: String(port),
       SUPABASE_URL: entitlementUrl,
-      SUPABASE_PUBLISHABLE_KEY: 'test-publishable-key'
+      SUPABASE_PUBLISHABLE_KEY: 'test-publishable-key',
+      SUPABASE_SERVICE_ROLE_KEY: 'do-not-expose-this'
     },
     stdio: 'ignore'
   });
@@ -196,6 +197,29 @@ test('CSV API rejects unsupported intervals and malformed candle data for entitl
     body: 'time,open,high,low,close,volume\nnot-a-time,1,2,0,1,5'
   });
   assert.equal(malformed.status, 400);
+});
+
+test('browser config exposes only the Supabase URL and publishable key', async () => {
+  const response = await fetch(baseUrl + '/supabase-config.js');
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get('content-type'), /javascript/);
+  const script = await response.text();
+  assert.match(script, /BULLSEYE_SUPABASE_URL/);
+  assert.match(script, /BULLSEYE_SUPABASE_PUBLISHABLE_KEY/);
+  assert.match(script, /test-publishable-key/);
+  assert.doesNotMatch(script, /do-not-expose-this|SERVICE_ROLE_KEY|service_role/i);
+});
+
+test('dashboard includes member sign-in and keeps analyzer controls behind server access checks', async () => {
+  const response = await fetch(baseUrl + '/');
+  assert.equal(response.status, 200);
+  const page = await response.text();
+  assert.match(page, /id="accessPanel"/);
+  assert.match(page, /id="signIn"/);
+  assert.match(page, /id="signOut"/);
+  assert.match(page, //api/access/);
+  assert.match(page, /Authorization/);
+  assert.match(page, /setAnalyzerEnabled\(false\)/);
 });
 
 test('server exposes only the dashboard and chart library, not private source files', async () => {
