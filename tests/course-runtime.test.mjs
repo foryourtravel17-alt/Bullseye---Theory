@@ -96,3 +96,16 @@ test("all 11 lesson quiz interfaces match the server-side answer-key contract", 
     }
   }
 });
+
+test("membership page does not promise unavailable course video or unverified intraday data", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const { fileURLToPath } = await import("node:url");
+  const { dirname, resolve } = await import("node:path");
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+  const page = await readFile(resolve(root, "membership.html"), "utf8");
+  assert.match(page, /Interactive 11-lesson learning path/);
+  assert.doesNotMatch(page, /Recorded video breakdowns/);
+  assert.match(page, /TradingView Free CSV export is not available/);
+  assert.match(page, /no permitted free 15m\/1h source has been verified/);
+  assert.match(page, /COMING SOON — ENROLLMENT CLOSED/);
+});
