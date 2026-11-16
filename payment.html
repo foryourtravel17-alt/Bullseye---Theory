@@ -1,89 +1,44 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Course & Indicator Membership | Bullseye Theory</title>
-<meta name="description" content="Bullseye Theory course enrolment and approved USDT TRON Mainnet receiving details.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Enrollment Closed — Bullseye Theory</title>
 <style>
-:root{color-scheme:dark;--bg:#050b0a;--panel:#0b1815;--line:#214238;--text:#eff8f3;--muted:#91aaa1;--lime:#a8ff61;--gold:#e4b957;--red:#ff958d}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#123b31 0,transparent 35%),var(--bg);color:var(--text);font:16px/1.65 Inter,Arial,sans-serif}
-header{padding:20px 6%;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:16px}.brand{font-weight:900;letter-spacing:2px}.brand span{color:var(--lime)}a{color:var(--lime)}.btn{display:inline-block;padding:11px 16px;border:1px solid var(--line);border-radius:10px;color:var(--text);text-decoration:none;font-weight:800;background:#091410;cursor:pointer}
-main{max-width:1080px;margin:auto;padding:44px 22px 80px}.eyebrow{color:var(--lime);font-size:11px;font-weight:900;letter-spacing:2px}h1{font-size:clamp(36px,6vw,60px);line-height:1.05;letter-spacing:-2px;margin:12px 0}h2{margin:10px 0}.muted,p{color:var(--muted)}.intro{max-width:760px}.status{display:inline-block;font-size:11px;color:var(--gold);border:1px solid #64532b;background:#17150f;border-radius:999px;padding:7px 11px;font-weight:900;letter-spacing:1px}
-.prices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:26px 0}.card{background:#081511ef;border:1px solid var(--line);border-radius:18px;padding:22px;min-width:0}.price{font-size:30px;color:var(--gold);font-weight:900}.tag{font-size:10px;letter-spacing:1.5px;font-weight:900;color:var(--gold)}
-.payment-grid{display:grid;grid-template-columns:minmax(260px,.85fr) 1.15fr;gap:18px;margin:22px 0}.qr-card{display:grid;justify-items:center;text-align:center;gap:12px;background:#f7faf8;border-radius:16px;padding:18px;color:#08100d}.qr-card img{display:block;width:min(100%,330px);height:auto;image-rendering:pixelated}.qr-card strong{font-size:13px}.qr-note{font-size:11px;color:#394940;line-height:1.5}.wallet{font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;word-break:break-all;background:#050b0a;border:1px solid var(--line);border-radius:10px;padding:13px;color:#eaf7ee}
-.details{display:grid;gap:12px}.detail{border:1px solid var(--line);border-radius:12px;padding:15px;background:#091612}.detail small{display:block;color:var(--muted);font-size:10px;letter-spacing:1px;font-weight:900}.detail b{display:block;margin-top:5px;overflow-wrap:anywhere}.notice{padding:17px;border-left:3px solid var(--red);background:#201110;border-radius:9px;color:#f0c7c3;margin-top:18px}.notice strong{color:#ffaaa3}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}.step{border:1px solid var(--line);border-radius:12px;padding:15px}.step b{color:var(--lime);display:block;margin-bottom:6px}.disabled{opacity:.7}.footer{margin-top:26px;font-size:12px;color:#6f897e}
-@media(max-width:800px){.payment-grid{grid-template-columns:1fr}.prices{grid-template-columns:repeat(2,minmax(0,1fr))}.steps{grid-template-columns:1fr}header{padding:16px 20px}}
-@media(max-width:540px){.prices{grid-template-columns:1fr}main{padding:32px 16px 60px}.wallet{font-size:11px}}
+:root{color-scheme:dark;--bg:#05070a;--panel:#0b1016;--line:#26372f;--muted:#9aa9a4;--text:#edf5f0;--lime:#a8f05a;--gold:#e7bf62}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0%,#123426 0,transparent 36%),var(--bg);color:var(--text);font:15px/1.6 Inter,system-ui,Arial,sans-serif}
+header{border-bottom:1px solid var(--line);background:#080e0d;padding:20px max(18px,calc((100vw - 1000px)/2))}
+.brand{font-weight:900;letter-spacing:.12em}.brand span{color:var(--lime)}
+main{max-width:1000px;margin:42px auto;padding:0 18px}
+.hero{border:1px solid #6d5726;background:linear-gradient(145deg,#17170f,#0b1016 60%);border-radius:16px;padding:28px}
+.badge{display:inline-block;color:#1b1404;background:var(--gold);font-size:11px;font-weight:900;letter-spacing:.12em;padding:6px 10px;border-radius:4px}
+h1{font-size:clamp(30px,5vw,48px);line-height:1.08;margin:18px 0 12px}h1 span{color:var(--lime)}
+.lead{color:#c2cec7;max-width:720px}.warning{margin-top:20px;padding:15px;border:1px solid #7b6230;border-radius:10px;color:#f2d99b;background:#211b0c}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:18px}
+.card h2{font-size:16px;margin:0 0 8px}.price{font-size:28px;font-weight:900;color:var(--lime)}.term{color:var(--muted);font-size:12px}.state{margin-top:14px;color:var(--gold);font-size:11px;font-weight:900;letter-spacing:.1em}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0}.actions a{display:inline-block;border:1px solid #40564a;border-radius:8px;padding:10px 14px;color:var(--text);text-decoration:none}.actions a.primary{background:var(--lime);border-color:var(--lime);color:#0a1608;font-weight:900}
+footer{color:var(--muted);font-size:12px;margin:28px 0 40px}
+@media(max-width:760px){main{margin:22px auto}.hero{padding:20px}.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header><a class="brand" href="index.html" style="color:inherit;text-decoration:none">BULLSEYE <span>THEORY</span></a><a class="btn" href="auth.html">Student Login →</a></header>
+<header><div class="brand">BULLSEYE <span>THEORY</span></div></header>
 <main>
-<div class="eyebrow">STUDENT ENROLMENT / PAYMENT INFORMATION</div>
-<h1>Choose your<br><span style="color:var(--lime)">learning plan.</span></h1>
-<p class="intro">Bullseye Theory is structured trading education built around market structure, price action, risk management, trading psychology and review. The payment QR below is the accountant-supplied receiving QR, formatted for the website.</p>
-<div class="status" id="topPaymentStatus">PAYMENT CHECKOUT CLOSED · AUTOMATION TESTING IN PROGRESS</div>
-<div class="prices">
-<section class="card"><div class="tag">COMPLETE COURSE</div><h2>11-Lesson Course</h2><div class="price">₹999</div><p>85 days of course access from verified payment. Paid lessons unlock only after a verified payment.</p></section>
-<section class="card"><div class="tag">COURSE + PREMIUM</div><h2>Premium Bundle</h2><div class="price">₹1,999</div><p>Premium bundle access is not yet available. Premium deliverables and Telegram entitlement terms must be finalized before enrolment opens.</p></section>
-<section class="card"><div class="tag">BULLSEYE INDIA / ANNUAL</div><h2>Website Analyzer</h2><div class="price">₹9,999</div><p>Planned 365-day Bullseye India website-based historical analyzer for supported 15m and 1h NSE/BSE OHLCV CSV files. It is not a live market feed, automatic market scanner, broker execution service. Checkout remains closed.</p></section>
-</div>
-<section class="card">
-<div class="eyebrow">INTERNATIONAL / USDT</div><h2>TRON Mainnet · TRC-20</h2>
-<p>Use only USDT on the TRON Mainnet (TRC-20) network. This QR encodes the destination wallet address only; it does not encode the payment amount or network. Your wallet app must explicitly show TRON / TRC-20 before any transfer.</p>
-<div class="payment-grid">
-<div class="qr-card">
-<img src="assets/usdt-tron-mainnet-trc20.svg" alt="Bullseye Theory USDT TRON Mainnet TRC-20 wallet QR">
-<strong>USDT · TRON Mainnet · TRC-20</strong>
-<div class="qr-note">Scan only after checkout officially opens. Never use ERC-20, BEP-20 or another chain for this address.</div>
-</div>
-<div class="details">
-<div class="detail"><small>RECEIVING WALLET ADDRESS</small><b class="wallet" id="walletAddress">TF8aiK6Q8kboLBcaHtckapVpsEQyR3oWwV</b><button class="btn" id="copyWallet" type="button">Copy wallet address</button></div>
-<div class="detail"><small>OFFICIAL USDT TOKEN CONTRACT</small><b>TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t</b><a href="https://tronscan.org/#/token20/TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t" target="_blank" rel="noopener noreferrer">View USDT contract on TronScan ↗</a></div>
-<div class="detail"><small>NETWORK</small><b>TRON MAINNET · TRC-20 ONLY</b></div>
-<div class="detail"><small>PAYMENT STATE</small><b id="paymentState" style="color:var(--gold)">CHECKOUT CLOSED</b><span id="paymentStateNote" class="muted">Waiting for automated verifier configuration and tests.</span></div>
-</div>
-</div>
-<div class="notice"><strong>Safety gate:</strong> Do not transfer funds unless secure checkout below successfully creates an order and displays the exact USDT amount and expiry time. If checkout says closed, the QR is shown for reference only. Never send a rounded amount or use a different network. A screenshot or customer-entered transaction hash will never trigger an unlock by itself.</div>
+<section class="hero">
+<span class="badge">ENROLLMENT CLOSED</span>
+<h1>We are preparing a <span>safe launch.</span></h1>
+<p class="lead">Course enrollment, premium membership and indicator checkout are temporarily closed while member access, market-data validation and launch policies are finalized.</p>
+<div class="warning"><strong>Do not transfer funds.</strong> Do not use old payment screenshots, wallet addresses or payment instructions. No payment or order will be accepted from this page. There is no automatic payment verification or course activation.</div>
 </section>
-<section class="card" id="secureCheckout">
-<div class="eyebrow">AUTOMATED CHECKOUT</div><h2>Create a verified USDT order</h2>
-<p class="muted">Sign in first. The server creates the INR-to-USDT quote and a unique six-decimal amount; the order expires after 20 minutes.</p>
-<div class="details">
-<label for="planSelect" class="muted">Choose plan</label>
-<select id="planSelect" class="btn" style="width:100%;text-align:left"><option value="course">Complete Course — ₹999</option><option value="premium" disabled>Premium Bundle — ₹1,999 (not open)</option><option value="indicator" disabled>Bullseye India Indicator — ₹9,999 / 365 days (not open)</option></select>
-<button class="btn" id="createOrder" type="button" disabled>Checking secure checkout…</button>
-<p id="checkoutStatus" role="status" aria-live="polite" class="muted">Checking payment-service readiness. No order or payment has been created.</p>
-<div id="orderPanel" class="detail" hidden>
-<small>EXACT USDT AMOUNT — SEND ONLY THIS</small><b id="orderAmount" class="price">— USDT</b>
-<small id="orderExpiryLabel">ORDER EXPIRES</small><b id="orderExpiry">—</b>
-<p class="muted">Use TRON Mainnet / TRC-20 only. The verifier checks the received token contract, destination, exact amount and solidified receipt before automatic unlock.</p>
-<button class="btn" id="copyOrderWallet" type="button">Copy receiving wallet</button>
-</div>
-<a id="paidDashboard" class="btn" href="dashboard.html" hidden>Open Student Dashboard →</a>
-</div>
+<section class="grid" aria-label="Planned products">
+<article class="card"><h2>Bullseye Theory Course</h2><div class="price">₹999</div><div class="term">85-day course access · 11 interactive lessons</div><div class="state">NOT OPEN FOR ENROLLMENT</div></article>
+<article class="card"><h2>Premium Telegram</h2><div class="price">₹1,999</div><div class="term">Term and deliverables will be confirmed before opening</div><div class="state">NOT OPEN FOR ENROLLMENT</div></article>
+<article class="card"><h2>Bullseye India Indicator</h2><div class="price">₹9,999</div><div class="term">Planned 365-day access · historical analyzer only</div><div class="state">DATA SOURCE AND ACCESS GATES NOT FINAL</div></article>
 </section>
-<div class="prices">
-<section class="card disabled"><div class="tag">INDIA / UPI</div><h2>UPI QR</h2><p>Not available yet. The official Indian QR has not been supplied in this project. This method will remain hidden or disabled until added and tested.</p></section>
-<section class="card disabled"><div class="tag">PAYPAL</div><h2>PayPal</h2><p>Not configured. No PayPal payment link is active.</p></section>
-</div>
-<section class="card"><div class="eyebrow">HOW AUTOMATIC ACCESS WILL WORK</div><h2>Verified payment → student access</h2><div class="steps"><div class="step"><b>01 / Sign in</b>Create or sign in to your Bullseye student account.</div><div class="step"><b>02 / Create order</b>Checkout will generate a time-limited USDT amount for your selected plan.</div><div class="step"><b>03 / Confirm & unlock</b>The server checks the official token contract, destination, exact amount and solidified successful transaction before it unlocks course access.</div></div></section>
-<p class="footer">Educational content only; not personalized investment advice or a promise of trading profits. Planned prices are not an invitation to pay while checkout is closed. USDT acceptance and applicable tax, TDS, GST and accounting treatment must be reviewed by the business's qualified adviser. Support: <a href="mailto:eyetheorybulls@gmail.com">eyetheorybulls@gmail.com</a>. See <a href="terms.html">Terms</a>, <a href="refund.html">Refund information</a>, <a href="privacy.html">Privacy</a> and <a href="disclaimer.html">Disclaimer</a>.</p>
+<div class="actions"><a class="primary" href="/membership.html">View membership details</a><a href="/auth.html">Student sign in</a><a href="/terms.html">Terms</a><a href="/refund.html">Refund policy</a><a href="/privacy.html">Privacy</a></div>
+<footer>When enrollment opens, payment verification and entitlement activation will be handled manually. This page does not accept orders, collect payment details, or activate access. Contact support through the address shown on the official membership page.</footer>
 </main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-config.js"></script>
-<script src="payment-checkout.js?v=20261102-1"></script>
-<script>
-const wallet = "TF8aiK6Q8kboLBcaHtckapVpsEQyR3oWwV";
-document.getElementById("copyWallet").addEventListener("click", async () => {
-  const button = document.getElementById("copyWallet");
-  try {
-    await navigator.clipboard.writeText(wallet);
-    button.textContent = "Wallet address copied";
-  } catch {
-    button.textContent = "Copy unavailable — select the address above";
-  }
-});
-</script>
+<script defer src="/payment-checkout.js?v=20261116-manual-only"></script>
 </body>
 </html>
