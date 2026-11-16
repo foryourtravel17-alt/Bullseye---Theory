@@ -8,6 +8,7 @@ let child;
 let baseUrl;
 let entitlementServer;
 let entitlementUrl;
+let serverStderr = '';
 
 async function freePort() {
   const probe = createNetServer();
@@ -79,18 +80,20 @@ before(async () => {
       SUPABASE_PUBLISHABLE_KEY: 'test-publishable-key',
       SUPABASE_SERVICE_ROLE_KEY: 'do-not-expose-this'
     },
-    stdio: 'ignore'
+    stdio: ['ignore', 'ignore', 'pipe']
   });
+  child.stderr.setEncoding('utf8');
+  child.stderr.on('data', (chunk) => { serverStderr += chunk; });
   let ready = false;
   for (let attempt = 0; attempt < 40; attempt += 1) {
-    if (child.exitCode !== null) throw new Error('Indicator server exited before startup');
+    if (child.exitCode !== null) throw new Error('Indicator server exited before startup: ' + serverStderr.slice(-3000));
     try {
       const response = await fetch(`${baseUrl}/health`);
       if (response.ok) { ready = true; break; }
     } catch {}
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
-  if (!ready) throw new Error('Indicator server did not become ready');
+  if (!ready) throw new Error('Indicator server did not become ready. Exit code: ' + child.exitCode + '. Stderr: ' + serverStderr.slice(-3000));
 });
 
 after(async () => {
