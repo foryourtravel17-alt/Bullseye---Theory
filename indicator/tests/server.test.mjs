@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer as createNetServer } from 'node:net';
 import { createServer as createHttpServer } from 'node:http';
+import { fileURLToPath } from 'node:url';
 
 let child;
 let baseUrl;
@@ -73,7 +74,7 @@ before(async () => {
   const port = await freePort();
   baseUrl = `http://127.0.0.1:${port}`;
   let childError = '';\n  child = spawn(process.execPath, ['server.mjs'], {
-    cwd: new URL('..', import.meta.url),
+    cwd: fileURLToPath(new URL('..', import.meta.url)),
     env: {
       ...process.env,
       PORT: String(port),
