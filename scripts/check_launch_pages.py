@@ -83,6 +83,7 @@ if membership.is_file():
             errors.append(f"membership.html: missing launch safety phrase: {phrase}")
 
 
+
 index = ROOT / "index.html"
 if index.is_file():
     source = index.read_text(encoding="utf-8")
@@ -90,6 +91,24 @@ if index.is_file():
         errors.append("index.html: canonical URL must use the Cloudflare production origin, not a preview URL")
     if "bullseye-theory-secure-preview.onrender.com" in source:
         errors.append("index.html: canonical URL must never point to the Render preview")
+    for phrase in ("ENROLLMENT CLOSED", "PLANNED PRICE", "₹999", "₹9,999", "VIEW ENROLLMENT STATUS"):
+        if phrase not in source:
+            errors.append(f"index.html: missing closed-enrollment marker: {phrase}")
+    if "START THE COURSE" in source or "ENROLL NOW" in source:
+        errors.append("index.html: active enrollment CTA is not allowed while checkout is closed")
+    if 'bullseye-v3.css?v=20261116-1' not in source:
+        errors.append("index.html: terminal HUD CSS cache-busting version must be updated")
+    if 'bullseye-v3.css?v=20261002-7' in source:
+        errors.append("index.html: stale CSS cache-busting version remains")
+
+styles = ROOT / "bullseye-v3.css"
+if styles.is_file():
+    css = styles.read_text(encoding="utf-8")
+    if "\\n." in css or "\\n\\n" in css:
+        errors.append("bullseye-v3.css: literal backslash-n sequences break appended visual rules")
+    for selector in (".bt-footer-brand", ".bt-status-strip", ".bt-closed-price"):
+        if selector not in css:
+            errors.append(f"bullseye-v3.css: missing launch design selector: {selector}")
 
 payment = ROOT / "payment.html"
 if payment.is_file():
