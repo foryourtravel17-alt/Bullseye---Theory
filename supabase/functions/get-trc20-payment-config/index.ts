@@ -26,6 +26,7 @@ Deno.serve((req: Request) => {
   const flags = {
     checkout: checkoutEnabled,
     premium: Deno.env.get("PREMIUM_CHECKOUT_ENABLED") === "true",
+    premiumTermConfirmed: Deno.env.get("PREMIUM_ACCESS_TERM_CONFIRMED") === "true",
     indicator: Deno.env.get("INDICATOR_CHECKOUT_ENABLED") === "true",
   };
   const premiumEnabled = isProductEnabled("premium", flags);
