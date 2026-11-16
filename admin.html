@@ -14,10 +14,21 @@
 </div></div>
 <button id="save">SAVE ACCESS</button><button class="secondary" id="refresh">REFRESH STUDENTS</button>
 <p class="muted">Saving can create an access record for a newly registered student. This does not process a payment or send a receipt.</p></section>
+<section class="card" id="indicatorAccessCard"><h2>Grant or update indicator access</h2>
+<p class="muted">Separate 365-day Bullseye India website analyzer entitlement. Payment is always verified manually. Saving an active row without the payment-verified flag does not unlock the analyzer.</p>
+<label for="indicatorStudent">Indicator member account (email)</label><select id="indicatorStudent"><option value="">Loading member accounts…</option></select>
+<div class="row"><div><label for="indicatorExpiry">Access expiry (optional)</label><input id="indicatorExpiry" type="date"><p class="muted">Leave blank for the standard 365-day access period.</p></div><div><label>Indicator access flags</label>
+<div class="check"><input id="indicatorActive" type="checkbox"><label for="indicatorActive">Indicator access active</label></div>
+<div class="check"><input id="indicatorVerified" type="checkbox"><label for="indicatorVerified">Payment independently verified</label></div>
+</div></div>
+<button id="saveIndicator">SAVE INDICATOR ACCESS</button><button class="secondary" id="refreshIndicator">REFRESH INDICATOR MEMBERS</button>
+<div id="indicatorStatus" class="status">Indicator access controls load after the indicator membership migration is deployed.</div>
+</section>
+<section><h2>Indicator membership status</h2><div id="indicatorList"></div></section>
 <section><h2>Student access status</h2><div id="list"></div></section></main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js?v=20261026-3"></script><script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js?v=20261116-1"></script><script>
 const sb=supabase.createClient(BULLSEYE_SUPABASE_URL,BULLSEYE_SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
-const $=id=>document.getElementById(id);let students=[];
+const $=id=>document.getElementById(id);let students=[];let indicatorMembers=[];let indicatorSchemaReady=false;
 function status(message,error=false){$('status').textContent=message;$('status').classList.toggle('error',error)}
 function el(tag,txt,cls){const n=document.createElement(tag);n.textContent=txt;if(cls)n.className=cls;return n}
 async function init(){
@@ -28,7 +39,7 @@ async function init(){
  if(pe){status('Profile lookup failed: '+pe.message,true);return}
  if(!profile){status('No profile row for signed-in user '+session.user.id+'. Log out and sign in again.',true);return}
  if(!profile.is_admin && profile.role!=='admin'){status('This account is not marked admin: '+(session.user.email||'email unavailable')+'.',true);return}
- status('Admin access confirmed. Loading student accounts…');await loadStudents();
+ status('Admin access confirmed. Loading student accounts…');await loadStudents();await loadIndicatorMembers();
 }
 async function loadStudents(){
  const {data,error}=await sb.rpc('admin_list_course_students');
@@ -39,6 +50,82 @@ async function loadStudents(){
  students.forEach(s=>select.add(new Option((s.full_name?s.full_name+' — ':'')+(s.email||s.user_id),s.user_id)));
  render();status('Admin access active. Loaded '+students.length+' account(s).');
 }
+async function loadIndicatorMembers(){
+ const target=$('indicatorStudent');
+ const state=$('indicatorStatus');
+ $('saveIndicator').disabled=true;
+ try{
+  const {data,error}=await sb.rpc('admin_list_indicator_members');
+  if(error)throw error;
+  indicatorMembers=data||[];
+  indicatorSchemaReady=true;
+  target.replaceChildren();
+  if(!indicatorMembers.length){
+   target.add(new Option('No registered accounts yet',''));
+   $('indicatorList').replaceChildren(el('div','No registered accounts yet.','card'));
+   state.textContent='Indicator membership schema is ready. No accounts found.';
+   $('saveIndicator').disabled=false;
+   return;
+  }
+  target.add(new Option('Choose a member…',''));
+  indicatorMembers.forEach(s=>target.add(new Option((s.full_name?s.full_name+' — ':'')+(s.email||s.user_id),s.user_id)));
+  renderIndicator();
+  state.textContent='Indicator membership controls active. Loaded '+indicatorMembers.length+' account(s).';
+  state.classList.remove('error');
+  $('saveIndicator').disabled=false;
+ }catch(error){
+  indicatorSchemaReady=false;
+  target.replaceChildren(new Option('Indicator access schema not deployed',''));
+  $('indicatorList').replaceChildren(el('div','The indicator_access migration and admin RPCs are not deployed in this database yet. No indicator access was changed.','card'));
+  state.textContent='Indicator access is safely unavailable until the approved migration and Edge Function are deployed. Course access management remains available.';
+  state.classList.add('error');
+ }
+}
+function renderIndicator(){
+ const list=$('indicatorList');list.replaceChildren();
+ indicatorMembers.forEach(s=>{
+  const card=el('article','','card');
+  const effective=!!s.is_active&&!!s.payment_verified&&!!s.expires_at&&new Date(s.expires_at)>new Date();
+  card.append(el('h3',(s.full_name||'Member')+' — '+(s.email||'email unavailable')));
+  card.append(el('p','User ID: '+s.user_id,'muted'));
+  card.append(el('p','Access flag: '+(s.is_active?'ON':'OFF')+' · Payment verified: '+(s.payment_verified?'YES':'NO')));
+  card.append(el('p','Effective entitlement: '+(effective?'ACTIVE':'LOCKED')+' · Expiry: '+(s.expires_at?new Date(s.expires_at).toLocaleDateString():'Not set')));
+  const button=el('button','EDIT THIS MEMBER');
+  button.addEventListener('click',()=>{
+   $('indicatorStudent').value=s.user_id;
+   $('indicatorActive').checked=!!s.is_active;
+   $('indicatorVerified').checked=!!s.payment_verified;
+   $('indicatorExpiry').value=s.expires_at?s.expires_at.slice(0,10):'';
+   window.scrollTo({top:0,behavior:'smooth'});
+  });
+  card.append(button);list.append(card);
+ });
+}
+$('saveIndicator').addEventListener('click',async()=>{
+ if(!indicatorSchemaReady){$('indicatorStatus').textContent='Indicator access schema is not deployed. No change was made.';return}
+ const id=$('indicatorStudent').value;
+ if(!id){$('indicatorStatus').textContent='Choose a member first.';return}
+ const verifyPayment=$('indicatorVerified').checked;
+ if(verifyPayment&&!confirm('Confirm that you independently checked the actual payment settlement for this member? This is a manual owner action.'))return;
+ let expiry=null;
+ if($('indicatorExpiry').value){
+  expiry=new Date($('indicatorExpiry').value+'T23:59:59.000Z').toISOString();
+  if(new Date(expiry)<=new Date()){$('indicatorStatus').textContent='Expiry must be in the future.';return}
+ }
+ $('saveIndicator').disabled=true;
+ const {error}=await sb.rpc('admin_set_indicator_access',{
+  target_user:id,
+  make_active:$('indicatorActive').checked,
+  verify_payment:verifyPayment,
+  access_expires_at:expiry
+ });
+ $('saveIndicator').disabled=false;
+ if(error){$('indicatorStatus').textContent='Indicator access was not saved: '+error.message;$('indicatorStatus').classList.add('error');return}
+ $('indicatorStatus').textContent='Indicator access record updated. Effective access requires both active and payment-verified flags.';
+ await loadIndicatorMembers();
+});
+$('refreshIndicator').addEventListener('click',()=>loadIndicatorMembers());
+
 function render(){
  const list=$('list');list.replaceChildren();
  students.forEach(s=>{const card=el('article','','card');card.append(el('h3',(s.full_name||'Student')+' — '+(s.email||'email unavailable')));
