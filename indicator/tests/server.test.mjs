@@ -8,6 +8,7 @@ let child;
 let baseUrl;
 let entitlementServer;
 let entitlementUrl;
+let requestLog = [];
 
 async function freePort() {
   const probe = createNetServer();
@@ -25,6 +26,24 @@ async function startHttpServer(server) {
 
 before(async () => {
   entitlementServer = createHttpServer((req, res) => {
+    requestLog.push({ path: req.url, authorization: req.headers.authorization || '' });
+    if (req.url === '/auth/v1/user') {
+      const token = req.headers.authorization || '';
+      if (token === 'Bearer invalid-token') {
+        res.writeHead(401, { 'content-type': 'application/json' }).end(JSON.stringify({ error: 'invalid session' }));
+        return;
+      }
+      if (token === 'Bearer auth-outage') {
+        res.writeHead(503, { 'content-type': 'application/json' }).end(JSON.stringify({ error: 'auth service unavailable' }));
+        return;
+      }
+      if (!token.startsWith('Bearer ')) {
+        res.writeHead(401, { 'content-type': 'application/json' }).end(JSON.stringify({ error: 'missing bearer token' }));
+        return;
+      }
+      res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({ id: 'user-123', email: 'owner@example.test' }));
+      return;
+    }
     if (req.url !== '/functions/v1/get-indicator-access') {
       res.writeHead(404).end();
       return;
@@ -151,11 +170,23 @@ test('indicator access API allows only an active verified 365-day entitlement', 
   assert.equal(result.expires_at, '2035-01-01T00:00:00.000Z');
 });
 
-test('invalid sessions and entitlement-service failures fail closed', async () => {
+test('Supabase Auth validates the bearer token before entitlement lookup', async () => {
+  requestLog = [];
   const invalid = await fetch(baseUrl + '/api/access', {
     headers: { authorization: 'Bearer invalid-token' }
   });
   assert.equal(invalid.status, 401);
+  assert.deepEqual(requestLog.map((item) => item.path), ['/auth/v1/user']);
+  requestLog = [];
+  const authOutage = await fetch(baseUrl + '/api/access', {
+    headers: { authorization: 'Bearer auth-outage' }
+  });
+  assert.equal(authOutage.status, 503);
+  assert.deepEqual(requestLog.map((item) => item.path), ['/auth/v1/user']);
+  const unavailable = await fetch(baseUrl + '/api/access', {
+    headers: { authorization: 'Bearer upstream-failure' }
+  });
+  assert.equal(unavailable.status, 503);
   const unavailable = await fetch(baseUrl + '/api/access', {
     headers: { authorization: 'Bearer upstream-failure' }
   });
