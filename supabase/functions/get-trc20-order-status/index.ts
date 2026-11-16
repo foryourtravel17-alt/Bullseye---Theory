@@ -60,7 +60,7 @@ Deno.serve(async (req: Request) => {
       return respond({ error: "Unable to verify indicator entitlement" }, 503);
     }
     indicatorEntitlement = access;
-  } else if (order.status === "paid") {
+  } else if (order.status === "paid" && order.plan_code === "course") {
     const { data: access, error: accessError } = await admin.from("course_access")
       .select("is_active,payment_verified,expires_at")
       .eq("user_id", userData.user.id)
@@ -81,7 +81,8 @@ Deno.serve(async (req: Request) => {
     usdt_amount: amount,
     expires_at: order.expires_at,
     paid_at: order.paid_at,
-    access_days: order.plan_code === "indicator" ? 365 : 85,
+    access_days: order.plan_code === "indicator" ? 365 : order.plan_code === "course" ? 85 : null,
+    premium_manual_fulfilment_required: order.plan_code === "premium",
     indicator_access_active: indicatorEntitlement ? indicatorEntitlement.is_active && indicatorEntitlement.payment_verified && !!indicatorEntitlement.expires_at && Date.parse(indicatorEntitlement.expires_at) > Date.now() : null,
     indicator_access_expires_at: indicatorEntitlement?.expires_at ?? null,
     course_access_active: courseEntitlement ? courseEntitlement.is_active && courseEntitlement.payment_verified && !!courseEntitlement.expires_at && Date.parse(courseEntitlement.expires_at) > Date.now() : null,
