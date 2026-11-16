@@ -164,7 +164,7 @@
     }
     setStatus(data.indicator_enabled
       ? "Course and annual website analyzer checkout are available. Indicator access is a separate 365-day entitlement."
-      : "Course checkout is available. Annual indicator checkout remains closed until its separate entitlement and invitation process are approved.", "success");
+      : "Course checkout is available. Annual website analyzer checkout remains closed until its entitlement and CSV analysis workflow are approved.", "success");
   }
 
   async function pollOrder(orderId) {
