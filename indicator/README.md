@@ -7,8 +7,9 @@
 - Do not open indicator checkout or deploy this app to production until data-source, Pine/Node parity, historical QA, customer access and compliance gates are complete.
 
 ## India-first free workflow
-The indicator web app now accepts a user-supplied TradingView OHLCV CSV for NSE/BSE symbols. It does not fetch Binance klines or claim to provide live NSE market data.
-- Export candles from a broker, charting platform or market-data source that permits your use. No paid TradingView plan or particular vendor export feature is required by this app.
+The Pine indicator in `bullseye.pine` reads the OHLCV data already present on the user's TradingView chart; compiling and running this personal script does not require a CSV export or a paid TradingView plan.
+
+The separate website analyzer accepts a user-supplied OHLCV CSV for NSE/BSE symbols. It does not fetch market data. TradingView Free does not provide the CSV export the owner needs, so do not make TradingView CSV export a launch task. Use another broker/data source only if it provides completed 15m/1h OHLCV and its terms permit the intended use. No permitted free intraday source has yet been verified.
 - Required CSV columns: time/date/timestamp, open, high, low, close. Volume is required for volume-qualified signals; when missing, the reference engine cannot emit signals.
 - Supported intervals: 15m and 1h only.
 - Upload limit: 5 MB. The server parses the file in memory; it does not save uploaded files.
@@ -31,9 +32,9 @@ npm test
 node --check server.mjs
 npm start
 ~~~
-Open http://localhost:3000. Upload a TradingView CSV export and compare the report to the exported candle series.
+Open http://localhost:3000. Upload a permitted OHLCV CSV from a broker/data source. The Pine script itself can be compiled and run on a TradingView chart without exporting a CSV.
 
-The report executes the deterministic Node reference engine, not TradingView's Pine runtime. It cannot by itself prove Pine/TradingView parity, live non-repainting or profitability. Do not present it as a live signal service.
+The report executes the deterministic Node reference engine, not TradingView's Pine runtime. It cannot by itself prove Pine/TradingView parity, live non-repainting or profitability. Without the same completed candles, exact numerical Pine/Node parity remains unverified. Do not present the analyzer as a live signal service.
 
 ## Security and release gates
 - No Telegram sending path or broker order execution is included.
