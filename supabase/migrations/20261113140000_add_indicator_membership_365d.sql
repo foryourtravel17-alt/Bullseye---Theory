@@ -4,7 +4,7 @@
 --
 -- Product contracts:
 --   course    ₹999    85 days
---   premium   ₹1,999  85 days (legacy row shape; checkout remains independently disabled)
+--   premium   ₹1,999  duration not finalized; new orders remain blocked (legacy row shape is retained only for schema compatibility)
 --   indicator ₹9,999  365 days
 --
 -- Indicator membership is separate from course_access. A payment for one product
@@ -26,7 +26,8 @@ revoke all on table public.indicator_access from public, anon, authenticated;
 grant select, insert, update on table public.indicator_access to service_role;
 
 -- Relax the old course-only payment checks and replace them with product-specific
--- price/duration contracts. Existing course/premium rows retain their current terms.
+-- price/duration contracts. Premium keeps its legacy 85-day database row shape only;
+-- the Edge Function refuses new Premium orders until the business confirms its term.
 alter table public.payment_orders
   drop constraint if exists payment_orders_plan_code_check;
 alter table public.payment_orders
@@ -113,6 +114,18 @@ begin
   get diagnostics v_inserted = row_count;
   if v_inserted = 0 then return 'duplicate_transaction'; end if;
 
+  -- Premium is a separate Telegram membership with an unconfirmed term. Record
+  -- the matching transfer for manual reconciliation; never grant course access.
+  if v_order.plan_code = 'premium' then
+    update public.payment_orders
+    set status = 'manual_review', payment_tx_hash = p_tx_hash
+    where id = p_order_id and status = 'pending';
+    if not found then
+      raise exception 'Premium order status changed during manual reconciliation';
+    end if;
+    return 'manual_review';
+  end if;
+
   update public.payment_orders
   set status = 'paid', paid_at = now(), payment_tx_hash = p_tx_hash
   where id = p_order_id and status = 'pending';
@@ -174,9 +187,8 @@ grant execute on function public.finalize_trc20_payment(
   uuid, text, numeric, text, text, text, timestamptz, bigint
 ) to service_role;
 
--- Owner/admin access controls for manual invite-only entitlement reconciliation.
--- These functions do not grant TradingView access; the actual TradingView invitation
--- remains a separate manual action in the owner's TradingView account.
+-- Owner/admin access controls for manual website-analyzer entitlement reconciliation.
+-- These functions grant only the separate 365-day website analyzer entitlement.
 create or replace function public.admin_set_indicator_access(
   target_user uuid,
   make_active boolean,
