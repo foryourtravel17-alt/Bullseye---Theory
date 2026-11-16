@@ -116,7 +116,8 @@ const answerKeys = Object.fromEntries(
   ]),
 );
 const secureClient = await readFile(path.join(ROOT, "lesson-secure-client.js"), "utf8");
-if (!secureClient.includes('usesLetters = lesson === 1 || lesson === 2 || lesson === 11')) {
+if (!secureClient.includes('const zeroBased = document.querySelector(\'input[name="q0"]\') !== null;')
+  || !secureClient.includes('const names = zeroBased ? ["q0","q1","q2","q3","q4"] : ["q1","q2","q3","q4","q5"];')) {
   fail("secure quiz client must preserve q1–q5 names for lessons 1, 2 and 11, and q0–q4 for lessons 3–10");
 }
 
