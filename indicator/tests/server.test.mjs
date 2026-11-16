@@ -55,6 +55,24 @@ before(async () => {
       }));
       return;
     }
+    if (token === 'Bearer wrong-product') {
+      res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({
+        product: 'bullseye-course',
+        access_active: true,
+        access_days: 365,
+        expires_at: '2035-01-01T00:00:00.000Z'
+      }));
+      return;
+    }
+    if (token === 'Bearer wrong-duration') {
+      res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({
+        product: 'bullseye-india-indicator',
+        access_active: true,
+        access_days: 85,
+        expires_at: '2035-01-01T00:00:00.000Z'
+      }));
+      return;
+    }
     if (token === 'Bearer active-token') {
       res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({
         product: 'bullseye-india-indicator',
@@ -199,4 +217,13 @@ test('server exposes only the dashboard and chart library, not private source fi
   assert.equal(engine.status, 404);
   const packageFile = await fetch(baseUrl + '/package.json');
   assert.equal(packageFile.status, 404);
+});
+
+test('access API rejects a different product or non-365-day entitlement', async () => {
+  for (const token of ['wrong-product', 'wrong-duration']) {
+    const response = await fetch(baseUrl + '/api/access', {
+      headers: { authorization: `Bearer ${token}` }
+    });
+    assert.equal(response.status, 503);
+  }
 });
