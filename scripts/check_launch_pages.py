@@ -133,6 +133,17 @@ for rel in ("privacy.html", "legal.html"):
         if "cloudflare" not in lower:
             errors.append(f"{rel}: current website hosting provider Cloudflare is missing")
 
+
+membership_source = (ROOT / "membership.html").read_text(encoding="utf-8").lower()
+if "source whose terms permit your intended use" not in membership_source:
+    errors.append("membership.html: analyzer must require a data source whose terms permit the customer's intended use")
+if "fyers documents a free historical api" in membership_source:
+    errors.append("membership.html: do not imply FYERS API is approved for this commercial analyzer")
+
+payment_source = (ROOT / "payment.html").read_text(encoding="utf-8").lower()
+if "customer supplies a compatible csv" not in payment_source:
+    errors.append("payment.html: clarify that the customer supplies a permitted OHLCV CSV and no feed is included")
+
 if errors:
     print("LAUNCH PAGE CHECKS FAILED")
     for err in errors:
