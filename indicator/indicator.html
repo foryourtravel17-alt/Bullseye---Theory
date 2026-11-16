@@ -13,17 +13,28 @@ main{max-width:1180px;margin:24px auto;padding:0 16px}.intro{margin-bottom:18px}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px;margin-bottom:14px}.toolbar{display:grid;grid-template-columns:1fr 1fr 1.2fr auto;gap:10px;align-items:end}
 label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}input,select,button{width:100%;background:#101a18;border:1px solid #30443b;color:var(--text);padding:11px;border-radius:8px;font:inherit;min-width:0}button{background:var(--lime);color:#0b1608;font-weight:900;border-color:var(--lime);cursor:pointer}
 .layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:14px}.chart{height:440px}.panelhead{display:flex;justify-content:space-between;gap:10px;margin-bottom:10px}.metrics{display:grid;grid-template-columns:1fr 1fr;gap:9px}.metric{padding:11px;background:#101a18;border:1px solid var(--line);border-radius:8px}.metric small{display:block;color:var(--muted);font-size:11px}.metric b{font-size:17px;overflow-wrap:anywhere}.status{font-size:23px;font-weight:900;color:var(--muted);margin:4px 0 12px}.status.long{color:var(--green)}.status.short{color:var(--red)}
-.notice{color:var(--muted);font-size:12px;margin-top:12px}.error{color:var(--red)}.success{color:var(--green)}table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:9px 7px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted)}.tablewrap{overflow:auto}.foot{color:var(--muted);font-size:11px;margin:14px 2px}
-@media(max-width:800px){.toolbar{grid-template-columns:1fr 1fr}.toolbar button{grid-column:1/-1}.layout{grid-template-columns:1fr}.chart{height:350px}.side{order:-1}}
-@media(max-width:420px){.toolbar{grid-template-columns:1fr}.toolbar button{grid-column:auto}.panel{padding:12px}}
+.notice{color:var(--muted);font-size:12px;margin-top:12px}.authrow{display:grid;grid-template-columns:1fr 1fr auto auto;gap:9px;align-items:end}.authrow button{min-width:110px}.error{color:var(--red)}.success{color:var(--green)}table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:9px 7px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted)}.tablewrap{overflow:auto}.foot{color:var(--muted);font-size:11px;margin:14px 2px}
+@media(max-width:800px){.authrow{grid-template-columns:1fr 1fr}.authrow button{width:100%}.toolbar{grid-template-columns:1fr 1fr}.toolbar button{grid-column:1/-1}.layout{grid-template-columns:1fr}.chart{height:350px}.side{order:-1}}
+@media(max-width:420px){.authrow{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr}.toolbar button{grid-column:auto}.panel{padding:12px}}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/node_modules/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
 </head>
 <body>
 <header><div class="brand">BULLSEYE <span>INDIA</span></div><div class="sub">HISTORICAL MARKET ANALYSIS · NO BROKER EXECUTION</div></header>
 <main>
 <section class="intro"><div class="sub">BULLSEYE LEVELS · FREE-FIRST WORKFLOW</div><h1>Study the chart. <span>Test the process.</span></h1><div class="sub">Upload an OHLCV CSV exported from a market-data source you are allowed to use. No exchange feed or paid subscription is bundled.</div></section>
-<section class="panel">
+<section class="panel" id="accessPanel">
+<div class="panelhead"><b>MEMBER ACCESS</b><span class="sub" id="accessState">SIGN IN REQUIRED</span></div>
+<div class="authrow">
+<div><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="username" placeholder="Your Bullseye Theory email"></div>
+<div><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password"></div>
+<button id="signIn" type="button">Sign in</button>
+<button id="signOut" type="button" hidden>Sign out</button>
+</div>
+<p id="accessMessage" class="notice">Sign in with your Bullseye Theory account. The analyzer unlocks only while a verified 365-day indicator membership is active.</p>
+</section>
+<section class="panel" id="analyzerPanel">
 <div class="toolbar">
 <div><label for="symbol">Market symbol</label><input id="symbol" maxlength="32" value="NSE:RELIANCE" autocomplete="off"></div>
 <div><label for="timeframe">Timeframe</label><select id="timeframe"><option value="15m">15 minutes</option><option value="1h">1 hour</option></select></div>
@@ -44,6 +55,67 @@ label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}input,se
 <p class="foot">Educational historical analysis only — not financial advice, live signals, a recommendation, or guaranteed performance. Results are generated from the CSV you provide; files are processed in memory and not saved. Pine/TradingView runtime parity has not yet been independently verified.</p>
 </main>
 <script>
+const SUPABASE_URL='https://kjhdcpjztuzpysdauqdz.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_1fo0yxL2uk_vwFGR5-Sh-A_z7t0RhXt';
+const authClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+let activeSession=null;
+const accessState=document.getElementById('accessState');
+const accessMessage=document.getElementById('accessMessage');
+const signInButton=document.getElementById('signIn');
+const signOutButton=document.getElementById('signOut');
+const analyzeButton=document.getElementById('analyze');
+function setAnalyzerEnabled(enabled){
+ for(const id of ['symbol','timeframe','csvFile','analyze']) document.getElementById(id).disabled=!enabled;
+}
+function setAccessMessage(message,kind='notice'){
+ accessMessage.textContent=message;
+ accessMessage.className=kind;
+}
+async function refreshAccess(){
+ const {data:{session}}=await authClient.auth.getSession();
+ activeSession=session;
+ signOutButton.hidden=!session;
+ signInButton.disabled=!!session;
+ if(!session){
+  accessState.textContent='SIGN IN REQUIRED';
+  setAnalyzerEnabled(false);
+  setAccessMessage('Sign in with your Bullseye Theory account. The analyzer unlocks only while a verified 365-day indicator membership is active.');
+  return;
+ }
+ accessState.textContent='VERIFYING MEMBERSHIP…';
+ setAnalyzerEnabled(false);
+ try{
+  const response=await fetch('/api/access',{headers:{Authorization:'Bearer '+session.access_token},cache:'no-store'});
+  const data=await response.json();
+  if(!response.ok||data.access_active!==true){
+   accessState.textContent=response.status===403?'NO ACTIVE MEMBERSHIP':'ACCESS CHECK FAILED';
+   setAccessMessage(data.error||'No active verified Bullseye India analyzer membership was found. Contact support if you have already completed verification.','error');
+   return;
+  }
+  accessState.textContent='MEMBERSHIP ACTIVE';
+  const expiry=data.expires_at?new Date(data.expires_at).toLocaleString():'Verified';
+  setAccessMessage('Verified 365-day analyzer membership active. Access expiry: '+expiry+'.','success');
+  setAnalyzerEnabled(true);
+ }catch{
+  accessState.textContent='ACCESS CHECK FAILED';
+  setAccessMessage('Could not verify membership. The analyzer remains locked until the access service responds.','error');
+ }
+}
+signInButton.addEventListener('click',async()=>{
+ const email=document.getElementById('loginEmail').value.trim();
+ const password=document.getElementById('loginPassword').value;
+ if(!email||!password){setAccessMessage('Enter your email and password.','error');return;}
+ signInButton.disabled=true;
+ const {error}=await authClient.auth.signInWithPassword({email,password});
+ signInButton.disabled=false;
+ if(error){setAccessMessage('Sign-in failed. Check your details and try again.','error');return;}
+ await refreshAccess();
+});
+signOutButton.addEventListener('click',async()=>{
+ await authClient.auth.signOut();
+ await refreshAccess();
+});
+authClient.auth.onAuthStateChange(()=>{refreshAccess()});
 const chartHost=document.getElementById('chart');
 const chart=LightweightCharts.createChart(chartHost,{layout:{background:{color:'#0b1016'},textColor:'#9aa9a4'},grid:{vertLines:{color:'#18251f'},horzLines:{color:'#18251f'}},rightPriceScale:{borderColor:'#30443b'},timeScale:{borderColor:'#30443b',timeVisible:true,secondsVisible:false}});
 const series=chart.addSeries(LightweightCharts.CandlestickSeries,{upColor:'#55d9a0',downColor:'#ff7182',borderVisible:false,wickUpColor:'#55d9a0',wickDownColor:'#ff7182'});
@@ -76,7 +148,8 @@ document.getElementById('analyze').addEventListener('click',async()=>{
  try{
   const csv=await file.text();
   const query=new URLSearchParams({timeframe:document.getElementById('timeframe').value,symbol:document.getElementById('symbol').value});
-  const response=await fetch('/api/analyze-csv?'+query.toString(),{method:'POST',headers:{'Content-Type':'text/csv'},body:csv});
+  if(!activeSession){setMessage('Sign in and verify your indicator membership first.','error');return}
+  const response=await fetch('/api/analyze-csv?'+query.toString(),{method:'POST',headers:{'Content-Type':'text/csv',Authorization:'Bearer '+activeSession.access_token},body:csv});
   const data=await response.json();if(!response.ok)throw new Error(data.error||'Analysis failed');
   render(data);
   setMessage('Validated '+data.fileRows+' rows. '+(data.hasVolumeColumn?'Volume column found.':'Volume column missing — volume-qualified signals will be blocked.')+' Last row excluded: '+data.lastRowExcluded+'.','success');
@@ -84,5 +157,7 @@ document.getElementById('analyze').addEventListener('click',async()=>{
  finally{button.disabled=false;button.textContent='Analyze CSV'}
 });
 new ResizeObserver(()=>chart.applyOptions({width:chartHost.clientWidth,height:chartHost.clientHeight})).observe(chartHost);
+setAnalyzerEnabled(false);
+refreshAccess();
 </script>
 </body></html>
