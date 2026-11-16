@@ -69,3 +69,8 @@ node --check server.mjs
 npm start
 ```
 Open http://localhost:3000 and upload an OHLCV CSV. The final CSV row is excluded by default as potentially unfinished.
+
+## Supabase security advisor review — 2026-11-16
+
+- Five `SECURITY DEFINER` RPC warnings were reviewed. The two admin RPCs check `public.is_admin()`; certificate issuance checks admin status or the caller's own `auth.uid()`, active verified access and completion of all 11 lessons. The grants are retained because the admin/course UI uses these RPCs; do not revoke them without replacing those call paths.
+- Supabase also reports leaked-password protection disabled. Supabase documentation says HaveIBeenPwned leaked-password protection is available on Pro and above. Do not upgrade solely for this. On the current free-first setup, set a minimum password length of at least 8 characters, keep email confirmation enabled, and retain rate limits. Revisit leaked-password protection only if the plan changes.
