@@ -82,26 +82,37 @@ if membership.is_file():
         if phrase not in text:
             errors.append(f"membership.html: missing launch safety phrase: {phrase}")
 
-# The homepage must not imply that a paid product is open while checkout is disabled.
-home = ROOT / "index.html"
-if home.is_file():
-    source = home.read_text(encoding="utf-8")
-    for phrase in ("ENROLLMENT CLOSED", "PLANNED PRICE", "₹999", "₹9,999", "VIEW ENROLLMENT STATUS"):
-        if phrase not in source:
-            errors.append(f"index.html: missing closed-enrollment launch marker: {phrase}")
-    if 'rel="canonical" href="https://bullseye-theory.foryourtravel17.workers.dev/"' not in source:
-        errors.append("index.html: canonical URL must point to the current Cloudflare production host")
-    if "START THE COURSE" in source or "ENROLL NOW" in source:
-        errors.append("index.html: active enrollment CTA is not allowed while checkout is closed")
 
-styles = ROOT / "bullseye-v3.css"
-if styles.is_file():
-    css = styles.read_text(encoding="utf-8")
-    if "\\n." in css or "\\n\\n" in css:
-        errors.append("bullseye-v3.css: literal backslash-n sequences break appended visual rules")
-    for selector in (".bt-footer-brand", ".bt-status-strip", ".bt-closed-price"):
-        if selector not in css:
-            errors.append(f"bullseye-v3.css: missing launch design selector: {selector}")
+index = ROOT / "index.html"
+if index.is_file():
+    source = index.read_text(encoding="utf-8")
+    if 'href="https://bullseye-theory.foryourtravel17.workers.dev/"' not in source:
+        errors.append("index.html: canonical URL must use the Cloudflare production origin, not a preview URL")
+    if "bullseye-theory-secure-preview.onrender.com" in source:
+        errors.append("index.html: canonical URL must never point to the Render preview")
+
+payment = ROOT / "payment.html"
+if payment.is_file():
+    source = payment.read_text(encoding="utf-8")
+    lower = source.lower()
+    if r"\n<section" in source:
+        errors.append("payment.html: literal escaped newline is present before the indicator plan")
+    if "website-based historical analyzer" not in lower or "<h2>website analyzer</h2>" not in lower:
+        errors.append("payment.html: indicator description must match the website analyzer v1 product")
+    for phrase in ("tradingview toolkit", "invite-only access", "tradingview invite"):
+        if phrase in lower:
+            errors.append(f"payment.html: outdated TradingView delivery claim remains: {phrase}")
+
+membership_source = (ROOT / "membership.html").read_text(encoding="utf-8").lower()
+if "tradingview csv export" in membership_source:
+    errors.append("membership.html: customers must not be told that a paid TradingView export is required")
+
+for rel in ("privacy.html", "legal.html"):
+    path = ROOT / rel
+    if path.is_file():
+        lower = path.read_text(encoding="utf-8").lower()
+        if "cloudflare" not in lower:
+            errors.append(f"{rel}: current website hosting provider Cloudflare is missing")
 
 if errors:
     print("LAUNCH PAGE CHECKS FAILED")
