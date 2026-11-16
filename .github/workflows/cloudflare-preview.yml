@@ -4,18 +4,27 @@ on:
   push:
     branches:
       - release/secure-course-and-usdt-preview-2026-11-02
+      - release/bullseye-india-course-indicator-integration
     paths:
       - ".github/workflows/cloudflare-preview.yml"
       - "wrangler.toml"
       - "_worker.js"
       - "index.html"
+      - "bullseye-v3.css"
+      - "bullseye-hero-bull.css"
+      - "public/img/**"
+      - "supabase/**"
+      - "indicator/**"
+      - "docs/**"
       - "auth.html"
       - "dashboard.html"
       - "lesson-*.html"
       - "lessons/**"
       - "course-assets/**"
       - "payment.html"
+      - "payment-checkout.js"
       - "membership.html"
+      - "lesson-secure-client.js"
       - "package.json"
       - "scripts/**"
       - "tests/**"
