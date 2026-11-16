@@ -82,6 +82,16 @@ if membership.is_file():
         if phrase not in text:
             errors.append(f"membership.html: missing launch safety phrase: {phrase}")
 
+# The homepage must not imply that a paid product is open while checkout is disabled.
+home = ROOT / "index.html"
+if home.is_file():
+    source = home.read_text(encoding="utf-8")
+    for phrase in ("ENROLLMENT CLOSED", "PLANNED PRICE", "₹999", "₹9,999", "VIEW ENROLLMENT STATUS"):
+        if phrase not in source:
+            errors.append(f"index.html: missing closed-enrollment launch marker: {phrase}")
+    if "START THE COURSE" in source or "ENROLL NOW" in source:
+        errors.append("index.html: active enrollment CTA is not allowed while checkout is closed")
+
 if errors:
     print("LAUNCH PAGE CHECKS FAILED")
     for err in errors:
