@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { existsSync, readFile } from "node:fs";
 import {
   cookieValue,
   isProtectedCourseAsset,
@@ -138,4 +139,35 @@ test("homepage and membership page do not advertise a recorded video library", a
   }
   assert.match(home, /PRACTICE EXERCISES/);
   assert.match(home, /A recorded video library is not included in the current release candidate/);
+});
+
+test("course resource library links only existing protected study files", async () => {
+  const page = await readFile(new URL("../lessons/resources.html", import.meta.url), "utf8");
+  const pdfLinks = [...page.matchAll(/href="([^"]+\\.pdf)"/g)].map((match) => match[1]);
+  const slideLinks = [...page.matchAll(/href="([^"]+\\.pptx)"/g)].map((match) => match[1]);
+  assert.equal(pdfLinks.length, 10, "all ten current PDF modules must be linked");
+  assert.equal(slideLinks.length, 6, "all six current slide decks must be linked");
+  for (const link of [...pdfLinks, ...slideLinks]) {
+    assert.ok(existsSync(new URL("../lessons/" + link, import.meta.url)), "missing study asset: " + link);
+  }
+  assert.match(page, /Lesson 11[\\s\\S]*online revision lesson/i);
+  assert.match(page, /recorded video[\\s\\S]*not included yet/i);
+});
+
+test("chart drills page contains eleven hypothetical, printable exercises with answer reviews", async () => {
+  const page = await readFile(new URL("../lessons/chart-drills.html", import.meta.url), "utf8");
+  assert.equal((page.match(/class="drill"/g) || []).length, 11);
+  assert.equal((page.match(/<svg\\b/g) || []).length, 11);
+  assert.equal((page.match(/<details\\b/g) || []).length, 11);
+  assert.match(page, /hypothetical|illustrative/i);
+  assert.match(page, /not live market data/i);
+  assert.match(page, /window\\.print\\(\\)/);
+});
+
+test("dashboard links the protected resources and chart drills pages", async () => {
+  const page = await readFile(new URL("../dashboard.html", import.meta.url), "utf8");
+  assert.match(page, /href="lessons\\/resources\\.html"/);
+  assert.match(page, /href="lessons\\/chart-drills\\.html"/);
+  assert.equal(isProtectedCourseAsset("/lessons/resources.html"), true);
+  assert.equal(isProtectedCourseAsset("/lessons/chart-drills.html"), true);
 });
