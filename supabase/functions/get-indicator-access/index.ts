@@ -52,10 +52,9 @@ Deno.serve(async (req: Request) => {
     access_active: active,
     access_days: 365,
     expires_at: active ? access.expires_at : null,
-    tradingview_invite_required: true,
-    tradingview_invite_status: "manual_owner_action",
+    delivery: "website_historical_analyzer",
     message: active
-      ? "Verified indicator entitlement is active. TradingView invite-only access is issued separately by the owner."
-      : "No active verified indicator entitlement was found for this account.",
+      ? "Verified 365-day website analyzer entitlement is active."
+      : "No active verified website analyzer entitlement was found for this account.",
   });
 });
