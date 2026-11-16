@@ -1,6 +1,12 @@
 name: Bullseye Levels — Private Source Tests
 
 on:
+  push:
+    branches:
+      - work/indicator-entitlement-gate-20261116
+    paths:
+      - "indicator/**"
+      - ".github/workflows/indicator-private-checks.yml"
   pull_request:
     paths:
       - "indicator/**"
