@@ -16,6 +16,13 @@ The separate website analyzer accepts a user-supplied OHLCV CSV for NSE/BSE symb
 - The final row is excluded by default because it may be unfinished.
 - This workflow does not provide automatic NSE-wide scanning, exchange data licensing, or live data redistribution.
 
+## Member access and Render configuration
+- The analyzer browser receives only `SUPABASE_URL` and a public `SUPABASE_PUBLISHABLE_KEY` (legacy `SUPABASE_ANON_KEY` is accepted as a fallback).
+- Configure those two variables on the private Render analyzer service. Do not set `SUPABASE_SERVICE_ROLE_KEY` on the Render service and never expose it in browser code.
+- Both `/api/access` and `/api/analyze-csv` require the signed-in user's bearer token and call the authenticated `get-indicator-access` Supabase Edge Function.
+- Access is granted only when the server reports a verified, active, unexpired 365-day indicator entitlement.
+- Until the `indicator_access` migration and Edge Function are separately approved and deployed, the analyzer must fail closed and show access unavailable. This is expected; do not bypass it for launch testing.
+
 ## Fixed Bullseye Levels rules
 Do not change these without explicit owner approval:
 - 3-bar left / 3-bar right confirmed swing pivots.
