@@ -59,11 +59,13 @@ const SUPABASE_URL='https://kjhdcpjztuzpysdauqdz.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_1fo0yxL2uk_vwFGR5-Sh-A_z7t0RhXt';
 const authClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 let activeSession=null;
+let analyzerUnlocked=false;
 const accessState=document.getElementById('accessState');
 const accessMessage=document.getElementById('accessMessage');
 const signInButton=document.getElementById('signIn');
 const signOutButton=document.getElementById('signOut');
 function setAnalyzerEnabled(enabled){
+ analyzerUnlocked=enabled;
  for(const id of ['symbol','timeframe','csvFile','analyze']) document.getElementById(id).disabled=!enabled;
 }
 function setAccessMessage(message,kind='notice'){
@@ -157,7 +159,7 @@ document.getElementById('analyze').addEventListener('click',async()=>{
   render(data);
   setMessage('Validated '+data.fileRows+' rows. '+(data.hasVolumeColumn?'Volume column found.':'Volume column missing — volume-qualified signals will be blocked.')+' Last row excluded: '+data.lastRowExcluded+'.','success');
  }catch(error){setMessage(error.message,'error')}
- finally{button.disabled=false;button.textContent='Analyze CSV'}
+ finally{button.disabled=!analyzerUnlocked;button.textContent='Analyze CSV'}
 });
 new ResizeObserver(()=>chart.applyOptions({width:chartHost.clientWidth,height:chartHost.clientHeight})).observe(chartHost);
 setAnalyzerEnabled(false);
