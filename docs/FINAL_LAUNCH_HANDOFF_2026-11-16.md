@@ -34,10 +34,10 @@ Product repository: `foryourtravel17-alt/Bullseye---Theory`.
 
 - Release PR #47: https://github.com/foryourtravel17-alt/Bullseye---Theory/pull/47
 - India CSV analyzer work PR #49 is included in the current release candidate.
-- Latest candidate commit: `e34cf2b5c0226ade986dfe6154b64e8050d9ea15`.
+- Latest fully verified candidate commit: `b3076d15a8bdf652a72c0721aea216c34c01a3c2`.
 - Latest Cloudflare Preview deployment: https://release-bullseye-india-course-indicator-integra-bullseye-theory.foryourtravel17.workers.dev
-- Latest preview build/deployment succeeded.
-- Nine GitHub Actions checks passed on the candidate: Launch Page Checks, Course Runtime Checks, Bullseye Levels private source tests, Daily Course Integrity Watch, Admin course access checks, Market Lab Guard, Edge Function Checks, Render Preview Security Smoke, and TRC20 Payment Checks.
+- A previous Cloudflare preview URL is documented above; this session's final CI verifies a local Worker build and a hosted Render access-gate smoke test. The existing Render preview services are on earlier preview branches, so visually review the exact latest candidate before production.
+- Nine GitHub Actions checks passed on the latest candidate commit: launch-page validation, course runtime, static safety, course integrity, hosted preview smoke, Deno/Cloudflare Worker build, indicator tests, Market Lab validation, and payment/settlement verification. The disposable PostgreSQL test now also confirms that Premium transfers can enter `manual_review` without marking the order as paid.
 - PR #47 is still a draft and is not merged to main.
 
 ### Important deployment boundary
@@ -56,7 +56,7 @@ Product repository: `foryourtravel17-alt/Bullseye---Theory`.
 - Quiz grading and lesson completion are handled by server-side Supabase Edge Functions. The browser does not contain the answer keys or write completion directly.
 - The course uses an 85-day entitlement from verified payment.
 
-A previous owner QA pass confirmed the course lessons were working. Repository asset audit found 11 interactive HTML lessons, 10 lesson PDF files and 6 slide decks, but no video files or embedded video players, and no Lesson 11 PDF. The membership page must not promise recorded video lessons until those files are supplied. The final release acceptance should still include one signed-in staging run across all 11 quizzes, progress saving, certificate and password reset, using a disposable test account only.
+A previous owner QA pass confirmed the course lessons were working. Repository asset audit found 11 interactive HTML lessons, 10 lesson PDF files and 6 slide decks, but no video files or embedded video players, and no Lesson 11 PDF. The membership page must not promise recorded video lessons until those files are supplied. The final release acceptance should still include one signed-in staging run across all 11 quizzes, progress saving, certificate and password reset, using a disposable test account only. The 16 November release candidate also integrates the terminal HUD homepage, radar hero image, closed-enrollment price labels, production canonical URL and refreshed CSS cache key; PR #44's design work is incorporated into PR #47.
 
 ## 5. Bullseye Levels and TradingView
 
@@ -93,7 +93,13 @@ The indicator is educational, not broker-connected, not an order execution syste
 - `USDT_CHECKOUT_ENABLED` and `INDICATOR_CHECKOUT_ENABLED` must remain false. Payment verification and customer fulfilment remain manual as requested.
 - Do not use real payments or customer data in tests. Do not create a paid Supabase branch.
 
-## 7. Website/legal launch review
+## 7. Supabase security review
+
+- The Supabase security advisor reports leaked-password protection is disabled. Enable it in Supabase Dashboard → Authentication → Security before accepting customers.
+- Five `SECURITY DEFINER` functions are reported as executable by authenticated users. Their definitions were inspected: admin-management functions call `public.is_admin()`, certificate self-service is user-scoped, and the functions pin `search_path`. These are still linter warnings; retain the current grants only after owner/security review.
+- Five unused-index performance notices are informational; no health lints were returned.
+
+## 8. Website/legal launch review
 
 - Membership page displays ₹999 / ₹1,999 / ₹9,999 separately and says enrollment is closed.
 - Payment checkout is deliberately closed and instructs visitors not to transfer funds.
@@ -101,7 +107,7 @@ The indicator is educational, not broker-connected, not an order execution syste
 - Refund page explicitly says a final refund/cancellation policy is not yet available.
 - Before accepting money, the owner must finalize the Premium Telegram membership term; the server plan currently uses `accessDays = null` and blocks new Premium orders even if checkout flags are accidentally enabled. Also finalize refund/cancellation rules, support response expectations, business identity and applicable Indian tax/consumer/legal disclosures with a qualified adviser.
 
-## 8. Remaining work — automation vs owner action
+## 9. Remaining work — automation vs owner action
 
 ### Automated/repository work
 1. Keep Telegram-only automation and its approval gates stable; no Instagram/Facebook work.
@@ -120,7 +126,7 @@ The indicator is educational, not broker-connected, not an order execution syste
 7. Decide when production deployment and any production migration are authorized.
 8. Keep payment verification and course/Telegram customer fulfilment manual.
 
-## 9. Do not do before final approval
+## 10. Do not do before final approval
 
 - Do not merge PR #47 or trigger the automatic production Cloudflare deployment.
 - Do not apply the indicator migration to production.
@@ -130,7 +136,7 @@ The indicator is educational, not broker-connected, not an order execution syste
 - Do not claim live NSE data, Pine runtime parity, guaranteed signals or profitability.
 - Do not re-enable Facebook or Instagram automation.
 
-## Local test commands
+## 11. Local test commands
 
 From the repository root:
 ```bash
