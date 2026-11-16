@@ -67,13 +67,13 @@ test('CSV API returns a historical-only report and excludes the final row', asyn
 test('CSV API rejects unsupported intervals and malformed candle data', async () => {
   const unsupported = await fetch(`${baseUrl}/api/analyze-csv?timeframe=5m`, {
     method: 'POST',
-    headers: { 'content-type': 'text/csv' },
+    headers: { 'content-type': 'text/csv', authorization: 'Bearer test-entitled' },
     body: csvFixture()
   });
   assert.equal(unsupported.status, 400);
   const malformed = await fetch(`${baseUrl}/api/analyze-csv?timeframe=1h`, {
     method: 'POST',
-    headers: { 'content-type': 'text/csv' },
+    headers: { 'content-type': 'text/csv', authorization: 'Bearer test-entitled' },
     body: 'time,open,high,low,close,volume\nnot-a-time,1,2,0,1,5'
   });
   assert.equal(malformed.status, 400);
