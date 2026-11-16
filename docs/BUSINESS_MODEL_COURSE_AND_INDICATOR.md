@@ -1,3 +1,5 @@
+**Current delivery route (13 Nov 2026):** The ₹9,999 / 365-day indicator product is being reworked as a website-based historical analyzer. Users upload their own TradingView OHLCV CSV for NSE/BSE analysis on 15m/1h. It does not provide live NSE data, a whole-market scanner, automatic TradingView access or guaranteed signals. No paid TradingView plan is required. This supersedes the TradingView invite-only delivery descriptions below for v1. Checkout remains closed until owner approval.
+
 # Bullseye Theory — Course + Annual Indicator Membership
 
 Status: approved product direction; implementation proposal only. This document does not activate sales, payments, subscriptions or TradingView access.

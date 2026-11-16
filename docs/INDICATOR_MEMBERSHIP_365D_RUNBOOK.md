@@ -1,3 +1,5 @@
+**Superseding product decision (13 Nov 2026):** Current v1 delivery is the website-based CSV historical analyzer in PR #49, not a paid TradingView invite-only script. No TradingView Pro/Premium purchase is required. The legacy TradingView grant steps below are archival and must not be used as current launch gates. Keep checkout/payment closed and access activation manual until separately approved.
+
 # Bullseye India Indicator Membership — 365-day launch runbook
 
 Status: draft implementation; checkout closed; no production migration or function deployment has been performed.
