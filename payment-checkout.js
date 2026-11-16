@@ -210,7 +210,7 @@
         return;
       }
       if (data.status === "manual_review") {
-        setStatus("Your transfer needs manual reconciliation. Course access has not been activated yet; contact support with the transaction ID.", "error");
+        setStatus("Your transfer needs manual reconciliation. No course or analyzer access has been activated. Contact support with the transaction ID.", "error");
         button.disabled = true;
         return;
       }
