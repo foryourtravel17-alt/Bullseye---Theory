@@ -34,12 +34,23 @@ Product repository: `foryourtravel17-alt/Bullseye---Theory`.
 
 - Release PR #47: https://github.com/foryourtravel17-alt/Bullseye---Theory/pull/47
 - India CSV analyzer work PR #49 is included in the current release candidate.
-- Latest full release-suite pass: commit `a6107764db41ac44fd5d28296abafd3c09405496` (all 9 release workflows passed).
-- Current release branch head: `0099f7834fcfb6f96e8908dfc79d8d487b66c6da`; the three newer commits add Supabase session validation and the 365-day indicator entitlement gate. The latest head passed the indicator private-source tests and the no-deploy Cloudflare preview preflight.
+- Latest full release-suite pass before the hardening changes: commit `a6107764db41ac44fd5d28296abafd3c09405496` (all 9 release workflows passed).
+- Current release branch head: `7678c4fb2218bdcf75bf8a4966409ecc41feee9e`.
+- Post-baseline hardening now adds Supabase Auth validation, a fail-closed 365-day entitlement gate, a signed-in analyzer UI, owner-only manual indicator entitlement controls, a closed payment page and a no-network checkout stub.
+- Targeted local Node smoke tests passed for the actual analyzer server's Auth → entitlement flow and for the payment stub. The analyzer smoke harness used parser/backtest stubs; the full repository test workflows have not yet produced a fresh run on this latest head. Do not describe the latest hardening commit as full-CI-green.
 - Latest Cloudflare Preview deployment: https://release-bullseye-india-course-indicator-integra-bullseye-theory.foryourtravel17.workers.dev
 - A previous Cloudflare preview URL is documented above; this session's final CI verifies a local Worker build and a hosted Render access-gate smoke test. The existing Render/Cloudflare preview services may reflect an earlier candidate than the current 0099 head, so visually review the exact latest candidate before production.
-- Nine GitHub Actions checks passed on the latest candidate commit: launch-page validation, course runtime, static safety, course integrity, hosted preview smoke, Deno/Cloudflare Worker build, indicator tests, Market Lab validation, and payment/settlement verification. The disposable PostgreSQL test now also confirms that Premium transfers can enter `manual_review` without marking the order as paid.
+- Nine GitHub Actions checks passed on the earlier `a610...` candidate: launch-page validation, course runtime, static safety, course integrity, hosted preview smoke, Deno/Cloudflare Worker build, indicator tests, Market Lab validation, and payment/settlement verification. Later hardening commits added new integration tests and should receive a fresh full test run before merge. The disposable PostgreSQL test confirms that Premium transfers can enter `manual_review` without marking the order as paid.
 - PR #47 is open and ready for review; it is not merged to `main`.
+
+### Manual-only membership hardening added after the last full CI pass
+
+- Analyzer `GET /api/access` and `POST /api/analyze-csv` validate the Supabase bearer token, call the authenticated `get-indicator-access` function, and require an active, unexpired 365-day `bullseye-india-indicator` entitlement before reading/parsing CSV.
+- Analyzer page includes Supabase sign-in/sign-out, session restoration, and access refresh. Only the public Supabase URL/publishable key are exposed; no service-role key is sent to the browser.
+- Admin page includes separate indicator member controls. Payment verification starts unchecked and requires explicit confirmation; revoking a verified flag also requires confirmation. An unverified record is labelled pending and does not grant access.
+- The production `indicator_access` migration and Edge Function remain unapplied/undeployed. Until approved and deployed, the analyzer correctly fails closed and the admin panel reports that indicator controls are not deployed.
+- Payment page is a closed notice only. The old wallet/QR/order controls were removed; `payment-checkout.js` is a no-network guard that disables any cached old order UI.
+- The student dashboard exposes 10 PDFs and 6 slide decks only to active course members. The current candidate also includes protected course resources and 11 chart drills.
 
 ### Important deployment boundary
 
