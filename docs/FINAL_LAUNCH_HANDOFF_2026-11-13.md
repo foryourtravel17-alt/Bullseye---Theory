@@ -43,6 +43,8 @@ Prices remain planned presentation values. Enrollment is closed, checkout/paymen
 - Node tests and streaming parity model are not actual TradingView Pine runtime execution. Actual Pine compile and signal comparison remain outstanding.
 
 ## Manual owner work before launch
+
+This handoff is current for the release candidate; PR #49 is integrated into the release branch but not production.
 1. Use TradingView Free Pine Editor to compile `indicator/bullseye.pine`; no Pro/Premium purchase is requested.
 2. Do not try to export CSV from TradingView Free or purchase Pro/Premium for this task. The website analyzer accepts a compatible OHLCV CSV from any market-data source the owner is permitted to use; it is vendor-neutral, not TradingView-export-dependent.
 3. If no permitted 15m/1h OHLCV source is available, keep real-market validation marked BLOCKED. Synthetic test fixtures can verify the code path but do not prove NSE/BSE accuracy or Pine runtime parity.
