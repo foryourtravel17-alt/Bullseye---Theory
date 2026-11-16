@@ -89,6 +89,8 @@ if home.is_file():
     for phrase in ("ENROLLMENT CLOSED", "PLANNED PRICE", "₹999", "₹9,999", "VIEW ENROLLMENT STATUS"):
         if phrase not in source:
             errors.append(f"index.html: missing closed-enrollment launch marker: {phrase}")
+    if 'rel="canonical" href="https://bullseye-theory.foryourtravel17.workers.dev/"' not in source:
+        errors.append("index.html: canonical URL must point to the current Cloudflare production host")
     if "START THE COURSE" in source or "ENROLL NOW" in source:
         errors.append("index.html: active enrollment CTA is not allowed while checkout is closed")
 
