@@ -123,8 +123,8 @@ test("course resource library links only existing protected study files", async 
     assert.ok(existsSync(new URL("../lessons/" + link, import.meta.url)), "missing study asset: " + link);
     assert.equal(isProtectedCourseAsset("/lessons/" + link), true, "study asset must be protected: " + link);
   }
-  assert.match(page, /Lesson 11[\s\\S]*online revision lesson/i);
-  assert.match(page, /recorded video[\s\\S]*not included yet/i);
+  assert.match(page, /Lesson 11[\s\S]*complete revision[\s\S]*online lesson/i);
+  assert.match(page, /recorded video[\s\S]*not included yet/i);
 });
 
 test("chart drills page contains eleven hypothetical, printable exercises with answer reviews", async () => {
@@ -134,13 +134,13 @@ test("chart drills page contains eleven hypothetical, printable exercises with a
   assert.equal((page.match(/<details\b/g) || []).length, 11);
   assert.match(page, /hypothetical|illustrative/i);
   assert.match(page, /not live market data/i);
-  assert.match(page, /window\.print\\(\\)/);
+  assert.match(page, /window\.print\(\)/);
 });
 
 test("dashboard links the protected resources and chart drills pages", async () => {
   const page = await readFile(new URL("../dashboard.html", import.meta.url), "utf8");
-  assert.match(page, /href="lessons\\/resources\.html"/);
-  assert.match(page, /href="lessons\\/chart-drills\.html"/);
+  assert.match(page, /href="lessons\/resources\.html"/);
+  assert.match(page, /href="lessons\/chart-drills\.html"/);
   assert.equal(isProtectedCourseAsset("/lessons/resources.html"), true);
   assert.equal(isProtectedCourseAsset("/lessons/chart-drills.html"), true);
 });
