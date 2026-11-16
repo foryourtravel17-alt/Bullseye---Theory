@@ -184,7 +184,9 @@ test("indicator entitlement administration stays owner-only and payment verifica
   assert.match(admin, /admin_list_indicator_members/);
   assert.match(admin, /admin_set_indicator_access/);
   assert.match(admin, /id="indicatorVerified" type="checkbox"/);
-  assert.match(admin, /verify&&!confirm\(/);
+  assert.match(admin, /verify&&!existing\?\.payment_verified&&!confirm\(/);
+  assert.match(admin, /!verify&&existing\?\.payment_verified&&!confirm\(/);
+  assert.match(admin, /indicatorMembers\.forEach\(member=>select\.add/);
   assert.match(admin, /No analyzer access is granted until payment_verified is true/);
   assert.doesNotMatch(admin, /SERVICE_ROLE_KEY|service_role/i);
   assert.match(migration, /verify_payment boolean default false/);
