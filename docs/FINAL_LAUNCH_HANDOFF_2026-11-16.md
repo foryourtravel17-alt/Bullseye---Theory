@@ -7,7 +7,7 @@ Status: release candidate verified in preview; production release intentionally 
 | Product | Price | Current entitlement/config | Current delivery |
 |---|---:|---:|---|
 | Complete Course | ₹999 | 85 days | 11 lessons, student dashboard, server-graded quizzes, course PDFs/chart drills |
-| Premium Telegram | ₹1,999 | Code currently defines 85 days; public offer copy must confirm the term | Separate private Telegram membership; manual fulfilment |
+| Premium Telegram | ₹1,999 | Unconfigured (`accessDays = null`); checkout hard-blocked until owner confirms the term | Separate private Telegram membership; manual fulfilment |
 | Bullseye India Indicator | ₹9,999 | 365 days | Website-based historical NSE/BSE OHLCV CSV analyzer; not a live scanner |
 
 The website must continue to show all three products separately. Course and indicator are independent products. Do not invent a bundle discount.
@@ -98,7 +98,7 @@ The indicator is educational, not broker-connected, not an order execution syste
 - Payment checkout is deliberately closed and instructs visitors not to transfer funds.
 - Terms and privacy pages are preliminary and were last updated 25 October 2026.
 - Refund page explicitly says a final refund/cancellation policy is not yet available.
-- Before accepting money, the owner must finalize the Premium Telegram membership term (the current server plan code says 85 days), refund/cancellation rules, support response expectations, business identity and applicable Indian tax/consumer/legal disclosures with a qualified adviser.
+- Before accepting money, the owner must finalize the Premium Telegram membership term; the server plan currently uses `accessDays = null` and blocks new Premium orders even if checkout flags are accidentally enabled. Also finalize refund/cancellation rules, support response expectations, business identity and applicable Indian tax/consumer/legal disclosures with a qualified adviser.
 
 ## 8. Remaining work — automation vs owner action
 
@@ -114,7 +114,7 @@ The indicator is educational, not broker-connected, not an order execution syste
 2. Review confirmed-bar behavior in Bar Replay/forward bars; no TradingView account session is available to the automation.
 3. If exact numerical parity with Node is required, identify a permitted 15m/1h OHLCV data source. Do not buy a TradingView plan for CSV export.
 4. Complete one disposable signed-in course staging pass and confirm password reset, all 11 quizzes, lesson progress and certificate.
-5. Confirm the Premium Telegram membership duration (server code currently uses 85 days).
+5. Confirm the Premium Telegram membership duration; Premium checkout remains hard-blocked while `accessDays = null`.
 6. Finalize refund/cancellation, business identity, support and legal/tax details.
 7. Decide when production deployment and any production migration are authorized.
 8. Keep payment verification and course/Telegram customer fulfilment manual.
