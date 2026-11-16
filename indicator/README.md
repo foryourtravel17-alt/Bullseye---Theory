@@ -31,7 +31,7 @@ npm test
 node --check server.mjs
 npm start
 ~~~
-Open http://localhost:3000. Upload a TradingView CSV export and compare the report to the exported candle series.
+Open http://localhost:3000. Upload a completed OHLCV CSV from any broker, charting platform, or market-data source whose terms permit your use. TradingView Pro/Premium and TradingView CSV export are not required.
 
 The report executes the deterministic Node reference engine, not TradingView's Pine runtime. It cannot by itself prove Pine/TradingView parity, live non-repainting or profitability. Do not present it as a live signal service.
 
