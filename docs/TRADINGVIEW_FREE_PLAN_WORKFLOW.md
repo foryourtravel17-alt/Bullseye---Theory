@@ -2,10 +2,10 @@
 
 ## What can be done without Pro
 - Open the existing Pine Script v6 source at `indicator/bullseye.pine`.
-- Paste it into the TradingView Pine Editor on the Free plan and use the editor's compile/add-to-chart workflow if the account allows it.
+- Open Supercharts → Pine Editor, paste the v6 source, then use **Add to chart** to compile/run it as a temporary chart draft. If the account blocks saving, do not buy a plan just for this check; use the temporary draft where available.
 - Use only 15-minute and 1-hour charts. The script deliberately blocks other timeframes.
 - Check that the indicator loads without a Pine compiler/runtime error and that the status panel shows a supported timeframe and volume availability.
-- Do not create a paid alert or purchase TradingView Pro/Premium for this project.
+- Do not select **Publish script** or try to create invite-only access on the Basic plan; public script publishing may be unavailable on Basic. Do not create a paid alert or purchase TradingView Pro/Premium for this project.
 
 ## What cannot be claimed yet
 - The Node reference engine and synthetic tests are not the TradingView Pine runtime.
