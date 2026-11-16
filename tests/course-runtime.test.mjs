@@ -60,3 +60,35 @@ test("repository internals are never publicly served", () => {
   assert.equal(isInternalPath("/"), false);
   assert.equal(isInternalPath("/assets/site.css"), false);
 });
+
+test("student dashboard exposes existing study guides only to active course members", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const { fileURLToPath } = await import("node:url");
+  const { dirname, resolve } = await import("node:path");
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+  const dashboard = await readFile(resolve(root, "dashboard.html"), "utf8");
+  assert.match(dashboard, /const resourceLinks=active && \(l\[4\]\|\|l\[5\]\)/);
+  const resources = [
+    "lessons/what-is-trading.pdf",
+    "lessons/lesson-2-how-financial-markets-work.pdf",
+    "lessons/lesson-3-understanding-stocks-forex-and-crypto.pdf",
+    "lessons/lesson-4-understanding-market-structure-and-price-action.pdf",
+    "lessons/pdf/lesson_5_candlestick_patterns.pdf",
+    "lessons/pdf/lesson_6_repaired_compatible.pdf",
+    "lessons/pdf/lesson_7_support_resistance_complete.pdf",
+    "lessons/pdf/lesson_8_breakouts_and_retests.pdf",
+    "lessons/pdf/lesson_9_risk_management.pdf",
+    "lessons/pdf/lesson_10_trading_psychology_and_discipline.pdf",
+    "lessons/lesson_5_candlestick_patterns.pptx",
+    "lessons/lesson_6_repaired_compatible.pptx",
+    "lessons/lesson_7_support_resistance_complete.pptx",
+    "lessons/lesson_8_breakouts_and_retests.pptx",
+    "lessons/lesson_9_risk_management.pptx",
+    "lessons/lesson_10_trading_psychology_and_discipline.pptx"
+  ];
+  for (const path of resources) {
+    await readFile(resolve(root, path));
+    assert.equal(isProtectedCourseAsset("/" + path), true, path + " must remain entitlement-gated");
+    assert.ok(dashboard.includes(path), path + " must be linked from the student dashboard");
+  }
+});
