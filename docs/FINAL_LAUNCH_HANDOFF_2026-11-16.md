@@ -59,6 +59,8 @@ A previous owner QA pass confirmed the course lessons were working. Repository a
 
 ## 5. Bullseye Levels and TradingView
 
+- Free-plan step-by-step owner instructions: [TRADINGVIEW_FREE_PLAN_RUNBOOK.md](TRADINGVIEW_FREE_PLAN_RUNBOOK.md).
+
 The locked rule contract is `indicator/RULES.md`. Do not change it without explicit owner approval:
 
 - 15m and 1h only.
