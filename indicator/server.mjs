@@ -144,6 +144,18 @@ async function analyzeCsv(req, res, url, access) {
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    if (req.method === 'GET' && url.pathname === '/supabase-config.js') {
+      const supabaseUrl = String(process.env.SUPABASE_URL || '').replace(/\\/+$/, '');
+      const publishableKey = String(process.env.SUPABASE_PUBLISHABLE_KEY || '').trim();
+      if (!supabaseUrl || !publishableKey) {
+        return send(res, 503, 'window.BULLSEYE_SUPABASE_URL = ""; window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY = "";', 'text/javascript; charset=utf-8');
+      }
+      const config = [
+        'window.BULLSEYE_SUPABASE_URL = ' + JSON.stringify(supabaseUrl) + ';',
+        'window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY = ' + JSON.stringify(publishableKey) + ';'
+      ].join('\\n');
+      return send(res, 200, config, 'text/javascript; charset=utf-8');
+    }
     if (req.method === 'GET' && url.pathname === '/health') return send(res, 200, { ok: true });
     if (req.method === 'GET' && url.pathname === '/supabase-config.js') {
       const publicConfig = {
