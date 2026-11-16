@@ -192,3 +192,12 @@ test("indicator entitlement administration stays owner-only and payment verifica
   assert.match(migration, /enable row level security/);
   assert.match(migration, /revoke all on table public\.indicator_access from public, anon, authenticated/);
 });
+
+test("payment page remains manual-only and exposes no wallet, QR or automatic checkout", async () => {
+  const page = await readFile(new URL("../payment.html", import.meta.url), "utf8");
+  assert.match(page, /PAYMENT VERIFICATION IS MANUAL/i);
+  assert.match(page, /DO NOT SEND MONEY|DO NOT TRANSFER FUNDS/i);
+  assert.match(page, /ENROLLMENT CLOSED/i);
+  assert.doesNotMatch(page, /payment-checkout\\.js|create-trc20-order|id="createOrder"|id="walletAddress"|assets\\/usdt-tron-mainnet-trc20\\.svg/i);
+  assert.doesNotMatch(page, /TF8aiK6Q8kboLBcaHtckapVpsEQyR3oWwV|TRON MAINNET|TRC-20 ONLY/i);
+});
