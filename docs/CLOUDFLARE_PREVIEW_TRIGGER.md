@@ -1,11 +1,10 @@
 # Cloudflare Preview Build Trigger
 
-This documentation-only file is used to trigger a Cloudflare Workers Preview build for the release branch.
+This file documents the safe Cloudflare preflight for the Bullseye India release candidate.
 
-- Target branch: `release/secure-course-and-usdt-preview-2026-11-02`
-- This change does not modify application code, runtime configuration, payment settings, or production branch `main`.
-- Preview Builds must remain enabled in Cloudflare.
-- Review the resulting Preview build and URL before any further release action.
-- Do not promote this preview to production or enable payment checkout as part of this trigger.
-
-Generated for safe release-preview verification.
+- Target branch: `release/bullseye-india-course-indicator-integration`.
+- The `cloudflare-preview.yml` workflow runs repository tests and `wrangler deploy --dry-run` only.
+- It validates the Worker bundle and Cloudflare credentials; it does **not** deploy a Worker or promote anything to production.
+- The workflow also retains the older secure-course preview branch for historical testing.
+- The separate Cloudflare GitHub preview deployment is not assumed current until its comment identifies the exact release commit.
+- Do not promote a preview to production, merge the release PR, apply production migrations, or enable payment checkout without explicit owner approval.
