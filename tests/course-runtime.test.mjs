@@ -170,6 +170,7 @@ test("dashboard links the protected resources and chart drills pages", async () 
   const page = await readFile(new URL("../dashboard.html", import.meta.url), "utf8");
   assert.ok(page.includes('href="lessons/resources.html"'));
   assert.ok(page.includes('href="lessons/chart-drills.html"'));
+  assert.equal(page.includes(String.raw`\n<link`), false, "dashboard must not render a literal escaped newline");
   assert.equal(isProtectedCourseAsset("/lessons/resources.html"), true);
   assert.equal(isProtectedCourseAsset("/lessons/chart-drills.html"), true);
 });
