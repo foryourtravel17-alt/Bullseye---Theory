@@ -9,7 +9,7 @@
 ## India-first free workflow
 The Pine indicator in `bullseye.pine` reads the OHLCV data already present on the user's TradingView chart; compiling and running this personal script does not require a CSV export or a paid TradingView plan.
 
-The separate website analyzer accepts a user-supplied OHLCV CSV for NSE/BSE symbols. It does not fetch market data. TradingView Free does not provide the CSV export the owner needs, so do not make TradingView CSV export a launch task. Use another broker/data source only if it provides completed 15m/1h OHLCV and its terms permit the intended use. No permitted free intraday source has yet been verified.
+The separate website analyzer accepts a user-supplied OHLCV CSV for NSE/BSE symbols. It does not fetch market data. TradingView Free does not provide the CSV export the owner needs, so do not make TradingView CSV export a launch task. FYERS is a documented free historical-data candidate for the owner's own testing (15m/60m, authenticated Market Data app, daily token renewal), but no account is connected and no customer redistribution permission is verified. See `docs/FYERS_FREE_INTRADAY_DATA_SETUP.md`. Do not treat it as an approved commercial data source.
 - Required CSV columns: time/date/timestamp, open, high, low, close. Volume is required for volume-qualified signals; when missing, the reference engine cannot emit signals.
 - Supported intervals: 15m and 1h only.
 - Upload limit: 5 MB. The server parses the file in memory; it does not save uploaded files.
