@@ -82,6 +82,44 @@ if membership.is_file():
         if phrase not in text:
             errors.append(f"membership.html: missing launch safety phrase: {phrase}")
 
+    if "upload your own tradingview csv export" in text:
+        errors.append("membership.html: must not require TradingView CSV export or a paid TradingView plan")
+    if "tradingview pro/premium and tradingview csv export are not required" not in text:
+        errors.append("membership.html: missing free-first, vendor-neutral CSV guidance")
+    if "recorded video breakdowns" in text:
+        errors.append("membership.html: must not advertise recorded videos that are not present in this release")
+
+index_page = ROOT / "index.html"
+if index_page.is_file() and "recorded video breakdowns" in index_page.read_text(encoding="utf-8").lower():
+    errors.append("index.html: must not advertise recorded videos that are not present in this release")
+
+dashboard = ROOT / "dashboard.html"
+if dashboard.is_file():
+    dashboard_text = dashboard.read_text(encoding="utf-8")
+    if "const resourceLinks=active &&" not in dashboard_text:
+        errors.append("dashboard.html: study-guide and slide downloads must be visible only to active course members")
+    required_resources = (
+        "lessons/what-is-trading.pdf",
+        "lessons/lesson-2-how-financial-markets-work.pdf",
+        "lessons/lesson-3-understanding-stocks-forex-and-crypto.pdf",
+        "lessons/lesson-4-understanding-market-structure-and-price-action.pdf",
+        "lessons/pdf/lesson_5_candlestick_patterns.pdf",
+        "lessons/pdf/lesson_6_repaired_compatible.pdf",
+        "lessons/pdf/lesson_7_support_resistance_complete.pdf",
+        "lessons/pdf/lesson_8_breakouts_and_retests.pdf",
+        "lessons/pdf/lesson_9_risk_management.pdf",
+        "lessons/pdf/lesson_10_trading_psychology_and_discipline.pdf",
+        "lessons/lesson_5_candlestick_patterns.pptx",
+        "lessons/lesson_6_repaired_compatible.pptx",
+        "lessons/lesson_7_support_resistance_complete.pptx",
+        "lessons/lesson_8_breakouts_and_retests.pptx",
+        "lessons/lesson_9_risk_management.pptx",
+        "lessons/lesson_10_trading_psychology_and_discipline.pptx",
+    )
+    for resource in required_resources:
+        if resource not in dashboard_text or not (ROOT / resource).is_file():
+            errors.append(f"dashboard.html: missing or unlinked study resource: {resource}")
+
 if errors:
     print("LAUNCH PAGE CHECKS FAILED")
     for err in errors:
