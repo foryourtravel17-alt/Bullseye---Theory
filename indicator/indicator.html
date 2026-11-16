@@ -13,22 +13,34 @@ main{max-width:1180px;margin:24px auto;padding:0 16px}.intro{margin-bottom:18px}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px;margin-bottom:14px}.toolbar{display:grid;grid-template-columns:1fr 1fr 1.2fr auto;gap:10px;align-items:end}
 label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}input,select,button{width:100%;background:#101a18;border:1px solid #30443b;color:var(--text);padding:11px;border-radius:8px;font:inherit;min-width:0}button{background:var(--lime);color:#0b1608;font-weight:900;border-color:var(--lime);cursor:pointer}
 .layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:14px}.chart{height:440px}.panelhead{display:flex;justify-content:space-between;gap:10px;margin-bottom:10px}.metrics{display:grid;grid-template-columns:1fr 1fr;gap:9px}.metric{padding:11px;background:#101a18;border:1px solid var(--line);border-radius:8px}.metric small{display:block;color:var(--muted);font-size:11px}.metric b{font-size:17px;overflow-wrap:anywhere}.status{font-size:23px;font-weight:900;color:var(--muted);margin:4px 0 12px}.status.long{color:var(--green)}.status.short{color:var(--red)}
-.notice{color:var(--muted);font-size:12px;margin-top:12px}.error{color:var(--red)}.success{color:var(--green)}table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:9px 7px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted)}.tablewrap{overflow:auto}.foot{color:var(--muted);font-size:11px;margin:14px 2px}
-@media(max-width:800px){.toolbar{grid-template-columns:1fr 1fr}.toolbar button{grid-column:1/-1}.layout{grid-template-columns:1fr}.chart{height:350px}.side{order:-1}}
-@media(max-width:420px){.toolbar{grid-template-columns:1fr}.toolbar button{grid-column:auto}.panel{padding:12px}}
+.notice{color:var(--muted);font-size:12px;margin-top:12px}.authrow{display:grid;grid-template-columns:1fr 1fr auto auto;gap:9px;align-items:end}.authrow button{min-width:110px}.error{color:var(--red)}.success{color:var(--green)}table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:9px 7px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted)}.tablewrap{overflow:auto}.foot{color:var(--muted);font-size:11px;margin:14px 2px}
+@media(max-width:800px){.authrow{grid-template-columns:1fr 1fr}.authrow button{width:100%}.toolbar{grid-template-columns:1fr 1fr}.toolbar button{grid-column:1/-1}.layout{grid-template-columns:1fr}.chart{height:350px}.side{order:-1}}
+@media(max-width:420px){.authrow{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr}.toolbar button{grid-column:auto}.panel{padding:12px}}
 </style>
+<script src="/supabase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/node_modules/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
 </head>
 <body>
 <header><div class="brand">BULLSEYE <span>INDIA</span></div><div class="sub">HISTORICAL MARKET ANALYSIS · NO BROKER EXECUTION</div></header>
 <main>
+<section class="panel" id="accessPanel">
+<div class="panelhead"><b>MEMBER ACCESS</b><span class="sub" id="accessStatus">Sign in to verify your 365-day indicator entitlement.</span></div>
+<div class="authrow">
+<div><label for="email">Account email</label><input id="email" type="email" autocomplete="username" placeholder="Your member email"></div>
+<div><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" placeholder="Your password"></div>
+<button id="signIn" type="button">Sign in</button>
+<button id="signOut" type="button" disabled>Sign out</button>
+</div>
+<div id="authMessage" class="notice">Only accounts with a manually verified, active indicator entitlement can analyze CSV files. Enrollment is currently closed.</div>
+</section>
 <section class="intro"><div class="sub">BULLSEYE LEVELS · FREE-FIRST WORKFLOW</div><h1>Study the chart. <span>Test the process.</span></h1><div class="sub">Upload an OHLCV CSV exported from a market-data source you are allowed to use. No exchange feed or paid subscription is bundled.</div></section>
 <section class="panel">
 <div class="toolbar">
-<div><label for="symbol">Market symbol</label><input id="symbol" maxlength="32" value="NSE:RELIANCE" autocomplete="off"></div>
-<div><label for="timeframe">Timeframe</label><select id="timeframe"><option value="15m">15 minutes</option><option value="1h">1 hour</option></select></div>
-<div><label for="csvFile">Market OHLCV CSV (max 5 MB)</label><input id="csvFile" type="file" accept=".csv,text/csv"></div>
-<button id="analyze">Analyze CSV</button>
+<div><label for="symbol">Market symbol</label><input id="symbol" maxlength="32" value="NSE:RELIANCE" autocomplete="off" disabled></div>
+<div><label for="timeframe">Timeframe</label><select id="timeframe" disabled><option value="15m">15 minutes</option><option value="1h">1 hour</option></select></div>
+<div><label for="csvFile">Market OHLCV CSV (max 5 MB)</label><input id="csvFile" type="file" accept=".csv,text/csv" disabled></div>
+<button id="analyze" disabled>Analyze CSV</button>
 </div>
 <div id="message" class="notice">Export candles with columns: time, open, high, low, close, volume. The last row is excluded by default.</div>
 </section>
@@ -48,6 +60,67 @@ const chartHost=document.getElementById('chart');
 const chart=LightweightCharts.createChart(chartHost,{layout:{background:{color:'#0b1016'},textColor:'#9aa9a4'},grid:{vertLines:{color:'#18251f'},horzLines:{color:'#18251f'}},rightPriceScale:{borderColor:'#30443b'},timeScale:{borderColor:'#30443b',timeVisible:true,secondsVisible:false}});
 const series=chart.addSeries(LightweightCharts.CandlestickSeries,{upColor:'#55d9a0',downColor:'#ff7182',borderVisible:false,wickUpColor:'#55d9a0',wickDownColor:'#ff7182'});
 const markers=LightweightCharts.createSeriesMarkers(series,[]);
+const supabaseClient = window.supabase?.createClient(
+  window.BULLSEYE_SUPABASE_URL || '',
+  window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY || ''
+);
+const authMessage = document.getElementById('authMessage');
+const accessStatus = document.getElementById('accessStatus');
+function setAnalyzerEnabled(enabled) {
+  for (const id of ['symbol','timeframe','csvFile','analyze']) {
+    document.getElementById(id).disabled = !enabled;
+  }
+  document.getElementById('signOut').disabled = !supabaseClient;
+}
+setAnalyzerEnabled(false);
+async function refreshAccess() {
+  setAnalyzerEnabled(false);
+  if (!supabaseClient) {
+    authMessage.textContent = 'Member sign-in is temporarily unavailable. Please contact support.';
+    accessStatus.textContent = 'Configuration unavailable';
+    return;
+  }
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) {
+    authMessage.textContent = 'Sign in with the email that owns your verified indicator membership. No account is granted access automatically.';
+    accessStatus.textContent = 'Sign-in required';
+    document.getElementById('signOut').disabled = true;
+    return;
+  }
+  document.getElementById('signOut').disabled = false;
+  try {
+    const response = await fetch('/api/access', { headers: { Authorization: 'Bearer ' + session.access_token } });
+    const result = await response.json();
+    if (!response.ok || result.access_active !== true) {
+      authMessage.textContent = result.error || 'No active verified indicator membership was found.';
+      accessStatus.textContent = 'Membership not active';
+      return;
+    }
+    setAnalyzerEnabled(true);
+    const expiry = result.expires_at ? new Date(result.expires_at).toLocaleDateString() : 'unknown';
+    authMessage.textContent = 'Verified indicator access active until ' + expiry + '. CSV uploads are processed in memory and are not saved.';
+    accessStatus.textContent = 'Verified · 365-day access';
+  } catch {
+    authMessage.textContent = 'Could not verify indicator access. Analysis remains locked until the service responds.';
+    accessStatus.textContent = 'Verification unavailable';
+  }
+}
+document.getElementById('signIn').addEventListener('click', async () => {
+  if (!supabaseClient) return;
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  if (!email || !password) { authMessage.textContent = 'Enter your account email and password.'; return; }
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (error) { authMessage.textContent = error.message; return; }
+  await refreshAccess();
+});
+document.getElementById('signOut').addEventListener('click', async () => {
+  if (!supabaseClient) return;
+  await supabaseClient.auth.signOut();
+  await refreshAccess();
+});
+supabaseClient?.auth.onAuthStateChange(() => { refreshAccess(); });
+refreshAccess();
 const fmt=n=>Number.isFinite(Number(n))?Number(n).toLocaleString(undefined,{maximumFractionDigits:4}):'—';
 function setMessage(text,kind='notice'){const el=document.getElementById('message');el.textContent=text;el.className=kind}
 function render(report){
@@ -74,9 +147,11 @@ document.getElementById('analyze').addEventListener('click',async()=>{
  if(file.size>5*1024*1024){setMessage('File is larger than 5 MB. Export a smaller date range.','error');return}
  const button=document.getElementById('analyze');button.disabled=true;button.textContent='Analyzing…';
  try{
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) throw new Error('Sign in is required.');
   const csv=await file.text();
   const query=new URLSearchParams({timeframe:document.getElementById('timeframe').value,symbol:document.getElementById('symbol').value});
-  const response=await fetch('/api/analyze-csv?'+query.toString(),{method:'POST',headers:{'Content-Type':'text/csv'},body:csv});
+  const response=await fetch('/api/analyze-csv?'+query.toString(),{method:'POST',headers:{'Content-Type':'text/csv','Authorization':'Bearer '+session.access_token},body:csv});
   const data=await response.json();if(!response.ok)throw new Error(data.error||'Analysis failed');
   render(data);
   setMessage('Validated '+data.fileRows+' rows. '+(data.hasVolumeColumn?'Volume column found.':'Volume column missing — volume-qualified signals will be blocked.')+' Last row excluded: '+data.lastRowExcluded+'.','success');
