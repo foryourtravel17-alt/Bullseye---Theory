@@ -48,7 +48,7 @@ Product repository: `foryourtravel17-alt/Bullseye---Theory`.
 
 - All 11 lesson pages exist.
 - All 11 lesson pages load the shared `lesson-secure-client.js` with their matching lesson number.
-- Each lesson has five radio-answer groups and the server-side grading module has 11 answer keys.
+- Each lesson has five radio-answer groups and the server-side grading module has 11 answer keys. The build now validates all 55 UI-to-server answer mappings against reviewed correct-answer text.
 - A new CI contract test checks all 11 lesson pages against the server-side answer keys and verifies all five questions/options are present.
 - Pass mark is 4/5 (80%).
 - Lesson 1 is the free preview; lessons 2–11 require an active, payment-verified, unexpired course entitlement.
