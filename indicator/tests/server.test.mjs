@@ -19,7 +19,7 @@ before(async () => {
   baseUrl = `http://127.0.0.1:${port}`;
   child = spawn(process.execPath, ['server.mjs'], {
     cwd: new URL('..', import.meta.url),
-    env: { ...process.env, PORT: String(port) },
+    env: { ...process.env, PORT: String(port), NODE_ENV: 'test', ANALYZER_TEST_ACCESS_BYPASS: 'true' },
     stdio: 'ignore'
   });
   let ready = false;
@@ -50,7 +50,7 @@ function csvFixture(count = 45) {
 test('CSV API returns a historical-only report and excludes the final row', async () => {
   const response = await fetch(`${baseUrl}/api/analyze-csv?timeframe=15m&symbol=NSE%3ARELIANCE`, {
     method: 'POST',
-    headers: { 'content-type': 'text/csv' },
+    headers: { 'content-type': 'text/csv', authorization: 'Bearer test-entitled' },
     body: csvFixture()
   });
   assert.equal(response.status, 200);
@@ -89,4 +89,24 @@ test('server exposes only the dashboard and chart library, not private source fi
   assert.equal(engine.status, 404);
   const packageFile = await fetch(baseUrl + '/package.json');
   assert.equal(packageFile.status, 404);
+});
+
+test('indicator API requires an authenticated entitled user before CSV processing', async () => {
+  const noAuth = await fetch(`${baseUrl}/api/analyze-csv?timeframe=15m`, {
+    method: 'POST',
+    headers: { 'content-type': 'text/csv' },
+    body: csvFixture()
+  });
+  assert.equal(noAuth.status, 401);
+
+  const noSession = await fetch(`${baseUrl}/api/access`);
+  assert.equal(noSession.status, 401);
+
+  const access = await fetch(`${baseUrl}/api/access`, {
+    headers: { authorization: 'Bearer test-entitled' }
+  });
+  assert.equal(access.status, 200);
+  const body = await access.json();
+  assert.equal(body.access_active, true);
+  assert.equal(body.access_days, 365);
 });
