@@ -57,7 +57,8 @@ psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
 insert into auth.users(id, email) values
   ('00000000-0000-4000-8000-000000000001', 'one@example.test'),
   ('00000000-0000-4000-8000-000000000002', 'two@example.test'),
-  ('00000000-0000-4000-8000-000000000003', 'three@example.test');
+  ('00000000-0000-4000-8000-000000000003', 'three@example.test'),
+  ('00000000-0000-4000-8000-000000000004', 'four@example.test');
 insert into public.profiles(id, full_name)
 select id, 'Test Student' from auth.users;
 
@@ -118,8 +119,25 @@ insert into public.payment_orders (
    now() - interval '1 minute', now() + interval '20 minutes');
 SQL
 
+psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
+insert into public.payment_orders (
+  id, user_id, plan_code, inr_amount_paise, access_days,
+  usdt_inr_rate, usdt_amount_atomic, destination_wallet, token_contract,
+  network, quote_source, quote_observed_at, status, created_at, expires_at
+) values (
+  '10000000-0000-4000-8000-000000000007',
+  '00000000-0000-4000-8000-000000000004',
+  'premium', 199900, 85, 83.5, 12500006,
+  'TF8aiK6Q8kboLBcaHtckapVpsEQyR3oWwV',
+  'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+  'TRON_MAINNET_TRC20', 'test_fixture', now(), 'pending',
+  now() - interval '1 minute', now() + interval '20 minutes'
+);
+SQL
+
 HASH_D="$(printf 'd%.0s' {1..64})"
 HASH_E="$(printf 'e%.0s' {1..64})"
+HASH_F="$(printf 'f%.0s' {1..64})"
 
 HASH_A="$(printf 'a%.0s' {1..64})"
 HASH_B="$(printf 'b%.0s' {1..64})"
@@ -193,6 +211,11 @@ assert_result "paid" "SELECT public.finalize_trc20_payment(
   '10000000-0000-4000-8000-000000000006',
   '$HASH_E', 12500005, '$FROM', '$WALLET', '$TOKEN', now(), 12345681
 )"
+
+assert_result "manual_review" "SELECT public.finalize_trc20_payment(
+  '10000000-0000-4000-8000-000000000007',
+  '$HASH_F', 12500006, '$FROM', '$WALLET', '$TOKEN', now(), 12345682
+)"
 SECOND_INDICATOR_EXPIRY="$(psql "$DATABASE_URL" -X -qAtc "select extract(epoch from expires_at) from public.indicator_access where user_id='00000000-0000-4000-8000-000000000002'")"
 SECOND_INDICATOR_ACTIVATED="$(psql "$DATABASE_URL" -X -qAtc "select extract(epoch from activated_at) from public.indicator_access where user_id='00000000-0000-4000-8000-000000000002'")"
 python - "$FIRST_INDICATOR_EXPIRY" "$SECOND_INDICATOR_EXPIRY" "$FIRST_INDICATOR_ACTIVATED" "$SECOND_INDICATOR_ACTIVATED" <<'PY'
@@ -261,8 +284,8 @@ PY
 psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
 do $$
 begin
-  if (select count(*) from public.payment_transactions) <> 4 then
-    raise exception 'Expected exactly four recorded payment transactions';
+  if (select count(*) from public.payment_transactions) <> 5 then
+    raise exception 'Expected exactly five recorded payment transactions';
   end if;
   if (select status from public.payment_orders where id = '10000000-0000-4000-8000-000000000001') <> 'paid' then
     raise exception 'Successful payment order not marked paid';
@@ -285,8 +308,14 @@ begin
   if (select count(*) from public.indicator_access where is_active and payment_verified and expires_at is null) <> 0 then
     raise exception 'Active verified indicator access without expiry was found';
   end if;
+  if (select status from public.payment_orders where id = '10000000-0000-4000-8000-000000000007') <> 'manual_review' then
+    raise exception 'Premium payment must remain in manual review';
+  end if;
+  if exists (select 1 from public.course_access where user_id='00000000-0000-4000-8000-000000000004') then
+    raise exception 'Premium Telegram payment must never grant course access';
+  end if;
 end;
 $$;
 SQL
 
-echo "PASS: TRC-20 payment finalization, isolated course/indicator entitlements, 85-day course renewal and 365-day indicator renewal/admin grants."
+echo "PASS: course and indicator settlement, Premium manual review, isolated entitlements, 85-day course and 365-day indicator grants."
