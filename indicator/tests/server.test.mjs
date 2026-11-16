@@ -46,6 +46,15 @@ before(async () => {
       res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({ access_active: 'true' }));
       return;
     }
+    if (token === 'Bearer expired-token') {
+      res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({
+        product: 'bullseye-india-indicator',
+        access_active: false,
+        access_days: 365,
+        expires_at: '2020-01-01T00:00:00.000Z'
+      }));
+      return;
+    }
     if (token === 'Bearer no-access') {
       res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({
         product: 'bullseye-india-indicator',
@@ -226,4 +235,13 @@ test('access API rejects a different product or non-365-day entitlement', async 
     });
     assert.equal(response.status, 503);
   }
+});
+
+test('expired indicator entitlement is denied even when the account is signed in', async () => {
+  const response = await fetch(baseUrl + '/api/access', {
+    headers: { authorization: 'Bearer expired-token' }
+  });
+  assert.equal(response.status, 403);
+  const result = await response.json();
+  assert.equal(result.access_active, false);
 });
