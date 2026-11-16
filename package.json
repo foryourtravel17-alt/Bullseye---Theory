@@ -6,10 +6,11 @@
   "scripts": {
     "validate:market": "node scripts/validate-market-briefs.mjs",
     "validate:site": "node scripts/validate-site-links.mjs",
-    "build": "npm run validate:market && npm run validate:site && npm run validate:compliance",
+    "build": "npm run validate:market && npm run validate:site && npm run validate:compliance && npm run validate:course-quizzes",
     "test": "npm run build && node --test tests/course-runtime.test.mjs",
     "validate:compliance": "node scripts/validate-market-data-guardrails.mjs",
-    "start": "node server.mjs"
+    "start": "node server.mjs",
+    "validate:course-quizzes": "node scripts/validate-course-quizzes.mjs"
   },
   "engines": {
     "node": ">=20"
