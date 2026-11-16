@@ -94,6 +94,15 @@ if home.is_file():
     if "START THE COURSE" in source or "ENROLL NOW" in source:
         errors.append("index.html: active enrollment CTA is not allowed while checkout is closed")
 
+styles = ROOT / "bullseye-v3.css"
+if styles.is_file():
+    css = styles.read_text(encoding="utf-8")
+    if "\\n." in css or "\\n\\n" in css:
+        errors.append("bullseye-v3.css: literal backslash-n sequences break appended visual rules")
+    for selector in (".bt-footer-brand", ".bt-status-strip", ".bt-closed-price"):
+        if selector not in css:
+            errors.append(f"bullseye-v3.css: missing launch design selector: {selector}")
+
 if errors:
     print("LAUNCH PAGE CHECKS FAILED")
     for err in errors:
