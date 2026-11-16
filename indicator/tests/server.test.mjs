@@ -10,7 +10,6 @@ let baseUrl;
 let entitlementServer;
 let entitlementUrl;
 let serverStderr = '';
-let serverStderr = '';
 
 async function freePort() {
   const probe = createNetServer();
