@@ -84,3 +84,8 @@ test('previous-day levels use prior completed daily candle without lookahead lea
   assert.match(source, /request\.security\(syminfo\.tickerid, "D", high\[1\], lookahead=barmerge\.lookahead_on\)/);
   assert.match(source, /request\.security\(syminfo\.tickerid, "D", low\[1\], lookahead=barmerge\.lookahead_on\)/);
 });
+
+test('Pine volume qualification rejects a window containing any missing volume bar', () => {
+  assert.match(source, /volumeWindowComplete = ta\.sma\(not na\(volume\) \? 1\.0 : 0\.0, volumeLength\) == 1/);
+  assert.match(source, /volumeAvailable = volumeWindowComplete and not na\(volume\)/);
+});
