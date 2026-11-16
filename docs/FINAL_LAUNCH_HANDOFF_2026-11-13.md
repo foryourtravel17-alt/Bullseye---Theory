@@ -27,6 +27,7 @@ Prices remain planned presentation values. Enrollment is closed, checkout/paymen
 - Added 5 MB upload limit, in-memory parsing, chronological/OHLC validation, 15m/1h selection and historical report.
 - Added candlestick chart, signal history table and mobile layout.
 - Added HTTP API tests for valid CSV, unsupported intervals, malformed input and private-source file access.
+- Added a fail-closed analyzer membership gate: `/api/access` and `/api/analyze-csv` require a valid Supabase session and an active, verified `indicator_access` entitlement. The service-role key is read only from the server environment and is never sent to the browser.
 - Public static serving is allowlisted to the dashboard and chart library.
 - No market feed is fetched, no CSV is persisted, no live NSE data or automatic NSE scanner is claimed.
 - GitHub Actions Bullseye Levels — Private Source Tests #49 passed: dependency install, all indicator tests (including CSV API and static asset allowlist tests), server syntax and CSV validator syntax.
