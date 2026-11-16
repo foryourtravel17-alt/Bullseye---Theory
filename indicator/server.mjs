@@ -59,7 +59,7 @@ async function verifyIndicatorAccess(req) {
     return { ok: true, access: { access_active: true, access_days: 365, expires_at: null } };
   }
 
-  const supabaseUrl = String(process.env.SUPABASE_URL || '').replace(/\\/$/, '');
+  const supabaseUrl = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
   const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY || '';
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
   if (!supabaseUrl || !publishableKey || !serviceRoleKey) {
