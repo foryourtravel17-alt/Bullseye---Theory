@@ -126,7 +126,9 @@ $('indicatorSave').addEventListener('click',async()=>{
  const id=$('indicatorStudent').value;
  if(!id){$('indicatorStatus').textContent='Choose a student first.';$('indicatorStatus').classList.add('error');return}
  const verify=$('indicatorVerified').checked;
- if(verify&&!confirm('Confirm you independently checked the payment settlement for this exact student and the ₹9,999 indicator product?'))return;
+ const existing=indicatorMembers.find(member=>member.user_id===id);
+ if(verify&&!existing?.payment_verified&&!confirm('Confirm you independently checked the payment settlement for this exact student and the ₹9,999 indicator product?'))return;
+ if(!verify&&existing?.payment_verified&&!confirm('Remove the verified-payment flag and revoke this student\'s indicator access immediately?'))return;
  let expiry=null;
  if($('indicatorExpiry').value){
    expiry=new Date($('indicatorExpiry').value+'T23:59:59').toISOString();
