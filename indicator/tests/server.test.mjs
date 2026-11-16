@@ -110,3 +110,10 @@ test('indicator API requires an authenticated entitled user before CSV processin
   assert.equal(body.access_active, true);
   assert.equal(body.access_days, 365);
 });
+
+test('authenticated requests fail closed until Supabase indicator entitlement verification is configured', async () => {
+  const response = await fetch(`${baseUrl}/api/access`, {
+    headers: { authorization: 'Bearer test-not-entitled-bypass' }
+  });
+  assert.equal(response.status, 503);
+});
