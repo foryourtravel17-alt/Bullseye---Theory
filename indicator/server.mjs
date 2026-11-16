@@ -145,39 +145,15 @@ const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
     if (req.method === 'GET' && url.pathname === '/supabase-config.js') {
-      const supabaseUrl = String(process.env.SUPABASE_URL || '').replace(/\\/+$/, '');
+      const supabaseUrl = String(process.env.SUPABASE_URL || '').trim().replace(/\/+$/, '');
       const publishableKey = String(process.env.SUPABASE_PUBLISHABLE_KEY || '').trim();
       if (!supabaseUrl || !publishableKey) {
-        return send(res, 503, 'window.BULLSEYE_SUPABASE_URL = ""; window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY = "";', 'text/javascript; charset=utf-8');
+        return send(res, 503, 'window.BULLSEYE_SUPABASE_URL = ""; window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY = "";', 'application/javascript; charset=utf-8');
       }
-      const config = [
+      const script = [
         'window.BULLSEYE_SUPABASE_URL = ' + JSON.stringify(supabaseUrl) + ';',
         'window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY = ' + JSON.stringify(publishableKey) + ';'
-      ].join('\\n');
-      return send(res, 200, config, 'text/javascript; charset=utf-8');
-    }
-    if (req.method === 'GET' && url.pathname === '/health') return send(res, 200, { ok: true });
-    if (req.method === 'GET' && url.pathname === '/supabase-config.js') {
-      const publicConfig = {
-        url: String(process.env.SUPABASE_URL || ''),
-        publishableKey: String(process.env.SUPABASE_PUBLISHABLE_KEY || '')
-      };
-      const script = [
-        `window.BULLSEYE_SUPABASE_URL = ${JSON.stringify(publicConfig.url)};`,
-        `window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY = ${JSON.stringify(publicConfig.publishableKey)};`
       ].join('\n');
-      return send(res, 200, script, 'application/javascript; charset=utf-8');
-    }
-    if (req.method === 'GET' && url.pathname === '/supabase-config.js') {
-      const supabaseUrl = String(process.env.SUPABASE_URL || '').trim();
-      const publishableKey = String(process.env.SUPABASE_PUBLISHABLE_KEY || '').trim();
-      if (!supabaseUrl || !publishableKey) {
-        return send(res, 503, { error: 'Analyzer sign-in is not configured.' });
-      }
-      const script = [
-        'window.BULLSEYE_SUPABASE_URL = ' + JSON.stringify(supabaseUrl) + ';',
-        'window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY = ' + JSON.stringify(publishableKey) + ';'
-      ].join('\\n');
       return send(res, 200, script, 'application/javascript; charset=utf-8');
     }
     if (req.method === 'GET' && url.pathname === '/api/access') {
