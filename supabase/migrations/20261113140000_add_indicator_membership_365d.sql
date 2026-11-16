@@ -47,6 +47,19 @@ alter table public.payment_orders
       or (plan_code = 'indicator' and inr_amount_paise = 999900 and access_days = 365)
     );
 
+-- Premium transfers remain manual-review-only while the membership term is
+-- unconfirmed. Preserve the matched transaction hash without marking the order
+-- paid or granting an entitlement.
+alter table public.payment_orders
+  drop constraint if exists payment_orders_paid_fields;
+
+alter table public.payment_orders
+  add constraint payment_orders_paid_fields check (
+    (status = 'paid' and paid_at is not null and payment_tx_hash is not null)
+    or (status = 'manual_review' and paid_at is null and payment_tx_hash is not null)
+    or (status in ('pending', 'expired') and paid_at is null and payment_tx_hash is null)
+  );
+
 -- A Premium transfer is recorded for manual reconciliation, not marked paid.
 -- Permit its tx hash while keeping paid_at NULL; all other unpaid states remain
 -- free of payment hashes, and paid orders still require both fields.
