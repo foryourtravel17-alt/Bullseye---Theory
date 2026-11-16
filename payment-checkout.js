@@ -74,7 +74,7 @@
         }
         if (data.indicator_access_expires_at) expiryNode.textContent = formatExpiry(data.indicator_access_expires_at);
         if (expiryLabel) expiryLabel.textContent = "INDICATOR ACCESS EXPIRES";
-        setStatus("Payment verified. Your 365-day indicator entitlement is active. TradingView invite-only access is issued separately by the owner; wait for the private invitation.", "success");
+        setStatus("Payment verified. Your 365-day website analyzer entitlement is active.", "success");
         paidLink.hidden = true;
       } else {
         if (!data.course_access_active) {
@@ -163,7 +163,7 @@
       planSelect.querySelector('option[value="indicator"]').disabled = false;
     }
     setStatus(data.indicator_enabled
-      ? "Course and annual indicator checkout are available. Indicator access is a separate 365-day entitlement; TradingView invitation is manual."
+      ? "Course and annual website analyzer checkout are available. Indicator access is a separate 365-day entitlement."
       : "Course checkout is available. Annual indicator checkout remains closed until its separate entitlement and invitation process are approved.", "success");
   }
 
@@ -187,7 +187,7 @@
           }
           if (data.indicator_access_expires_at) expiryNode.textContent = formatExpiry(data.indicator_access_expires_at);
           if (expiryLabel) expiryLabel.textContent = "INDICATOR ACCESS EXPIRES";
-          setStatus("Payment verified on TRON Mainnet. Your annual indicator entitlement is active. TradingView invite-only access will be issued manually by the owner.", "success");
+          setStatus("Payment verified on TRON Mainnet. Your annual website analyzer entitlement is active.", "success");
           paidLink.hidden = true;
         } else {
           if (!data.course_access_active) {
@@ -259,7 +259,7 @@
     expiryNode.textContent = formatExpiry(data.expires_at);
     pollDeadline = new Date(data.expires_at).getTime() + 60 * 60 * 1000;
     setStatus(data.plan === "indicator"
-      ? "Indicator order created. Send only the exact amount shown on TRON Mainnet / TRC-20 before expiry. After verified payment, the 365-day entitlement is activated; TradingView invite-only access is a separate manual step."
+      ? "Website analyzer order created. Send only the exact amount shown on TRON Mainnet / TRC-20 before expiry. After verified payment, the separate 365-day analyzer entitlement is activated."
       : "Order created. Scan the QR, select TRON Mainnet / TRC-20, and send the exact amount shown. Do not send a rounded amount.");
     button.disabled = true;
     pollOrder(activeOrderId);
