@@ -91,7 +91,7 @@ async function loadIndicatorMembers(){
  statusEl.classList.remove('error');
  indicatorMembers=data||[];
  const select=$('indicatorStudent');select.replaceChildren(new Option('Choose a student…',''));
- students.forEach(student=>select.add(new Option((student.full_name?student.full_name+' — ':'')+(student.email||student.user_id),student.user_id)));
+ indicatorMembers.forEach(member=>select.add(new Option((member.full_name?member.full_name+' — ':'')+(member.email||member.user_id),member.user_id)));
  renderIndicatorMembers();
  statusEl.textContent='Indicator access control ready. '+indicatorMembers.length+' account record(s) found.';
 }
