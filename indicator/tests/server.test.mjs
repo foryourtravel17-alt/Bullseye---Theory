@@ -187,10 +187,6 @@ test('Supabase Auth validates the bearer token before entitlement lookup', async
     headers: { authorization: 'Bearer upstream-failure' }
   });
   assert.equal(unavailable.status, 503);
-  const unavailable = await fetch(baseUrl + '/api/access', {
-    headers: { authorization: 'Bearer upstream-failure' }
-  });
-  assert.equal(unavailable.status, 503);
   const malformed = await fetch(baseUrl + '/api/access', {
     headers: { authorization: 'Bearer malformed-response' }
   });
