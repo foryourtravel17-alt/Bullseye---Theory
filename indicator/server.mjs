@@ -27,13 +27,19 @@ function send(res, status, body, type = 'application/json; charset=utf-8') {
   res.end(type.startsWith('application/json') ? JSON.stringify(body) : body);
 }
 
+function configuredSupabaseUrl() {
+  let value = String(process.env.SUPABASE_URL || '').trim();
+  while (value.endsWith('/')) value = value.slice(0, -1);
+  return value;
+}
+
 async function verifyIndicatorAccess(req) {
   const authorization = String(req.headers.authorization || '');
   if (!authorization.startsWith('Bearer ') || !authorization.slice(7).trim()) {
     return { ok: false, status: 401, error: 'Sign in is required.' };
   }
 
-  const supabaseUrl = String(process.env.SUPABASE_URL || '').replace(/\/+$/, '');
+  const supabaseUrl = configuredSupabaseUrl();
   const publishableKey = String(process.env.SUPABASE_PUBLISHABLE_KEY || '').trim();
   if (!supabaseUrl || !publishableKey) {
     return { ok: false, status: 503, error: 'Indicator access verification is not configured.' };
@@ -144,31 +150,42 @@ async function analyzeCsv(req, res, url, access) {
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-    if (req.method === 'GET' && url.pathname === '/supabase-config.js') {
-      const supabaseUrl = String(process.env.SUPABASE_URL || '').trim().replace(/\/+$/, '');
-      const publishableKey = String(process.env.SUPABASE_PUBLISHABLE_KEY || '').trim();
-      if (!supabaseUrl || !publishableKey) {
-        return send(res, 503, 'window.BULLSEYE_SUPABASE_URL = ""; window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY = "";', 'application/javascript; charset=utf-8');
-      }
-      const script = [
-        'window.BULLSEYE_SUPABASE_URL = ' + JSON.stringify(supabaseUrl) + ';',
-        'window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY = ' + JSON.stringify(publishableKey) + ';'
-      ].join('\n');
-      return send(res, 200, script, 'application/javascript; charset=utf-8');
+
+    if (req.method === 'GET' && url.pathname === '/health') {
+      return send(res, 200, { ok: true });
     }
+
+    if (req.method === 'GET' && url.pathname === '/supabase-config.js') {
+      const publicConfig = {
+        url: configuredSupabaseUrl(),
+        publishableKey: String(process.env.SUPABASE_PUBLISHABLE_KEY || '').trim()
+      };
+      const script = [
+        'window.BULLSEYE_SUPABASE_URL = ' + JSON.stringify(publicConfig.url) + ';',
+        'window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY = ' + JSON.stringify(publicConfig.publishableKey) + ';'
+      ].join('\n');
+      return send(res, 200, script, 'text/javascript; charset=utf-8');
+    }
+
     if (req.method === 'GET' && url.pathname === '/api/access') {
       const result = await verifyIndicatorAccess(req);
-      if (!result.ok) return send(res, result.status, { access_active: false, error: result.error });
+      if (!result.ok) {
+        return send(res, result.status, { access_active: false, error: result.error });
+      }
       return send(res, 200, result.access);
     }
+
     if (req.method === 'POST' && url.pathname === '/api/analyze-csv') {
       if (!req.headers['content-type']?.includes('text/csv')) {
         return send(res, 415, { error: 'Content-Type must be text/csv.' });
       }
       const access = await verifyIndicatorAccess(req);
-      if (!access.ok) return send(res, access.status, { access_active: false, error: access.error });
+      if (!access.ok) {
+        return send(res, access.status, { access_active: false, error: access.error });
+      }
       return await analyzeCsv(req, res, url, access.access);
     }
+
     if (req.method !== 'GET') return send(res, 405, { error: 'Method not allowed.' });
     const relative = url.pathname === '/' ? 'indicator.html' : decodeURIComponent(url.pathname.slice(1));
     const allowedAssets = new Set([
