@@ -217,7 +217,7 @@ test('dashboard includes member sign-in and keeps analyzer controls behind serve
   assert.match(page, /id="accessPanel"/);
   assert.match(page, /id="signIn"/);
   assert.match(page, /id="signOut"/);
-  assert.match(page, //api/access/);
+  assert.ok(page.includes('/api/access'));
   assert.match(page, /Authorization/);
   assert.match(page, /setAnalyzerEnabled\(false\)/);
 });
