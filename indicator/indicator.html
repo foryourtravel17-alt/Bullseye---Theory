@@ -57,7 +57,7 @@ label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}input,se
 <script>
 const SUPABASE_URL='https://kjhdcpjztuzpysdauqdz.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_1fo0yxL2uk_vwFGR5-Sh-A_z7t0RhXt';
-const authClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+const authClient=window.supabase?.createClient?window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY):null;
 let activeSession=null;
 let analyzerUnlocked=false;
 const accessState=document.getElementById('accessState');
@@ -73,6 +73,7 @@ function setAccessMessage(message,kind='notice'){
  accessMessage.className=kind;
 }
 async function refreshAccess(){
+ if(!authClient){accessState.textContent='LOGIN UNAVAILABLE';setAnalyzerEnabled(false);setAccessMessage('The sign-in library could not load. The analyzer remains locked. Reload the page or contact support.','error');return}
  const {data:{session}}=await authClient.auth.getSession();
  activeSession=session;
  signOutButton.hidden=!session;
@@ -103,6 +104,7 @@ async function refreshAccess(){
  }
 }
 signInButton.addEventListener('click',async()=>{
+ if(!authClient){setAccessMessage('The sign-in service is unavailable.','error');return}
  const email=document.getElementById('loginEmail').value.trim();
  const password=document.getElementById('loginPassword').value;
  if(!email||!password){setAccessMessage('Enter your email and password.','error');return;}
@@ -113,6 +115,7 @@ signInButton.addEventListener('click',async()=>{
  await refreshAccess();
 });
 signOutButton.addEventListener('click',async()=>{
+ if(!authClient)return;
  await authClient.auth.signOut();
  await refreshAccess();
 });
@@ -148,6 +151,7 @@ document.getElementById('analyze').addEventListener('click',async()=>{
  try{
   const csv=await file.text();
   const query=new URLSearchParams({timeframe:document.getElementById('timeframe').value,symbol:document.getElementById('symbol').value});
+  if(!authClient){setAnalyzerEnabled(false);setMessage('Sign-in service unavailable.','error');return}
   const {data:{session}}=await authClient.auth.getSession();
   activeSession=session;
   if(!session){setAnalyzerEnabled(false);setMessage('Sign in and verify your indicator membership first.','error');return}
