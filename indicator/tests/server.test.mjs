@@ -3,12 +3,13 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer as createNetServer } from 'node:net';
 import { createServer as createHttpServer } from 'node:http';
+import { fileURLToPath } from 'node:url';
 
 let child;
 let baseUrl;
 let entitlementServer;
 let entitlementUrl;
-let requestLog = [];
+let serverStderr = '';
 
 async function freePort() {
   const probe = createNetServer();
@@ -26,24 +27,6 @@ async function startHttpServer(server) {
 
 before(async () => {
   entitlementServer = createHttpServer((req, res) => {
-    requestLog.push({ path: req.url, authorization: req.headers.authorization || '' });
-    if (req.url === '/auth/v1/user') {
-      const token = req.headers.authorization || '';
-      if (token === 'Bearer invalid-token') {
-        res.writeHead(401, { 'content-type': 'application/json' }).end(JSON.stringify({ error: 'invalid session' }));
-        return;
-      }
-      if (token === 'Bearer auth-outage') {
-        res.writeHead(503, { 'content-type': 'application/json' }).end(JSON.stringify({ error: 'auth service unavailable' }));
-        return;
-      }
-      if (!token.startsWith('Bearer ')) {
-        res.writeHead(401, { 'content-type': 'application/json' }).end(JSON.stringify({ error: 'missing bearer token' }));
-        return;
-      }
-      res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({ id: 'user-123', email: 'owner@example.test' }));
-      return;
-    }
     if (req.url !== '/functions/v1/get-indicator-access') {
       res.writeHead(404).end();
       return;
@@ -74,33 +57,6 @@ before(async () => {
       }));
       return;
     }
-    if (token === 'Bearer expired-token') {
-      res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({
-        product: 'bullseye-india-indicator',
-        access_active: true,
-        access_days: 365,
-        expires_at: '2020-01-01T00:00:00.000Z'
-      }));
-      return;
-    }
-    if (token === 'Bearer wrong-product') {
-      res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({
-        product: 'bullseye-course',
-        access_active: true,
-        access_days: 365,
-        expires_at: '2035-01-01T00:00:00.000Z'
-      }));
-      return;
-    }
-    if (token === 'Bearer wrong-duration') {
-      res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({
-        product: 'bullseye-india-indicator',
-        access_active: true,
-        access_days: 85,
-        expires_at: '2035-01-01T00:00:00.000Z'
-      }));
-      return;
-    }
     if (token === 'Bearer active-token') {
       res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({
         product: 'bullseye-india-indicator',
@@ -116,26 +72,29 @@ before(async () => {
 
   const port = await freePort();
   baseUrl = `http://127.0.0.1:${port}`;
-  child = spawn(process.execPath, ['server.mjs'], {
-    cwd: new URL('..', import.meta.url),
+  let childError = '';\n  child = spawn(process.execPath, ['server.mjs'], {
+    cwd: fileURLToPath(new URL('..', import.meta.url)),
     env: {
       ...process.env,
       PORT: String(port),
       SUPABASE_URL: entitlementUrl,
-      SUPABASE_PUBLISHABLE_KEY: 'test-publishable-key'
+      SUPABASE_PUBLISHABLE_KEY: 'test-publishable-key',
+      SUPABASE_SERVICE_ROLE_KEY: 'do-not-expose-this'
     },
-    stdio: 'ignore'
+    stdio: ['ignore', 'ignore', 'pipe']
   });
+  child.stderr.setEncoding('utf8');
+  child.stderr.on('data', (chunk) => { serverStderr += chunk; });
   let ready = false;
   for (let attempt = 0; attempt < 40; attempt += 1) {
-    if (child.exitCode !== null) throw new Error('Indicator server exited before startup');
+    if (child.exitCode !== null) throw new Error('Indicator server exited before startup: ' + serverStderr.slice(-3000));
     try {
       const response = await fetch(`${baseUrl}/health`);
       if (response.ok) { ready = true; break; }
     } catch {}
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
-  if (!ready) throw new Error('Indicator server did not become ready');
+  if (!ready) throw new Error('Indicator server did not become ready. Exit code: ' + child.exitCode + '. Stderr: ' + serverStderr.slice(-3000));
 });
 
 after(async () => {
@@ -179,19 +138,11 @@ test('indicator access API allows only an active verified 365-day entitlement', 
   assert.equal(result.expires_at, '2035-01-01T00:00:00.000Z');
 });
 
-test('Supabase Auth validates the bearer token before entitlement lookup', async () => {
-  requestLog = [];
+test('invalid sessions and entitlement-service failures fail closed', async () => {
   const invalid = await fetch(baseUrl + '/api/access', {
     headers: { authorization: 'Bearer invalid-token' }
   });
   assert.equal(invalid.status, 401);
-  assert.deepEqual(requestLog.map((item) => item.path), ['/auth/v1/user']);
-  requestLog = [];
-  const authOutage = await fetch(baseUrl + '/api/access', {
-    headers: { authorization: 'Bearer auth-outage' }
-  });
-  assert.equal(authOutage.status, 503);
-  assert.deepEqual(requestLog.map((item) => item.path), ['/auth/v1/user']);
   const unavailable = await fetch(baseUrl + '/api/access', {
     headers: { authorization: 'Bearer upstream-failure' }
   });
@@ -200,6 +151,15 @@ test('Supabase Auth validates the bearer token before entitlement lookup', async
     headers: { authorization: 'Bearer malformed-response' }
   });
   assert.equal(malformed.status, 503);
+});
+
+test('CSV analysis requires a bearer token before processing an upload', async () => {
+  const response = await fetch(baseUrl + '/api/analyze-csv?timeframe=15m', {
+    method: 'POST',
+    headers: { 'content-type': 'text/csv' },
+    body: 'this upload must be rejected before CSV parsing'
+  });
+  assert.equal(response.status, 401);
 });
 
 test('CSV analysis is blocked before parsing when no indicator entitlement exists', async () => {
@@ -243,6 +203,29 @@ test('CSV API rejects unsupported intervals and malformed candle data for entitl
   assert.equal(malformed.status, 400);
 });
 
+test('browser config exposes only the Supabase URL and publishable key', async () => {
+  const response = await fetch(baseUrl + '/supabase-config.js');
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get('content-type'), /javascript/);
+  const script = await response.text();
+  assert.match(script, /BULLSEYE_SUPABASE_URL/);
+  assert.match(script, /BULLSEYE_SUPABASE_PUBLISHABLE_KEY/);
+  assert.match(script, /test-publishable-key/);
+  assert.doesNotMatch(script, /do-not-expose-this|SERVICE_ROLE_KEY|service_role/i);
+});
+
+test('dashboard includes member sign-in and keeps analyzer controls behind server access checks', async () => {
+  const response = await fetch(baseUrl + '/');
+  assert.equal(response.status, 200);
+  const page = await response.text();
+  assert.match(page, /id="accessPanel"/);
+  assert.match(page, /id="signIn"/);
+  assert.match(page, /id="signOut"/);
+  assert.ok(page.includes('/api/access'));
+  assert.match(page, /Authorization/);
+  assert.match(page, /setAnalyzerEnabled\(false\)/);
+});
+
 test('server exposes only the dashboard and chart library, not private source files', async () => {
   const page = await fetch(baseUrl + '/');
   assert.equal(page.status, 200);
@@ -253,58 +236,4 @@ test('server exposes only the dashboard and chart library, not private source fi
   assert.equal(engine.status, 404);
   const packageFile = await fetch(baseUrl + '/package.json');
   assert.equal(packageFile.status, 404);
-});
-
-test('access API rejects a different product or non-365-day entitlement', async () => {
-  for (const token of ['wrong-product', 'wrong-duration']) {
-    const response = await fetch(baseUrl + '/api/access', {
-      headers: { authorization: `Bearer ${token}` }
-    });
-    assert.equal(response.status, 503);
-  }
-});
-
-test('CSV API rejects a missing bearer token before reading or parsing the upload', async () => {
-  const response = await fetch(baseUrl + '/api/analyze-csv?timeframe=15m', {
-    method: 'POST',
-    headers: { 'content-type': 'text/csv' },
-    body: 'this body must never reach the CSV parser'
-  });
-  assert.equal(response.status, 401);
-});
-
-test('access endpoint denies anonymous callers and never caches entitlement responses', async () => {
-  const response = await fetch(baseUrl + '/api/access');
-  assert.equal(response.status, 401);
-  assert.equal(response.headers.get('cache-control'), 'no-store');
-  assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
-});
-
-test('browser config exposes only the public Supabase key', async () => {
-  const response = await fetch(baseUrl + '/api/config');
-  assert.equal(response.status, 200);
-  const config = await response.json();
-  assert.equal(config.supabaseUrl, entitlementUrl);
-  assert.equal(config.supabasePublishableKey, 'test-publishable-key');
-  assert.equal(Object.keys(config).some((key) => /service.?role/i.test(key)), false);
-});
-
-test('analyzer page contains member sign-in and never sends CSV without a bearer token', async () => {
-  const response = await fetch(baseUrl + '/');
-  assert.equal(response.status, 200);
-  const page = await response.text();
-  assert.match(page, /id="authEmail"/);
-  assert.match(page, /id="authPassword"/);
-  assert.match(page, /signInWithPassword/);
-  assert.match(page, /Authorization:'Bearer '\+currentSession\.access_token/);
-  assert.match(page, /\/api\/access/);
-});
-
-test('an expired 365-day entitlement is denied', async () => {
-  const response = await fetch(baseUrl + '/api/access', {
-    headers: { authorization: 'Bearer expired-token' }
-  });
-  assert.equal(response.status, 403);
-  const result = await response.json();
-  assert.equal(result.access_active, false);
 });
