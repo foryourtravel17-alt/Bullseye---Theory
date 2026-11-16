@@ -1,6 +1,12 @@
 name: Bullseye Levels — Private Source Tests
 
 on:
+  push:
+    branches:
+      - release/bullseye-india-course-indicator-integration
+    paths:
+      - "indicator/**"
+      - ".github/workflows/indicator-private-checks.yml"
   pull_request:
     paths:
       - "indicator/**"
