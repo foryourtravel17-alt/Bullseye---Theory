@@ -48,12 +48,15 @@ requireText(config, "[functions.get-indicator-access]", "indicator access functi
 requireText(config, "verify_jwt = true", "indicator access function must require JWT verification");
 
 requireText(paymentPage, "₹9,999", "payment page must explain the planned annual indicator product");
-requireText(paymentPage, "365-day indicator entitlement", "payment page must explain the 365-day product duration");
+requireText(paymentPage, "Planned 365-day Bullseye India website-based historical analyzer", "payment page must explain the 365-day website analyzer product");
 requireText(paymentPage, 'value="indicator" disabled', "indicator plan must remain disabled in the public page by default");
 requireText(paymentClient, 'option[value="indicator"]', "checkout client must only enable indicator option from secure server config");
 requireText(paymentClient, 'selectedPlan !== "indicator"', "checkout client must handle the indicator product");
 requireText(paymentClient, "indicator_access_active", "checkout must not report indicator access until the entitlement is verified");
-requireText(paymentClient, "TradingView invite-only access is issued separately by the owner", "customer messaging must state the manual TradingView invitation step");
+requireText(order, "Premium membership duration is not finalized", "Premium orders must remain blocked until their access duration is set");
+requireText(accessEndpoint, 'delivery: "website_historical_analyzer"', "indicator access must identify the website analyzer delivery route");
+if (/tradingview_invite_required|invite-only access/i.test(accessEndpoint)) errors.push("indicator access endpoint must not claim TradingView invite-only delivery");
+if (/TradingView invite-only|TradingView invitation is manual|invite-only access/i.test(paymentClient)) errors.push("checkout client must describe website analyzer delivery, not TradingView invitations");
 
 requireText(postgresTest, "20261113140000_add_indicator_membership_365d.sql", "disposable PostgreSQL test must apply the indicator migration");
 requireText(postgresTest, "indicator", "disposable PostgreSQL test must seed and test indicator orders");
