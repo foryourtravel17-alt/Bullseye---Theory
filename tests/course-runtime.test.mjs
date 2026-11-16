@@ -134,7 +134,8 @@ test("homepage and membership page do not advertise a recorded video library", a
   const home = await readFile(resolve(root, "index.html"), "utf8");
   const membership = await readFile(resolve(root, "membership.html"), "utf8");
   for (const page of [home, membership]) {
-    assert.doesNotMatch(page, /recorded video breakdowns|video breakdowns|video library/i);
+    assert.doesNotMatch(page, /recorded video breakdowns|video breakdowns|VIDEO BREAKDOWNS|PDF \\+ VIDEO/i);
   }
   assert.match(home, /PRACTICE EXERCISES/);
+  assert.match(home, /A recorded video library is not included in the current release candidate/);
 });
