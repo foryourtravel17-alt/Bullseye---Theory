@@ -1,6 +1,6 @@
 # Bullseye Theory — current launch handoff
 Date: 16 November 2026
-Status: release candidate verified in preview; production release intentionally held.
+Status: consolidated release candidate passes the latest Cloudflare no-deploy preflight; production release remains intentionally held.
 
 ## 1. Current product decisions
 
@@ -34,14 +34,14 @@ Product repository: `foryourtravel17-alt/Bullseye---Theory`.
 
 - Release PR #47: https://github.com/foryourtravel17-alt/Bullseye---Theory/pull/47
 - India CSV analyzer work PR #49 is included in the current release candidate.
-- Latest full release-suite pass before the hardening changes: commit `a6107764db41ac44fd5d28296abafd3c09405496` (all 9 release workflows passed).
-- Current release branch head: `7678c4fb2218bdcf75bf8a4966409ecc41feee9e`.
+- Latest release-candidate head at this handoff refresh: `5e155daede2fedbe46669464c665b007246066f6`.
+- Current release branch head: `5e155daede2fedbe46669464c665b007246066f6`.
 - Post-baseline hardening now adds Supabase Auth validation, a fail-closed 365-day entitlement gate, a signed-in analyzer UI, owner-only manual indicator entitlement controls, a closed payment page and a no-network checkout stub.
-- Targeted local Node smoke tests passed for the actual analyzer server's Auth → entitlement flow and for the payment stub. The analyzer smoke harness used parser/backtest stubs; the full repository test workflows have not yet produced a fresh run on this latest head. Do not describe the latest hardening commit as full-CI-green.
+- Latest Cloudflare Preview Preflight run on the current release head passed: dependency install, complete root `npm test` (build validators + course runtime tests), Cloudflare Worker dry-run bundle build. Indicator private-source tests separately passed on the immediately preceding code candidate. Do not describe this as a TradingView Pine compiler run or a real-market Pine/Node parity result.
 - Latest Cloudflare Preview deployment: https://release-bullseye-india-course-indicator-integra-bullseye-theory.foryourtravel17.workers.dev
 - A previous Cloudflare preview URL is documented above; this session's final CI verifies a local Worker build and a hosted Render access-gate smoke test. The existing Render/Cloudflare preview services may reflect an earlier candidate than the current 0099 head, so visually review the exact latest candidate before production.
-- Nine GitHub Actions checks passed on the earlier `a610...` candidate: launch-page validation, course runtime, static safety, course integrity, hosted preview smoke, Deno/Cloudflare Worker build, indicator tests, Market Lab validation, and payment/settlement verification. Later hardening commits added new integration tests and should receive a fresh full test run before merge. The disposable PostgreSQL test confirms that Premium transfers can enter `manual_review` without marking the order as paid.
-- PR #47 is open and ready for review; it is not merged to `main`.
+- The current release preflight passed on 16 Nov 2026. The separate latest main-branch Cloudflare production deploy also completed successfully and its smoke checks returned PASS for `/index.html`, `/auth.html`, `/dashboard.html`, `/admin.html`, `/payment.html`, `/terms.html`, `/refund.html` and `/membership.html`. This production deploy is the manual-only closed-enrollment main-branch state, not the unmerged release candidate. GitHub Pages deployment is intentionally disabled; the Pages workflow failure is not the active production host.
+- PR #47 is open and ready for review; it is not merged to `main`. Duplicate/stale PRs #50, #58 and #61 were closed as superseded by the consolidated release candidate.
 
 ### Manual-only membership hardening added after the last full CI pass
 
@@ -168,3 +168,31 @@ npm test
 node --check server.mjs
 npm start
 ```
+
+
+## 12. Automation completion refresh — 16 November 2026
+
+### Social automation
+- Telegram approval notifications and approved channel auto-posting were personally confirmed by the owner.
+- Telegram repository PRs #92 and #93 are merged. The read-only Supabase Storage readiness request now sends JSON content-type; daily report counts are built from the canonical shared state and use the active India-time schedules.
+- Latest read-only readiness doctor passed 12/12 checks with zero failures and zero warnings.
+- Market/Reel public publishing remains owner-approval-gated. No Instagram/Facebook publishing was reintroduced.
+
+### Release verification
+- Current release branch: `release/bullseye-india-course-indicator-integration`.
+- Current head: `5e155daede2fedbe46669464c665b007246066f6`.
+- Cloudflare Preview Preflight on that head: SUCCESS; full root build/test command and Wrangler dry-run completed.
+- Production main deployment on 16 Nov: Cloudflare Worker deploy SUCCESS; smoke checks passed for the homepage, login, dashboard, admin, payment, terms, refund and membership pages.
+- Production payment page is still deliberately closed. It exposes no QR, wallet, payment order, or automatic checkout.
+- The release PR #47 remains unmerged. Merging it triggers the production Cloudflare deployment workflow; do not merge or deploy until the remaining owner-only gates are complete.
+
+### Remaining owner actions (not automatable without account access or business facts)
+1. TradingView Free: open Pine Editor, paste the private release's `indicator/bullseye.pine`, save/add to chart, compile and visually inspect on 15m and 1h. No CSV export and no paid TradingView plan are required for this personal chart test.
+2. Real-market parity: supply the same completed 15m/1h OHLCV candles from a provider whose terms permit technical-tool development/use. TradingView Free CSV export is unavailable; FYERS terms do not currently permit this analyzer use without written consent. Do not use an unapproved source.
+3. Course staging: perform one disposable signed-in staging journey for password reset, all 11 quizzes, progress saving, PDF/slide downloads and certificate. No disposable test account/session is available to this automation.
+4. Confirm the Premium Telegram membership term and deliverables; server-side Premium checkout remains hard-blocked until the term is set.
+5. Supply/confirm the official UPI QR or other manual payment instructions. PayPal is not configured. Do not publish a payment method before confirming ownership and settlement destination.
+6. Finalize refund/cancellation terms, business identity/address, support response expectations and applicable Indian legal/tax/consumer disclosures with a qualified adviser.
+7. Enable any additional account security setting available on the chosen Supabase plan; leaked-password protection is currently reported disabled on the free-first setup.
+8. Only after these items are accepted, explicitly authorize the production migration/Edge Function deployment for indicator access and the final release PR merge.
+
