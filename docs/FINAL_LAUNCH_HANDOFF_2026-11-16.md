@@ -34,11 +34,12 @@ Product repository: `foryourtravel17-alt/Bullseye---Theory`.
 
 - Release PR #47: https://github.com/foryourtravel17-alt/Bullseye---Theory/pull/47
 - India CSV analyzer work PR #49 is included in the current release candidate.
-- Latest fully verified candidate commit: `b3076d15a8bdf652a72c0721aea216c34c01a3c2`.
+- Latest full release-suite pass: commit `a6107764db41ac44fd5d28296abafd3c09405496` (all 9 release workflows passed).
+- Current release branch head: `0099f7834fcfb6f96e8908dfc79d8d487b66c6da`; the three newer commits add Supabase session validation and the 365-day indicator entitlement gate. The latest head passed the indicator private-source tests and the no-deploy Cloudflare preview preflight.
 - Latest Cloudflare Preview deployment: https://release-bullseye-india-course-indicator-integra-bullseye-theory.foryourtravel17.workers.dev
-- A previous Cloudflare preview URL is documented above; this session's final CI verifies a local Worker build and a hosted Render access-gate smoke test. The existing Render preview services are on earlier preview branches, so visually review the exact latest candidate before production.
+- A previous Cloudflare preview URL is documented above; this session's final CI verifies a local Worker build and a hosted Render access-gate smoke test. The existing Render/Cloudflare preview services may reflect an earlier candidate than the current 0099 head, so visually review the exact latest candidate before production.
 - Nine GitHub Actions checks passed on the latest candidate commit: launch-page validation, course runtime, static safety, course integrity, hosted preview smoke, Deno/Cloudflare Worker build, indicator tests, Market Lab validation, and payment/settlement verification. The disposable PostgreSQL test now also confirms that Premium transfers can enter `manual_review` without marking the order as paid.
-- PR #47 is still a draft and is not merged to main.
+- PR #47 is open and ready for review; it is not merged to `main`.
 
 ### Important deployment boundary
 
@@ -90,7 +91,8 @@ The indicator is educational, not broker-connected, not an order execution syste
 - Six production Edge Functions are active: `grade-quiz` and `complete-lesson` v9; the four TRC-20 payment functions v8. These are the current production versions, not the new indicator release candidate.
 - Quiz grading currently uses the checked-in server-side `grading.ts` answer keys; the new build-time validator checks all 55 page-to-answer mappings.
 - The new `indicator_access` table is defined by an additive migration in the release candidate; it does not exist in production and has not been applied.
-- No production migration or production Edge Function deployment has been performed for the indicator membership. The production `payment_orders` schema still has the older course/premium-only constraints.
+- The release candidate's `indicator/server.mjs` validates the user's Supabase JWT, calls the `get-indicator-access` Edge Function, and blocks `/api/analyze-csv` unless the exact active, verified 365-day `bullseye-india-indicator` entitlement is returned. It uses the publishable key only; no service-role key is exposed to the browser.
+- No production migration or production Edge Function deployment has been performed for the indicator membership. The production `indicator_access` table is absent, the `get-indicator-access` function is not deployed, and the production `payment_orders` schema still has the older course/premium-only constraints.
 - Supabase has no development branches; no paid branch was created. CI uses disposable PostgreSQL and isolated test fixtures.
 - Supabase Storage currently has only the `REELS` bucket (134 objects, 116 video files); those are social Reels, not course lesson videos or PDFs. Course assets are maintained in the repository.
 - Supabase health advisor returned no health lints. Security advisor reports leaked-password protection disabled and five SECURITY DEFINER warnings; source inspection confirms the admin RPCs check `is_admin()` and all inspected functions pin `search_path`. Enable leaked-password protection in Supabase Auth settings before accepting student registrations.
