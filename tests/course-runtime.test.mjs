@@ -60,3 +60,38 @@ test("repository internals are never publicly served", () => {
   assert.equal(isInternalPath("/"), false);
   assert.equal(isInternalPath("/assets/site.css"), false);
 });
+
+test("all 11 lesson quiz interfaces match the server-side answer-key contract", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const { fileURLToPath } = await import("node:url");
+  const { dirname, resolve } = await import("node:path");
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+  const grading = await readFile(resolve(root, "supabase/functions/grade-quiz/grading.ts"), "utf8");
+  const answerKeys = new Map();
+  for (const match of grading.matchAll(/^\\s*(\\d+):\\s*\\[([^\\]]+)\\]/gm)) {
+    answerKeys.set(Number(match[1]), [...match[2].matchAll(/["']([^"']+)["']/g)].map((item) => item[1]));
+  }
+  assert.equal(answerKeys.size, 11, "the server must define one answer key for every lesson");
+
+  for (let lesson = 1; lesson <= 11; lesson += 1) {
+    const html = await readFile(resolve(root, `lesson-${lesson}.html`), "utf8");
+    const groups = new Map();
+    for (const match of html.matchAll(/<label[^>]*>\\s*<input[^>]*name=["']([^"']+)["'][^>]*value=["']([^"']+)["'][^>]*>([\\s\\S]*?)<\\/label>/gi)) {
+      const name = match[1];
+      const value = match[2];
+      if (!groups.has(name)) groups.set(name, []);
+      groups.get(name).push(value);
+    }
+    const usesLetters = lesson === 1 || lesson === 2 || lesson === 11;
+    const expectedNames = Array.from({ length: 5 }, (_, index) => usesLetters ? `q${index + 1}` : `q${index}`);
+    const actualNames = [...groups.keys()].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    assert.deepEqual(actualNames, expectedNames, `lesson ${lesson} must render five quiz questions using the server contract`);
+    const key = answerKeys.get(lesson);
+    assert.equal(key.length, 5, `lesson ${lesson} must have five server-side answers`);
+    for (let index = 0; index < expectedNames.length; index += 1) {
+      const options = groups.get(expectedNames[index]);
+      assert.ok(options.length >= 2, `lesson ${lesson} question ${index + 1} must have at least two options`);
+      assert.ok(options.includes(key[index]), `lesson ${lesson} question ${index + 1} answer key must exist in the rendered options`);
+    }
+  }
+});
