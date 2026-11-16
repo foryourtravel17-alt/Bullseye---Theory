@@ -50,6 +50,7 @@ Product repository: `foryourtravel17-alt/Bullseye---Theory`.
 - All 11 lesson pages load the shared `lesson-secure-client.js` with their matching lesson number.
 - Each lesson has five radio-answer groups and the server-side grading module has 11 answer keys. The build now validates all 55 UI-to-server answer mappings against reviewed correct-answer text.
 - A new CI contract test checks all 11 lesson pages against the server-side answer keys and verifies all five questions/options are present.
+- The student dashboard now exposes 10 existing PDFs and 6 slide decks as download links only when the course entitlement is active; the asset paths are checked by CI and remain protected by the server/Worker entitlement gate.
 - Pass mark is 4/5 (80%).
 - Lesson 1 is the free preview; lessons 2–11 require an active, payment-verified, unexpired course entitlement.
 - Quiz grading and lesson completion are handled by server-side Supabase Edge Functions. The browser does not contain the answer keys or write completion directly.
