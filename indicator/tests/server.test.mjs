@@ -270,3 +270,23 @@ test('access endpoint denies anonymous callers and never caches entitlement resp
   assert.equal(response.headers.get('cache-control'), 'no-store');
   assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
 });
+
+test('browser config exposes only the public Supabase key', async () => {
+  const response = await fetch(baseUrl + '/api/config');
+  assert.equal(response.status, 200);
+  const config = await response.json();
+  assert.equal(config.supabaseUrl, entitlementUrl);
+  assert.equal(config.supabasePublishableKey, 'test-publishable-key');
+  assert.equal(Object.keys(config).some((key) => /service.?role/i.test(key)), false);
+});
+
+test('analyzer page contains member sign-in and never sends CSV without a bearer token', async () => {
+  const response = await fetch(baseUrl + '/');
+  assert.equal(response.status, 200);
+  const page = await response.text();
+  assert.match(page, /id="authEmail"/);
+  assert.match(page, /id="authPassword"/);
+  assert.match(page, /signInWithPassword/);
+  assert.match(page, /Authorization:'Bearer '\+currentSession\.access_token/);
+  assert.match(page, /\/api\/access/);
+});
