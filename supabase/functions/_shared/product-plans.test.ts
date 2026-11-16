@@ -8,7 +8,7 @@ function equal(actual: unknown, expected: unknown, message: string) {
 
 Deno.test("course, premium and indicator have independent fixed server-side contracts", () => {
   equal(resolveProductPlan("course"), { plan: "course", inrPaise: 99_900, accessDays: 85 }, "course plan");
-  equal(resolveProductPlan("premium"), { plan: "premium", inrPaise: 199_900, accessDays: 85 }, "premium legacy plan");
+  equal(resolveProductPlan("premium"), { plan: "premium", inrPaise: 199_900, accessDays: null }, "premium term remains unconfigured");
   equal(resolveProductPlan("indicator"), { plan: "indicator", inrPaise: 999_900, accessDays: 365 }, "indicator annual plan");
 });
 
@@ -30,4 +30,8 @@ Deno.test("course remains independent from premium and indicator switches", () =
   equal(isProductEnabled("course", flags), true, "course gate");
   equal(isProductEnabled("premium", flags), false, "premium gate");
   equal(isProductEnabled("indicator", flags), false, "indicator gate");
+});
+
+Deno.test("premium checkout stays blocked even if environment flags are accidentally enabled", () => {
+  equal(isProductEnabled("premium", { checkout: true, premium: true, indicator: true }), false, "premium term is not approved");
 });
