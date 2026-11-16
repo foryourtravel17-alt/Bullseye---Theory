@@ -74,6 +74,15 @@ before(async () => {
       }));
       return;
     }
+    if (token === 'Bearer expired-token') {
+      res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({
+        product: 'bullseye-india-indicator',
+        access_active: true,
+        access_days: 365,
+        expires_at: '2020-01-01T00:00:00.000Z'
+      }));
+      return;
+    }
     if (token === 'Bearer wrong-product') {
       res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({
         product: 'bullseye-course',
@@ -289,4 +298,13 @@ test('analyzer page contains member sign-in and never sends CSV without a bearer
   assert.match(page, /signInWithPassword/);
   assert.match(page, /Authorization:'Bearer '\+currentSession\.access_token/);
   assert.match(page, /\/api\/access/);
+});
+
+test('an expired 365-day entitlement is denied', async () => {
+  const response = await fetch(baseUrl + '/api/access', {
+    headers: { authorization: 'Bearer expired-token' }
+  });
+  assert.equal(response.status, 403);
+  const result = await response.json();
+  assert.equal(result.access_active, false);
 });
