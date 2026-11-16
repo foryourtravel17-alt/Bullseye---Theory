@@ -82,6 +82,34 @@ if membership.is_file():
         if phrase not in text:
             errors.append(f"membership.html: missing launch safety phrase: {phrase}")
 
+
+index = ROOT / "index.html"
+if index.is_file():
+    source = index.read_text(encoding="utf-8")
+    if 'href="https://bullseye-theory.foryourtravel17.workers.dev/"' not in source:
+        errors.append("index.html: canonical URL must use the Cloudflare production origin, not a preview URL")
+    if "bullseye-theory-secure-preview.onrender.com" in source:
+        errors.append("index.html: canonical URL must never point to the Render preview")
+
+payment = ROOT / "payment.html"
+if payment.is_file():
+    source = payment.read_text(encoding="utf-8")
+    lower = source.lower()
+    if r"\\n<section" in source:
+        errors.append("payment.html: literal escaped newline is present before the indicator plan")
+    if "website-based historical analyzer" not in lower:
+        errors.append("payment.html: indicator description must match the website analyzer v1 product")
+    for phrase in ("tradingview toolkit", "invite-only access", "tradingview invite"):
+        if phrase in lower:
+            errors.append(f"payment.html: outdated TradingView delivery claim remains: {phrase}")
+
+for rel in ("privacy.html", "legal.html"):
+    path = ROOT / rel
+    if path.is_file():
+        lower = path.read_text(encoding="utf-8").lower()
+        if "cloudflare" not in lower:
+            errors.append(f"{rel}: current website hosting provider Cloudflare is missing")
+
 if errors:
     print("LAUNCH PAGE CHECKS FAILED")
     for err in errors:
