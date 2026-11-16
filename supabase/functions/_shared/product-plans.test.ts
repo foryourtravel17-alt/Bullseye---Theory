@@ -20,18 +20,18 @@ Deno.test("untrusted or unknown plan values are rejected", () => {
 });
 
 Deno.test("indicator checkout requires both global and indicator-specific switches", () => {
-  equal(isProductEnabled("indicator", { checkout: false, premium: false, indicator: true }), false, "global gate");
-  equal(isProductEnabled("indicator", { checkout: true, premium: false, indicator: false }), false, "indicator gate");
-  equal(isProductEnabled("indicator", { checkout: true, premium: false, indicator: true }), true, "both gates");
+  equal(isProductEnabled("indicator", { checkout: false, premium: false, premiumTermConfirmed: false, indicator: true }), false, "global gate");
+  equal(isProductEnabled("indicator", { checkout: true, premium: false, premiumTermConfirmed: false, indicator: false }), false, "indicator gate");
+  equal(isProductEnabled("indicator", { checkout: true, premium: false, premiumTermConfirmed: false, indicator: true }), true, "both gates");
 });
 
 Deno.test("course remains independent from premium and indicator switches", () => {
-  const flags = { checkout: true, premium: false, indicator: false };
+  const flags = { checkout: true, premium: false, premiumTermConfirmed: false, indicator: false };
   equal(isProductEnabled("course", flags), true, "course gate");
   equal(isProductEnabled("premium", flags), false, "premium gate");
   equal(isProductEnabled("indicator", flags), false, "indicator gate");
 });
 
 Deno.test("premium checkout stays blocked even if environment flags are accidentally enabled", () => {
-  equal(isProductEnabled("premium", { checkout: true, premium: true, indicator: true }), false, "premium term is not approved");
+  equal(isProductEnabled("premium", { checkout: true, premium: true, premiumTermConfirmed: true, indicator: true }), false, "premium term is not approved until the server plan duration is set");
 });
