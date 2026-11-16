@@ -68,6 +68,7 @@ test("all 11 lesson quiz interfaces match the server-side answer-key contract", 
   const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
   const grading = await readFile(resolve(root, "supabase/functions/grade-quiz/grading.ts"), "utf8");
   const answerKeys = new Map();
+  // Parse the lesson-number keys and answer arrays from the server-owned grading map.
   for (const match of grading.matchAll(/^\s*(\d+):\s*\[([^\]]+)\]/gm)) {
     answerKeys.set(Number(match[1]), [...match[2].matchAll(/["']([^"']+)["']/g)].map((item) => item[1]));
   }
