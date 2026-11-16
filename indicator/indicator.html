@@ -63,7 +63,6 @@ const accessState=document.getElementById('accessState');
 const accessMessage=document.getElementById('accessMessage');
 const signInButton=document.getElementById('signIn');
 const signOutButton=document.getElementById('signOut');
-const analyzeButton=document.getElementById('analyze');
 function setAnalyzerEnabled(enabled){
  for(const id of ['symbol','timeframe','csvFile','analyze']) document.getElementById(id).disabled=!enabled;
 }
@@ -115,7 +114,6 @@ signOutButton.addEventListener('click',async()=>{
  await authClient.auth.signOut();
  await refreshAccess();
 });
-authClient.auth.onAuthStateChange(()=>{refreshAccess()});
 const chartHost=document.getElementById('chart');
 const chart=LightweightCharts.createChart(chartHost,{layout:{background:{color:'#0b1016'},textColor:'#9aa9a4'},grid:{vertLines:{color:'#18251f'},horzLines:{color:'#18251f'}},rightPriceScale:{borderColor:'#30443b'},timeScale:{borderColor:'#30443b',timeVisible:true,secondsVisible:false}});
 const series=chart.addSeries(LightweightCharts.CandlestickSeries,{upColor:'#55d9a0',downColor:'#ff7182',borderVisible:false,wickUpColor:'#55d9a0',wickDownColor:'#ff7182'});
@@ -148,8 +146,13 @@ document.getElementById('analyze').addEventListener('click',async()=>{
  try{
   const csv=await file.text();
   const query=new URLSearchParams({timeframe:document.getElementById('timeframe').value,symbol:document.getElementById('symbol').value});
-  if(!activeSession){setMessage('Sign in and verify your indicator membership first.','error');return}
-  const response=await fetch('/api/analyze-csv?'+query.toString(),{method:'POST',headers:{'Content-Type':'text/csv',Authorization:'Bearer '+activeSession.access_token},body:csv});
+  const {data:{session}}=await authClient.auth.getSession();
+  activeSession=session;
+  if(!session){setAnalyzerEnabled(false);setMessage('Sign in and verify your indicator membership first.','error');return}
+  const accessResponse=await fetch('/api/access',{headers:{Authorization:'Bearer '+session.access_token},cache:'no-store'});
+  const accessData=await accessResponse.json();
+  if(!accessResponse.ok||accessData.access_active!==true){setAnalyzerEnabled(false);setMessage(accessData.error||'Active indicator membership is required.','error');return}
+  const response=await fetch('/api/analyze-csv?'+query.toString(),{method:'POST',headers:{'Content-Type':'text/csv',Authorization:'Bearer '+session.access_token},body:csv});
   const data=await response.json();if(!response.ok)throw new Error(data.error||'Analysis failed');
   render(data);
   setMessage('Validated '+data.fileRows+' rows. '+(data.hasVolumeColumn?'Volume column found.':'Volume column missing — volume-qualified signals will be blocked.')+' Last row excluded: '+data.lastRowExcluded+'.','success');
