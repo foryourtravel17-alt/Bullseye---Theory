@@ -156,6 +156,18 @@ const server = http.createServer(async (req, res) => {
       ].join('\n');
       return send(res, 200, script, 'application/javascript; charset=utf-8');
     }
+    if (req.method === 'GET' && url.pathname === '/supabase-config.js') {
+      const supabaseUrl = String(process.env.SUPABASE_URL || '').trim();
+      const publishableKey = String(process.env.SUPABASE_PUBLISHABLE_KEY || '').trim();
+      if (!supabaseUrl || !publishableKey) {
+        return send(res, 503, { error: 'Analyzer sign-in is not configured.' });
+      }
+      const script = [
+        'window.BULLSEYE_SUPABASE_URL = ' + JSON.stringify(supabaseUrl) + ';',
+        'window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY = ' + JSON.stringify(publishableKey) + ';'
+      ].join('\\n');
+      return send(res, 200, script, 'application/javascript; charset=utf-8');
+    }
     if (req.method === 'GET' && url.pathname === '/api/access') {
       const result = await verifyIndicatorAccess(req);
       if (!result.ok) return send(res, result.status, { access_active: false, error: result.error });
