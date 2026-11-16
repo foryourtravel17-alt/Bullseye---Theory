@@ -21,6 +21,9 @@ jobs:
       - name: Install indicator dependencies
         working-directory: indicator
         run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Check analyzer server syntax before integration tests
+        working-directory: indicator
+        run: node --check server.mjs
       - name: Test deterministic indicator engine
         working-directory: indicator
         run: npm test
