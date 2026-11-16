@@ -183,6 +183,7 @@ test("indicator entitlement administration stays owner-only and payment verifica
   const migration = await readFile(resolve(root, "supabase/migrations/20261113140000_add_indicator_membership_365d.sql"), "utf8");
   assert.match(admin, /admin_list_indicator_members/);
   assert.match(admin, /admin_set_indicator_access/);
+  assert.match(admin, /indicatorMembers\\.forEach\\(member=>select\\.add/);
   assert.match(admin, /id="indicatorVerified" type="checkbox"/);
   assert.match(admin, /verify&&!confirm\(/);
   assert.match(admin, /No analyzer access is granted until payment_verified is true/);
