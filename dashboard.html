@@ -86,7 +86,7 @@ async function init(){
       action='<span class="badge lesson-action">LOCKED — WAITING FOR ACTIVATION</span>';
     }
     const freePreview=!active && num===1;
-    const resourceLinks=active && (l[4]||l[5]) ? '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+(l[4]?'<a class="btn" href="'+l[4]+'" download>DOWNLOAD PDF GUIDE</a>':'')+(l[5]?'<a class="btn" href="'+l[5]+'" download>SLIDE DECK</a>':'')+'</div>' : '';
+    const resourceLinks=active && (l[4]||l[5]) ? '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+(l[4]?'<a class="btn" href="'+l[4]+'" download aria-label="Download PDF study guide for lesson '+l[0]+'">DOWNLOAD PDF GUIDE</a>':'')+(l[5]?'<a class="btn" href="'+l[5]+'" download aria-label="Download slide deck for lesson '+l[0]+'">SLIDE DECK</a>':'')+'</div>' : '';
     return '<article class="lesson '+(active||freePreview?"":"locked")+'"><small>LESSON '+l[0]+'</small><h3>'+l[1]+'</h3><p>'+l[2]+'</p><span class="badge '+(done?"complete-badge":"")+'">'+(done?"COMPLETED ✓":(active?"AVAILABLE IN COURSE":(freePreview?"FREE PREVIEW":"LOCKED — WAITING FOR ACTIVATION")))+'</span><br>'+action+resourceLinks+'</article>';
   }).join("");
 
