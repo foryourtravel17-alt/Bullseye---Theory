@@ -173,3 +173,22 @@ test("dashboard links the protected resources and chart drills pages", async () 
   assert.equal(isProtectedCourseAsset("/lessons/resources.html"), true);
   assert.equal(isProtectedCourseAsset("/lessons/chart-drills.html"), true);
 });
+
+test("indicator entitlement administration stays owner-only and payment verification is explicit", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const { fileURLToPath } = await import("node:url");
+  const { dirname, resolve } = await import("node:path");
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+  const admin = await readFile(resolve(root, "admin.html"), "utf8");
+  const migration = await readFile(resolve(root, "supabase/migrations/20261113140000_add_indicator_membership_365d.sql"), "utf8");
+  assert.match(admin, /admin_list_indicator_members/);
+  assert.match(admin, /admin_set_indicator_access/);
+  assert.match(admin, /id="indicatorVerified" type="checkbox"/);
+  assert.match(admin, /verify&&!confirm\(/);
+  assert.match(admin, /No analyzer access is granted until payment_verified is true/);
+  assert.doesNotMatch(admin, /SERVICE_ROLE_KEY|service_role/i);
+  assert.match(migration, /verify_payment boolean default false/);
+  assert.match(migration, /if not public\.is_admin\(\)/);
+  assert.match(migration, /enable row level security/);
+  assert.match(migration, /revoke all on table public\.indicator_access from public, anon, authenticated/);
+});
