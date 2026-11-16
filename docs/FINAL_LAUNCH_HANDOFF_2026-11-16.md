@@ -49,12 +49,13 @@ Product repository: `foryourtravel17-alt/Bullseye---Theory`.
 - All 11 lesson pages exist.
 - All 11 lesson pages load the shared `lesson-secure-client.js` with their matching lesson number.
 - Each lesson has five radio-answer groups and the server-side grading module has 11 answer keys.
+- A new CI contract test checks all 11 lesson pages against the server-side answer keys and verifies all five questions/options are present.
 - Pass mark is 4/5 (80%).
 - Lesson 1 is the free preview; lessons 2–11 require an active, payment-verified, unexpired course entitlement.
 - Quiz grading and lesson completion are handled by server-side Supabase Edge Functions. The browser does not contain the answer keys or write completion directly.
 - The course uses an 85-day entitlement from verified payment.
 
-A previous owner QA pass confirmed the course lessons were working. The final release acceptance should still include one signed-in staging run across all 11 quizzes, progress saving, certificate and password reset, using a disposable test account only.
+A previous owner QA pass confirmed the course lessons were working. Repository asset audit found 11 interactive HTML lessons, 10 lesson PDF files and 6 slide decks, but no video files or embedded video players, and no Lesson 11 PDF. The membership page must not promise recorded video lessons until those files are supplied. The final release acceptance should still include one signed-in staging run across all 11 quizzes, progress saving, certificate and password reset, using a disposable test account only.
 
 ## 5. Bullseye Levels and TradingView
 
@@ -76,7 +77,7 @@ The product's v1 delivery is the **website-based historical CSV analyzer**:
 - Does not fetch live NSE market data, scan the whole market, or claim live signals.
 - Node tests and the Pine/Node streaming reference model are automated checks, not proof that TradingView has executed the Pine script.
 
-No TradingView Pro/Premium purchase is required or authorized. The owner must compile `indicator/bullseye.pine` in the TradingView Free Pine Editor and visually inspect confirmed-bar behavior on 15m/1h charts. TradingView CSV export is not available in the owner's current plan, so do not make that a blocker or request an upgrade. For numerical Pine-vs-Node parity, use the same completed OHLCV candles from another data source/broker that the owner is permitted to use. NSE daily Bhavcopy alone cannot validate 15m/1h rules.
+No TradingView Pro/Premium purchase is required or authorized. The owner can compile and run `indicator/bullseye.pine` on their own TradingView chart using the Free Pine Editor; a CSV export is not required for this personal chart use. TradingView Free CSV export is unavailable in the owner's current plan, so do not request an upgrade. For numerical Pine-vs-Node parity, the same completed OHLCV candles must come from another broker/data source whose terms permit the intended use. No permitted free 15m/1h source has yet been verified. NSE daily Bhavcopy alone cannot validate 15m/1h rules.
 
 The indicator is educational, not broker-connected, not an order execution system, and has no proven profitability claim.
 
@@ -107,9 +108,9 @@ The indicator is educational, not broker-connected, not an order execution syste
 5. Do not auto-activate payment or indicator entitlements.
 
 ### Owner actions that cannot be completed safely by repository automation
-1. Compile the Pine script in TradingView Free Pine Editor.
-2. Review 15m/1h chart behavior and Bar Replay/forward bars; no TradingView account session is available to the automation.
-3. Supply completed OHLCV candles from a permitted free/broker source if numerical parity with Node is required. Do not buy a TradingView plan for CSV export.
+1. Compile and save the Pine script in TradingView Free Pine Editor; add it to an NSE chart on 15m and 1h.
+2. Review confirmed-bar behavior in Bar Replay/forward bars; no TradingView account session is available to the automation.
+3. If exact numerical parity with Node is required, identify a permitted 15m/1h OHLCV data source. Do not buy a TradingView plan for CSV export.
 4. Complete one disposable signed-in course staging pass and confirm password reset, all 11 quizzes, lesson progress and certificate.
 5. Confirm the Premium Telegram membership duration (server code currently uses 85 days).
 6. Finalize refund/cancellation, business identity, support and legal/tax details.
