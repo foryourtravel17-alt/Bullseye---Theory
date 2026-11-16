@@ -68,7 +68,7 @@ test("all 11 lesson quiz interfaces match the server-side answer-key contract", 
   const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
   const grading = await readFile(resolve(root, "supabase/functions/grade-quiz/grading.ts"), "utf8");
   const answerKeys = new Map();
-  for (const match of grading.matchAll(/^\\s*(\\d+):\\s*\\[([^\\]]+)\\]/gm)) {
+  for (const match of grading.matchAll(/^\s*(\d+):\s*\[([^\]]+)\]/gm)) {
     answerKeys.set(Number(match[1]), [...match[2].matchAll(/["']([^"']+)["']/g)].map((item) => item[1]));
   }
   assert.equal(answerKeys.size, 11, "the server must define one answer key for every lesson");
@@ -76,7 +76,7 @@ test("all 11 lesson quiz interfaces match the server-side answer-key contract", 
   for (let lesson = 1; lesson <= 11; lesson += 1) {
     const html = await readFile(resolve(root, `lesson-${lesson}.html`), "utf8");
     const groups = new Map();
-    for (const match of html.matchAll(/<label[^>]*>\\s*<input[^>]*name=["']([^"']+)["'][^>]*value=["']([^"']+)["'][^>]*>([\\s\\S]*?)<\\/label>/gi)) {
+    for (const match of html.matchAll(/<label[^>]*>\s*<input[^>]*name=["']([^"']+)["'][^>]*value=["']([^"']+)["'][^>]*>([\s\S]*?)<\/label>/gi)) {
       const name = match[1];
       const value = match[2];
       if (!groups.has(name)) groups.set(name, []);
