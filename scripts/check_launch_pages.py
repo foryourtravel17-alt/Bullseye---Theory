@@ -95,13 +95,17 @@ payment = ROOT / "payment.html"
 if payment.is_file():
     source = payment.read_text(encoding="utf-8")
     lower = source.lower()
-    if r"\\n<section" in source:
+    if r"\n<section" in source:
         errors.append("payment.html: literal escaped newline is present before the indicator plan")
-    if "website-based historical analyzer" not in lower:
+    if "website-based historical analyzer" not in lower or "<h2>website analyzer</h2>" not in lower:
         errors.append("payment.html: indicator description must match the website analyzer v1 product")
     for phrase in ("tradingview toolkit", "invite-only access", "tradingview invite"):
         if phrase in lower:
             errors.append(f"payment.html: outdated TradingView delivery claim remains: {phrase}")
+
+membership_source = (ROOT / "membership.html").read_text(encoding="utf-8").lower()
+if "tradingview csv export" in membership_source:
+    errors.append("membership.html: customers must not be told that a paid TradingView export is required")
 
 for rel in ("privacy.html", "legal.html"):
     path = ROOT / rel
