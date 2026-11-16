@@ -40,7 +40,7 @@ async function verifyIndicatorAccess(req) {
   }
 
   const supabaseUrl = configuredSupabaseUrl();
-  const publishableKey = String(process.env.SUPABASE_PUBLISHABLE_KEY || '').trim();
+  const publishableKey = String(process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || '').trim();
   if (!supabaseUrl || !publishableKey) {
     return { ok: false, status: 503, error: 'Indicator access verification is not configured.' };
   }
@@ -158,7 +158,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && url.pathname === '/supabase-config.js') {
       const publicConfig = {
         url: configuredSupabaseUrl(),
-        publishableKey: String(process.env.SUPABASE_PUBLISHABLE_KEY || '').trim()
+        publishableKey: String(process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || '').trim()
       };
       const script = [
         'window.BULLSEYE_SUPABASE_URL = ' + JSON.stringify(publicConfig.url) + ';',
