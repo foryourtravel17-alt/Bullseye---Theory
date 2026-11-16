@@ -70,6 +70,7 @@ Deno.serve(async (req: Request) => {
   const checkoutFlags = {
     checkout: Deno.env.get("USDT_CHECKOUT_ENABLED") === "true",
     premium: Deno.env.get("PREMIUM_CHECKOUT_ENABLED") === "true",
+    premiumTermConfirmed: Deno.env.get("PREMIUM_ACCESS_TERM_CONFIRMED") === "true",
     indicator: Deno.env.get("INDICATOR_CHECKOUT_ENABLED") === "true",
   };
   if (!isProductEnabled(selected.plan, checkoutFlags)) {
@@ -105,6 +106,9 @@ Deno.serve(async (req: Request) => {
   }
   if ((activeOrders || 0) >= 3) {
     return respond({ error: "You already have three pending payment orders. Check their status or contact support before creating another." }, 429);
+  }
+  if (selected.accessDays === null) {
+    return respond({ error: "Premium membership duration is not finalized. No order was created." }, 503);
   }
   const inrAmount = selected.inrPaise / 100;
   const accessDays = selected.accessDays;
