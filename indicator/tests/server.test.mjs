@@ -227,3 +227,12 @@ test('access API rejects a different product or non-365-day entitlement', async 
     assert.equal(response.status, 503);
   }
 });
+
+test('CSV API rejects a missing bearer token before reading or parsing the upload', async () => {
+  const response = await fetch(baseUrl + '/api/analyze-csv?timeframe=15m', {
+    method: 'POST',
+    headers: { 'content-type': 'text/csv' },
+    body: 'this body must never reach the CSV parser'
+  });
+  assert.equal(response.status, 401);
+});
