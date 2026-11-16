@@ -43,18 +43,19 @@ Prices remain planned presentation values. Enrollment is closed, checkout/paymen
 
 ## Manual owner work before launch
 1. Use TradingView Free Pine Editor to compile `indicator/bullseye.pine`; no Pro/Premium purchase is requested.
-2. Export completed 15m and 1h OHLCV CSVs for representative NSE symbols and upload them in a preview of PR #49. Compare report values and record errors.
-3. Compare actual TradingView Pine outputs with Node reports on the same candles; document mismatches.
-4. Test signed-in staging course journey: sign-in/out, password reset, all 11 lessons, PDFs, quiz grading and progress.
-5. Keep payment manual. Verify customer identity and payment before manually granting course/Telegram access.
-6. Confirm refund, cancellation, expiry and access-revocation process.
-7. Only after owner approval, plan production deployment/migration and activate checkout.
+2. Do not try to export CSV from TradingView Free or purchase Pro/Premium for this task. The website analyzer accepts a compatible OHLCV CSV from any market-data source the owner is permitted to use; it is vendor-neutral, not TradingView-export-dependent.
+3. If no permitted 15m/1h OHLCV source is available, keep real-market validation marked BLOCKED. Synthetic test fixtures can verify the code path but do not prove NSE/BSE accuracy or Pine runtime parity.
+4. Compare actual TradingView Pine outputs with Node reports only when the same candle sequence is available from a permitted source; document mismatches. Pine compile and live-chart visual checks remain manual in TradingView Free.
+5. Test signed-in staging course journey: sign-in/out, password reset, all 11 lessons, PDFs, quiz grading and progress.
+6. Keep payment manual. Verify customer identity and payment before manually granting course/Telegram access.
+7. Confirm refund, cancellation, expiry and access-revocation process.
+8. Only after owner approval, plan production deployment/migration and activate checkout.
 
 ## Safety / not authorized
 - Do not buy TradingView Pro/Premium.
 - No production deployment or production database migration.
 - Keep `USDT_CHECKOUT_ENABLED=false` and `INDICATOR_CHECKOUT_ENABLED=false`.
-- No public TradingView script publication, automatic access grant, broker execution, live signal distribution or Telegram auto-posting.
+- No public TradingView script publication, automatic payment verification/access grant, broker execution, live signal distribution or unapproved Telegram posting. The separate Telegram content pipeline may publish only exact owner-approved drafts.
 - No claim of live NSE data, Pine runtime parity or profitability.
 - Do not merge PR #47 or PR #49 and do not deploy production without owner approval.
 
