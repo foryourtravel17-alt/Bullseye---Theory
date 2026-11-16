@@ -86,10 +86,14 @@ The indicator is educational, not broker-connected, not an order execution syste
 
 ## 6. Supabase, payments and access status
 
-- Production course schema and Edge Functions were previously audited; the hosted project was healthy and had 11 lesson records.
-- The live `quizzes` and `quiz_questions` tables had zero rows at the prior audit. Quiz grading currently uses the checked-in server-side `grading.ts` answer keys.
-- The new `indicator_access` table is defined by an additive migration in the release candidate; it has not been applied to production.
-- No production migration or production Edge Function deployment has been performed for the indicator membership.
+- Read-only Supabase audit on 16 Nov: project is `ACTIVE_HEALTHY`; 11 lesson rows, 4 profile rows, 4 course-access rows, 2 quiz-attempt rows, 0 lesson-progress rows, 0 payment orders, and 0 rows in `quizzes` / `quiz_questions`.
+- Six production Edge Functions are active: `grade-quiz` and `complete-lesson` v9; the four TRC-20 payment functions v8. These are the current production versions, not the new indicator release candidate.
+- Quiz grading currently uses the checked-in server-side `grading.ts` answer keys; the new build-time validator checks all 55 page-to-answer mappings.
+- The new `indicator_access` table is defined by an additive migration in the release candidate; it does not exist in production and has not been applied.
+- No production migration or production Edge Function deployment has been performed for the indicator membership. The production `payment_orders` schema still has the older course/premium-only constraints.
+- Supabase has no development branches; no paid branch was created. CI uses disposable PostgreSQL and isolated test fixtures.
+- Supabase Storage currently has only the `REELS` bucket (134 objects, 116 video files); those are social Reels, not course lesson videos or PDFs. Course assets are maintained in the repository.
+- Supabase health advisor returned no health lints. Security advisor reports leaked-password protection disabled and five SECURITY DEFINER warnings; source inspection confirms the admin RPCs check `is_admin()` and all inspected functions pin `search_path`. Enable leaked-password protection in Supabase Auth settings before accepting student registrations.
 - `USDT_CHECKOUT_ENABLED` and `INDICATOR_CHECKOUT_ENABLED` must remain false. Payment verification and customer fulfilment remain manual as requested.
 - Do not use real payments or customer data in tests. Do not create a paid Supabase branch.
 
