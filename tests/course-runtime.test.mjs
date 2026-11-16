@@ -109,3 +109,32 @@ test("membership page does not promise unavailable course video or unverified in
   assert.match(page, /no permitted free 15m\/1h source has been verified/);
   assert.match(page, /COMING SOON — ENROLLMENT CLOSED/);
 });
+
+test("course dashboard exposes only existing, entitlement-protected study downloads", async () => {
+  const { readFile, stat } = await import("node:fs/promises");
+  const { fileURLToPath } = await import("node:url");
+  const { dirname, resolve } = await import("node:path");
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+  const dashboard = await readFile(resolve(root, "dashboard.html"), "utf8");
+  const assets = [...dashboard.matchAll(/["'](lessons\/[^"']+\.(?:pdf|pptx))["']/g)].map((item) => item[1]);
+  assert.equal(assets.length, 16, "10 lesson PDFs and 6 slide decks should be linked");
+  assert.match(dashboard, /const resources=active/);
+  for (const asset of assets) {
+    assert.ok(isProtectedCourseAsset("/" + asset), asset + " must require active course entitlement");
+    const info = await stat(resolve(root, asset));
+    assert.ok(info.isFile() && info.size > 0, asset + " must exist and be non-empty");
+  }
+});
+
+test("homepage and membership page do not advertise a recorded video library", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const { fileURLToPath } = await import("node:url");
+  const { dirname, resolve } = await import("node:path");
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+  const home = await readFile(resolve(root, "index.html"), "utf8");
+  const membership = await readFile(resolve(root, "membership.html"), "utf8");
+  for (const page of [home, membership]) {
+    assert.doesNotMatch(page, /recorded video breakdowns|video breakdowns|video library/i);
+  }
+  assert.match(home, /PRACTICE EXERCISES/);
+});
