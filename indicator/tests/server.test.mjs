@@ -148,6 +148,15 @@ test('invalid sessions and entitlement-service failures fail closed', async () =
   assert.equal(malformed.status, 503);
 });
 
+test('CSV analysis requires a bearer token before processing an upload', async () => {
+  const response = await fetch(baseUrl + '/api/analyze-csv?timeframe=15m', {
+    method: 'POST',
+    headers: { 'content-type': 'text/csv' },
+    body: 'this upload must be rejected before CSV parsing'
+  });
+  assert.equal(response.status, 401);
+});
+
 test('CSV analysis is blocked before parsing when no indicator entitlement exists', async () => {
   const response = await fetch(baseUrl + '/api/analyze-csv?timeframe=15m', {
     method: 'POST',
