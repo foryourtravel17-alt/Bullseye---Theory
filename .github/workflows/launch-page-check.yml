@@ -1,6 +1,7 @@
 name: Launch Page Checks
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - "*.html"
