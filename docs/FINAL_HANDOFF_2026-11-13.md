@@ -1,3 +1,5 @@
+> **Archived snapshot (13 Nov 2026).** This document is historical and is superseded by [the current 16 Nov launch handoff](FINAL_LAUNCH_HANDOFF_2026-11-16.md). Social automation, PR/preview status and launch decisions have since changed; follow the 16 Nov handoff for current instructions.
+
 # Bullseye Theory — Consolidated release handoff
 Date: 13 November 2026
 Status: development and automated checks advanced; production release intentionally held.
