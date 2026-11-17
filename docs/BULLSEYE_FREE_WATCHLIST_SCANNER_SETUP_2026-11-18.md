@@ -14,7 +14,7 @@ It does not replace `indicator/bullseye.pine`; keep the existing chart indicator
 SuperCharting currently documents:
 - Pine Screener is included on Essential (free), scans up to 100 symbols in one watchlist, one scan at a time, and exposes only titled plots on the latest bar.
 - Watchlist alerts can apply a script condition to every symbol in a list; one watchlist alert creates one alert per symbol. A list is copied when the alert is created.
-- Essential currently allows up to 100 technical alerts and up to 15 watchlist alerts. A 10-symbol starter list with two conditions on two intervals uses 40 technical alert slots.
+- Essential currently allows up to 100 technical alerts and up to 15 watchlist alerts. Two 10-symbol watchlist alerts (one on each timeframe) use 20 technical alert slots.
 - Script alerts run server-side after the alert is created. Essential notifications are in-app (toast/sound); Telegram requires Plus or higher and webhook requires Premium or higher.
 
 References:
