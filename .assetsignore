@@ -5,6 +5,7 @@
 **/.wrangler
 **/.github
 lessons/
+scripts/
 supabase/
 readme.txt
 lesson.html
