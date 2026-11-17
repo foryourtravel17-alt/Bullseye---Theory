@@ -51,7 +51,7 @@ requireText(paymentPage, "₹9,999", "payment page must explain the planned annu
 requireText(paymentPage, "Bullseye India Indicator", "payment page must identify the annual indicator product");
 requireText(paymentPage, "website-based historical analyzer", "payment page must explain the website analyzer v1 delivery");
 requireText(paymentPage, "Planned 365-day access", "payment page must state the planned annual term");
-if (/payment-checkout\\.js|<form|createOrder|walletAddress|copyWallet|data-payment-qr|UPI|USDT|TRC20|checkout/i.test(paymentPage)) {
+if (/payment-checkout\.js|<form|createOrder|walletAddress|copyWallet|data-payment-qr|UPI|USDT|TRC20|checkout/i.test(paymentPage)) {
   errors.push("public payment page must remain manual-only with no checkout, order form, wallet or QR controls");
 }
 requireText(paymentClient, "ENROLLMENT CLOSED", "legacy payment guard must keep cached order controls disabled");
