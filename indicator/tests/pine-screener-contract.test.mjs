@@ -36,3 +36,13 @@ test('scanner does not request or export other symbols or enable broker executio
   assert.match(source, /No cross-symbol request\.security calls/);
   assert.doesNotMatch(source, /strategy\.entry|strategy\.order/);
 });
+
+test('scanner sends a completed-bar alert with computed entry, stop and 2R target', () => {
+  assert.match(source, /alert\\(message, alert\\.freq_once_per_bar_close\\)/);
+  assert.match(source, /"Entry: " \\+ str\\.tostring\\(entryPrice, format\\.mintick\\)/);
+  assert.match(source, /"SL: " \\+ str\\.tostring\\(stopPrice, format\\.mintick\\)/);
+  assert.match(source, /"TP: " \\+ str\\.tostring\\(targetPrice, format\\.mintick\\)/);
+  assert.match(source, /alertcondition\\(longSignalNow, title="Bullseye LONG"/);
+  assert.match(source, /alertcondition\\(shortSignalNow, title="Bullseye SHORT"/);
+  assert.match(source, /display=display\\.data_window/);
+});
