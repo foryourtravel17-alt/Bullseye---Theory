@@ -51,13 +51,15 @@ requireText(paymentPage, "₹9,999", "payment page must explain the planned annu
 requireText(paymentPage, "Bullseye India Indicator", "payment page must identify the annual indicator product");
 requireText(paymentPage, "website-based historical analyzer", "payment page must explain the website analyzer v1 delivery");
 requireText(paymentPage, "Planned 365-day access", "payment page must state the planned annual term");
-if (/payment-checkout\.js|<form|createOrder|walletAddress|copyWallet|data-payment-qr|UPI|USDT|TRC20|checkout/i.test(paymentPage)) {
-  errors.push("public payment page must remain manual-only with no checkout, order form, wallet or QR controls");
+const publicPaymentForbidden = ["payment-checkout.js", "<form", "createorder", "walletaddress", "copywallet", "data-payment-qr", "upi", "usdt", "trc20", "checkout"];
+for (const marker of publicPaymentForbidden) {
+  if (paymentPage.toLowerCase().includes(marker)) errors.push("public payment page exposes a forbidden checkout marker: " + marker);
 }
 requireText(paymentClient, "ENROLLMENT CLOSED", "legacy payment guard must keep cached order controls disabled");
 requireText(paymentClient, "Do not transfer funds", "legacy payment guard must preserve the no-transfer warning");
-if (/\\bfetch\\s*\\(|supabase|functions\\.invoke|create-trc20-order|get-trc20-order-status|get-trc20-payment-config/i.test(paymentClient)) {
-  errors.push("legacy payment guard must not call payment APIs or create/poll orders");
+const legacyPaymentForbidden = ["fetch(", "supabase", "functions.invoke", "create-trc20-order", "get-trc20-order-status", "get-trc20-payment-config"];
+for (const marker of legacyPaymentForbidden) {
+  if (paymentClient.toLowerCase().includes(marker)) errors.push("legacy payment guard must not call payment APIs or create/poll orders: " + marker);
 }
 requireText(order, "Premium membership duration is not finalized", "Premium orders must remain blocked until their access duration is set");
 requireText(accessEndpoint, 'delivery: "website_historical_analyzer"', "indicator access must identify the website analyzer delivery route");
