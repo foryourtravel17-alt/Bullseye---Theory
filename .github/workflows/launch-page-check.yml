@@ -19,7 +19,6 @@ on:
       - "payment-checkout.js"
       - "package.json"
       - "tests/**"
-      - "indicator/**"
       - ".github/workflows/launch-page-check.yml"
       - ".github/workflows/deploy-pages.yml"
 
