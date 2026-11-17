@@ -12,7 +12,7 @@
 <header><div class="logo">◉ BULLSEYE <i>THEORY</i></div><div class="actions"><a class="btn" href="index.html">HOME</a><a class="btn" href="lessons/resources.html">STUDY LIBRARY</a><a class="btn" href="lessons/chart-drills.html">CHART DRILLS</a><button id="logout" class="btn">LOG OUT</button></div></header>
 <main>
   <section class="hero"><div><div class="eyebrow">STUDENT DASHBOARD</div><h1 id="welcome">Welcome.</h1><p id="email"></p><div class="progress-wrap"><div class="progress-head"><span>COURSE PROGRESS</span><strong id="progressText">0 / 11 lessons</strong></div><div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div></div></div><div class="status"><b id="accessTitle">Checking access…</b><span id="accessText">Please wait.</span></div></section>
-  <div id="notice" class="notice">Your student account is separate from course activation. After payment is verified, course access will be activated by the administrator.</div><section class="stats"><div class="stat"><small>COMPLETION</small><strong id="completionPct">0%</strong></div><div class="stat"><small>LESSONS DONE</small><strong id="doneStat">0 / 11</strong></div><div class="stat"><small>COURSE STATUS</small><strong id="statusStat">Pending</strong></div></section><section id="continueBox" class="continue" style="display:none"><div><small id="continueEyebrow">CONTINUE LEARNING</small><h2 id="continueTitle">Lesson 1</h2><p id="continueDesc">Start your learning path.</p></div><a id="continueBtn" class="btn primary" href="lesson-1.html">CONTINUE →</a></section>
+  <div id="notice" class="notice">Your student account is separate from course activation. The administrator activates course access manually after independently confirming enrollment.</div><section class="stats"><div class="stat"><small>COMPLETION</small><strong id="completionPct">0%</strong></div><div class="stat"><small>LESSONS DONE</small><strong id="doneStat">0 / 11</strong></div><div class="stat"><small>COURSE STATUS</small><strong id="statusStat">Pending</strong></div></section><section id="continueBox" class="continue" style="display:none"><div><small id="continueEyebrow">CONTINUE LEARNING</small><h2 id="continueTitle">Lesson 1</h2><p id="continueDesc">Start your learning path.</p></div><a id="continueBtn" class="btn primary" href="lesson-1.html">CONTINUE →</a></section>
   <div class="eyebrow">YOUR CURRICULUM</div>
   <div id="lessons" class="grid"></div>
 </main>
@@ -56,7 +56,7 @@ async function init(){
   const expiryLabel=access?.expires_at?new Date(access.expires_at).toLocaleDateString():"not configured";
   if(active) await syncCourseCookie(session);
   document.getElementById("accessTitle").textContent=active?"COURSE ACTIVE":(expired?"ACCESS EXPIRED":"FREE PREVIEW AVAILABLE");
-  document.getElementById("accessText").textContent=active?"Your Bullseye Theory course is active until "+expiryLabel+".":(expired?"Your 85-day course access expired on "+expiryLabel+". Lesson 1 remains free; renew to unlock Lessons 2–11.":"Lesson 1 is available as a free preview. Lessons 2–11 unlock after payment is verified.");
+  document.getElementById("accessText").textContent=active?"Your Bullseye Theory course is active until "+expiryLabel+".":(expired?"Your 85-day course access expired on "+expiryLabel+". Lesson 1 remains free; renew to unlock Lessons 2–11.":"Lesson 1 is available as a free preview. Lessons 2–11 unlock only after the administrator manually activates your course access.");
 
   const {data:progressRows}=await sb.from("lesson_progress").select("lesson_number,completed,progress_percent").eq("user_id",user.id);
   const completed=new Map((progressRows||[]).map(row=>[row.lesson_number,row]));
@@ -94,7 +94,7 @@ async function init(){
 
   if(active) document.getElementById("notice").textContent="Course access is active until "+expiryLabel+". Start the lessons and your quiz/completion progress will be saved to your student account.";
   else if(expired) document.getElementById("notice").textContent="Your 85-day course access expired on "+expiryLabel+". Lesson 1 remains available as a free preview; renew to unlock Lessons 2–11.";
-  else document.getElementById("notice").textContent="Your account is ready. Lesson 1 is a free preview; Lessons 2–11 remain locked until payment is verified.";
+  else document.getElementById("notice").textContent="Your account is ready. Lesson 1 is a free preview; Lessons 2–11 remain locked until the administrator manually activates your course access.";
   if(error) document.getElementById("accessText").textContent="Account found, but course-access status could not be loaded yet.";
 }
 document.getElementById("logout").onclick=async()=>{

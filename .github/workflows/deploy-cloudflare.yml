@@ -21,6 +21,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Verify manual-only course activation policy
+        run: bash scripts/check-manual-course-activation.sh
+
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v4
         with:
@@ -48,7 +51,7 @@ jobs:
           check_page "auth.html" "Student Login"
           check_page "dashboard.html" "Student Dashboard"
           check_page "admin.html" "BULLSEYE THEORY — ADMIN"
-          check_page "payment.html" "Choose your"
+          check_page "payment.html" "Manual Course Activation"
           check_page "terms.html" "Terms of Use"
           check_page "refund.html" "Refund Information"
           check_page "membership.html" "ENROLLMENT CLOSED"

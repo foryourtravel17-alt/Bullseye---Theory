@@ -4,13 +4,13 @@
 :root{color-scheme:dark;--bg:#050806;--panel:#0b120e;--line:#24483c;--text:#eef8f0;--muted:#91a69a;--green:#a8ff61;--red:#ffb5b5}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 Arial,sans-serif}.wrap{max-width:1000px;margin:auto;padding:24px}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}.green{color:var(--green)}.muted{color:var(--muted);font-size:13px}.status{padding:12px;border-radius:8px;background:#102019;margin:12px 0}.error{background:#321719;color:var(--red)}label{display:block;margin:12px 0 6px;font-size:13px;color:#c6d8cf}input,select{width:100%;padding:11px;background:#07100b;border:1px solid var(--line);color:var(--text);border-radius:8px}button{padding:10px 13px;background:var(--green);color:#07100b;border:0;border-radius:8px;font-weight:bold;cursor:pointer;margin:6px 6px 0 0}button.secondary{background:#172820;color:var(--text);border:1px solid var(--line)}.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.check{display:flex;align-items:center;gap:8px}.check input{width:auto}.check label{margin:0}@media(max-width:600px){.wrap{padding:14px}.row{grid-template-columns:1fr}}
 </style></head><body><main class="wrap"><h1 class="green">BULLSEYE THEORY — ADMIN</h1>
-<p class="muted">Admin-only course access management. Payments remain manual; never mark payment verified unless you have independently checked settlement.</p>
+<p class="muted">Admin-only course access management. This website does not collect money or transaction details. Independently confirm enrollment outside this system before activating a student's access.</p>
 <div id="status" class="status">Checking admin access…</div>
 <section class="card"><h2>Grant or update student access</h2>
 <label for="student">Student account (email)</label><select id="student"><option value="">Loading student accounts…</option></select>
-<div class="row"><div><label for="expiry">Access expiry (optional)</label><input id="expiry" type="date"><p class="muted">Leave blank for the standard 85-day access period. Choose a later date only for an approved admin extension.</p></div><div><label>Access flags</label>
+<div class="row"><div><label for="expiry">Access expiry (optional)</label><input id="expiry" type="date"><p class="muted">Leave blank to use the standard 85-day course term. Choose a later date only for an approved admin extension.</p></div><div><label>Access flags</label>
 <div class="check"><input id="active" type="checkbox" checked><label for="active">Course access active</label></div>
-<div class="check"><input id="verified" type="checkbox"><label for="verified">Payment independently verified</label></div>
+<div class="check"><input id="verified" type="checkbox"><label for="verified">Manual enrollment check confirmed</label></div>
 </div></div>
 <button id="save">SAVE ACCESS</button><button class="secondary" id="refresh">REFRESH STUDENTS</button>
 <p class="muted">Saving can create an access record for a newly registered student. This does not process a payment or send a receipt.</p></section>
@@ -55,19 +55,19 @@ function render(){
  const list=$('list');list.replaceChildren();
  students.forEach(s=>{const card=el('article','','card');card.append(el('h3',(s.full_name||'Student')+' — '+(s.email||'email unavailable')));
  card.append(el('p','User ID: '+s.user_id,'muted'));
- card.append(el('p','Access: '+(s.is_active?'ACTIVE':'INACTIVE')+' · Payment verified: '+(s.payment_verified?'YES':'NO')));
+ card.append(el('p','Access: '+(s.is_active?'ACTIVE':'INACTIVE')+' · Manual check confirmed: '+(s.payment_verified?'YES':'NO')));
  card.append(el('p','Expiry: '+(s.expires_at?new Date(s.expires_at).toLocaleDateString() :'Not set')));
  const b=el('button','EDIT THIS STUDENT');b.addEventListener('click',()=>{ $('student').value=s.user_id;$('active').checked=!!s.is_active;$('verified').checked=!!s.payment_verified;$('expiry').value=s.expires_at?s.expires_at.slice(0,10):'';window.scrollTo({top:0,behavior:'smooth'});});card.append(b);list.append(card);});
 }
 $('save').addEventListener('click',async()=>{
  const id=$('student').value;if(!id){status('Choose a student first.',true);return}
- if($('verified').checked&&!confirm('Confirm that you independently verified the payment settlement?'))return;
+ if($('verified').checked&&!confirm('Confirm that you independently checked this student's enrollment outside this website?'))return;
  let expiry=null;if($('expiry').value){expiry=new Date($('expiry').value+'T23:59:59').toISOString();if(new Date(expiry)<=new Date()){status('Expiry must be in the future.',true);return}}
  $('save').disabled=true;
  const {error}=await sb.rpc('admin_set_course_access',{target_user:id,make_active:$('active').checked,verify_payment:$('verified').checked,access_expires_at:expiry});
  $('save').disabled=false;
  if(error){status('Access was not saved: '+error.message,true);return}
- status('Access updated successfully.');await loadStudents();
+ status('Course access updated. The student can enter only when access is active and the manual enrollment check is confirmed.');await loadStudents();
 });
 $('refresh').addEventListener('click',()=>loadStudents());
 
