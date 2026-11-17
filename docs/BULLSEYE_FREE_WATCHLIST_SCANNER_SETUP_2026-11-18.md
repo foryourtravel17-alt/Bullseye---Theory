@@ -51,16 +51,16 @@ This is a starter observation universe, not a recommendation to buy or sell thes
 1. In SuperCharting Script Editor, create a new private script named `Bullseye India Watchlist Scanner`.
 2. Paste the full contents of `indicator/bullseye-watchlist-screener.pine`, Save, and Add to chart.
 3. Confirm it compiles without an error. Do not use Auto-fix or Publish.
-4. On a 15m chart, create a watchlist alert from the `Bullseye India — Starter 10` list using script condition `Bullseye LONG`. Choose Once per bar close. Create a second watchlist alert using `Bullseye SHORT`.
-5. Switch the active chart to 1h and repeat the LONG and SHORT watchlist alerts. This creates four watchlist alerts total, each applying to the 10-symbol list.
-6. Confirm Alerts panel shows the four list alerts and their per-symbol alerts. Essential in-app notifications only; no Telegram/webhook on the free plan.
+4. On a 15m chart, open `Alert on this list…` for `Bullseye India — Starter 10`. Select the new scanner and `Any alert() function call`, then choose `Once per bar close`. This single alert covers both LONG and SHORT and its message includes Entry, SL and TP.
+5. Switch the active chart to 1h and create the same watchlist alert. This creates two watchlist alerts total, each applying to the 10-symbol list.
+6. Confirm Alerts panel shows the two list alerts and their per-symbol alerts. Essential in-app notifications only; no Telegram/webhook on the free plan. If the watchlist dialog does not offer `Any alert() function call`, stop and send a screenshot rather than creating incomplete alerts.
 7. Run the Pine Screener separately on 15m and 1h, choosing the same watchlist and `Bullseye India Watchlist Scanner`. Filter `Bullseye Signal` greater than 0 for LONG or less than 0 for SHORT. It reports the latest bar only; it is not a historical scan.
 8. Check one signal row's Entry, Stop and Target columns against its chart. Treat the screener result as a research alert, not a trade instruction.
 
 ## Limits and cautions
 
 - The screener runs one watchlist at a time and is limited to 100 symbols; do not run rapid repeated scans.
-- The Essential free plan's technical-alert cap is 100. Four 10-symbol watchlist alerts use 40 technical alert slots; do not expand the list without checking remaining capacity.
+- The Essential free plan's technical-alert cap is 100. Two 10-symbol watchlist alerts use 20 technical alert slots; do not expand the list without checking remaining capacity.
 - A watchlist alert snapshots the current symbols. If the list changes, recreate the watchlist alert to include new members.
 - Alerts are best-effort and may be late, duplicated or missed. Check the chart and completed candle before acting.
 - The Pine screener script has not yet been compiled on the user's account or parity-tested against the Node engine. Keep the original chart script and existing Reliance alerts until this new scanner script passes compile and one-symbol validation.
