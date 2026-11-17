@@ -3,6 +3,7 @@ name: Bullseye Levels — Private Source Tests
 on:
   push:
     branches:
+      - main
       - release/bullseye-india-course-indicator-integration
     paths:
       - "indicator/**"
