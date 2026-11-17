@@ -39,13 +39,12 @@ Status: repository-side hardening and CI are complete for the current release ca
 
 ## Remaining owner-only actions
 
-1. **TradingView Free check:** open Pine Editor, paste `indicator/bullseye.pine`, save/add it to a chart, compile, and visually inspect confirmed-bar behavior on 15m and 1h. No paid TradingView plan or CSV export is required for this personal chart check.
-2. **Course staging journey:** use a disposable test account to check password reset, all 11 quizzes, 80% pass handling, progress saving, protected PDFs/slide decks, and certificate generation. Do not use real customer data.
-3. **Indicator data permission and parity:** identify a permitted 15m/1h OHLCV source, then compare identical completed candles in Pine and Node. No permitted free source has been verified; do not claim live scanning or Pine/Node parity yet.
-4. **Premium Telegram:** confirm the access duration and exact deliverables. Until then, keep the ₹1,999 offer closed.
-5. **Business/legal:** finalize refund/cancellation rules, business identity, support response expectations, and applicable Indian tax/consumer/legal disclosures with a qualified adviser.
-6. **Manual settlement:** only if opening course enrollment, privately confirm the official settlement destination and process. Keep public QR/wallet/checkout fields absent; verify each enrollment manually in Admin.
-7. **Production approval:** explicitly authorize the final PR #47 merge and any production Supabase migration/Edge Function deployment. Merging PR #47 triggers the Cloudflare production deployment workflow.
+- **Course and quiz testing:** owner confirmed on 17 November 2026 that course testing and quizzes have been checked and completed. This is recorded as owner-reported QA, not an automated test of a live student account.
+1. **Indicator data permission and parity:** choose an approved 15m/1h OHLCV source and compare identical completed candles in the Node engine and chart implementation. No broker account or approved live NSE/BSE intraday feed is currently connected; do not claim live scanning or Pine/Node parity yet.
+2. **Premium Telegram:** confirm the access duration and exact deliverables. Until then, keep the ₹1,999 offer closed.
+3. **Business/legal:** finalize refund/cancellation rules, business identity, support response expectations, and applicable Indian tax/consumer/legal disclosures with a qualified adviser.
+4. **Manual settlement:** only if opening course enrollment, privately confirm the official settlement destination and process. Keep public QR/wallet/checkout fields absent; verify each enrollment manually in Admin.
+5. **Production approval:** explicitly authorize the final PR #47 merge and any production Supabase migration/Edge Function deployment. Merging PR #47 triggers the Cloudflare production deployment workflow.
 
 ## Do not do yet
 
