@@ -38,11 +38,11 @@ test('scanner does not request or export other symbols or enable broker executio
 });
 
 test('scanner sends a completed-bar alert with computed entry, stop and 2R target', () => {
-  assert.match(source, /alert\\(message, alert\\.freq_once_per_bar_close\\)/);
-  assert.match(source, /"Entry: " \\+ str\\.tostring\\(entryPrice, format\\.mintick\\)/);
-  assert.match(source, /"SL: " \\+ str\\.tostring\\(stopPrice, format\\.mintick\\)/);
-  assert.match(source, /"TP: " \\+ str\\.tostring\\(targetPrice, format\\.mintick\\)/);
-  assert.match(source, /alertcondition\\(longSignalNow, title="Bullseye LONG"/);
-  assert.match(source, /alertcondition\\(shortSignalNow, title="Bullseye SHORT"/);
-  assert.match(source, /display=display\\.data_window/);
+  assert.ok(source.includes('alert(message, alert.freq_once_per_bar_close)'));
+  assert.ok(source.includes('"Entry: " + str.tostring(entryPrice, format.mintick)'));
+  assert.ok(source.includes('"SL: " + str.tostring(stopPrice, format.mintick)'));
+  assert.ok(source.includes('"TP: " + str.tostring(targetPrice, format.mintick)'));
+  assert.ok(source.includes('alertcondition(longSignalNow, title="Bullseye LONG"'));
+  assert.ok(source.includes('alertcondition(shortSignalNow, title="Bullseye SHORT"'));
+  assert.ok(source.includes('display=display.data_window'));
 });
