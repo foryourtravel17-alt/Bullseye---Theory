@@ -37,6 +37,15 @@ Status: repository-side hardening and CI are complete for the current release ca
 6. Updated the Market Lab content review metadata after rechecking the three simulated educational scenarios. The fictional sample values remain clearly labelled; no live/recent market data was added.
 7. Re-ran CI. All 11 workflows listed above passed on code head `92e3c4b3b48b857dffbc4b8fb549be11a98789a4`.
 
+## Temporary free chart-test route — personal use only
+
+- A separate setup note was added at [docs/SUPERCHARTING_FREE_TEST_SETUP_2026-11-17.md](SUPERCHARTING_FREE_TEST_SETUP_2026-11-17.md).
+- SuperCharting Essential currently offers free NSE/BSE charting and a Pine-compatible v6 script editor, with current free limits of 4 charts/layout, 10 indicators/chart, 10,000 bars/chart, and 100 price + 100 technical alerts. Paid plans began on 12 November 2026; Telegram delivery is not included in Essential.
+- This is an optional, temporary **personal testing** route for the owner to compile and inspect `indicator/bullseye.pine` on `NSE:RELIANCE` at 15m and 1h without a broker account or TradingView paid plan.
+- The platform's market-data terms restrict data to personal, non-commercial analysis inside the service and prohibit feeding it into another product/service or commercial reuse. Therefore SuperCharting is **not** an approved Bullseye website/analyzer, membership, customer-alert, or market-wide scanner data source. Do not export or copy its market data into Bullseye.
+- Core Pine features used by the script are mostly listed as supported by the platform's compatibility test suite, but compilation and identical-candle output still need manual verification. Keep the fixed Bullseye rules unchanged. Do not claim Pine/Node parity from compilation alone.
+- This does not remove the production data-source gate: the website remains CSV-only using separately permitted OHLCV files, and no live NSE/BSE feed is connected.
+
 ## Remaining owner-only actions
 
 - **Course and quiz testing:** owner confirmed on 17 November 2026 that course testing and quizzes have been checked and completed. This is recorded as owner-reported QA, not an automated test of a live student account.
