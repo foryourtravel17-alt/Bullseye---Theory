@@ -28,10 +28,9 @@ var array<int> zoneTypes = array.new_int()
 var array<float> zoneBottoms = array.new_float()
 var array<float> zoneTops = array.new_float()
 var array<int> zoneTouches = array.new_int()
-var array<int> seedBars = array.new_int()
 var array<int> lastSignalBars = array.new_int()
 
-f_addPivot(float price, float pAtr, int pivotBar, int kind) =>
+f_addPivot(float price, float pAtr, int kind) =>
     int bestIndex = -1
     float bestDistance = na
     int count = array.size(seedPrices)
@@ -50,7 +49,6 @@ f_addPivot(float price, float pAtr, int pivotBar, int kind) =>
         array.push(zoneBottoms, price)
         array.push(zoneTops, price)
         array.push(zoneTouches, 1)
-        array.push(seedBars, pivotBar)
         array.push(lastSignalBars, -1000000)
     else
         array.set(zoneBottoms, bestIndex, math.min(array.get(zoneBottoms, bestIndex), price))
@@ -79,9 +77,9 @@ if pivotLow
             pivotLow := false
 
 if barstate.isconfirmed and pivotHigh and not na(atrValue[rightBars]) and atrValue[rightBars] > 0
-    f_addPivot(high[rightBars], atrValue[rightBars], bar_index - rightBars, 1)
+    f_addPivot(high[rightBars], atrValue[rightBars], 1)
 if barstate.isconfirmed and pivotLow and not na(atrValue[rightBars]) and atrValue[rightBars] > 0
-    f_addPivot(low[rightBars], atrValue[rightBars], bar_index - rightBars, -1)
+    f_addPivot(low[rightBars], atrValue[rightBars], -1)
 
 // Reset outputs on each bar. A signal is emitted only on a completed 15m/1h bar.
 bool longSignalNow = false
@@ -110,6 +108,8 @@ if barstate.isconfirmed and supportedTf and volumeAvailable and not na(atrValue)
                 float risk = math.abs(entryPrice - stopPrice)
                 if risk > 0 and not na(risk)
                     float targetPrice = isLong ? entryPrice + risk * targetRR : entryPrice - risk * targetRR
+                    string direction = isLong ? "LONG" : "SHORT"
+                    string message = "Bullseye India " + direction + " | " + syminfo.tickerid + " | TF " + timeframe.period + " | Entry: " + str.tostring(entryPrice, format.mintick) + " | SL: " + str.tostring(stopPrice, format.mintick) + " | TP: " + str.tostring(targetPrice, format.mintick) + " | RR 1:2"
                     longSignalNow := isLong
                     shortSignalNow := not isLong
                     signalEntry := entryPrice
@@ -117,6 +117,7 @@ if barstate.isconfirmed and supportedTf and volumeAvailable and not na(atrValue)
                     signalTarget := targetPrice
                     array.set(lastSignalBars, z, bar_index)
                     firedOnBar := true
+                    alert(message, alert.freq_once_per_bar_close)
 
 // Titled plots are the columns available to the platform's Pine Screener.
 // 1 = fresh LONG, -1 = fresh SHORT, 0 = no fresh signal on the latest bar.
