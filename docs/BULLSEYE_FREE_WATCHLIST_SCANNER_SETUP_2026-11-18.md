@@ -1,7 +1,7 @@
 # Bullseye India — free personal watchlist scanner setup
 
 Date: 18 November 2026  
-Status: scanner script prepared in a separate branch; SuperCharting compile and alert test still require owner verification.
+Status: owner reports the separate private script was saved and added to the RELIANCE 1h chart on 18 Nov 2026; the `Bullseye Scan` pane appeared. This is a successful visual chart-load check, not a parity test or a live customer-alert test. Two individual RELIANCE 1h scanner alerts were accidentally created; keep one and remove the duplicate only after confirming they have the same condition and trigger. The 15m scanner alert and 10-symbol watchlist setup remain pending.
 
 ## What this adds
 
@@ -14,8 +14,9 @@ It does not replace `indicator/bullseye.pine`; keep the existing chart indicator
 SuperCharting currently documents:
 - Pine Screener is included on Essential (free), scans up to 100 symbols in one watchlist, one scan at a time, and exposes only titled plots on the latest bar.
 - Watchlist alerts can apply a script condition to every symbol in a list; one watchlist alert creates one alert per symbol. A list is copied when the alert is created.
-- Essential currently allows up to 100 technical alerts and up to 15 watchlist alerts. Two 10-symbol watchlist alerts (one on each timeframe) use 20 technical alert slots.
-- Script alerts run server-side after the alert is created. Essential notifications are in-app (toast/sound); Telegram requires Plus or higher and webhook requires Premium or higher.
+- Essential currently allows up to 100 technical alerts and up to 15 watchlist alerts. One watchlist alert creates a separate technical alert per symbol. Four 10-symbol watchlist alerts (LONG and SHORT on both 15m and 1h) use 40 technical alert slots.
+- Pine Screener is included on Essential: up to 100 symbols, one scan at a time, latest bar only, and no more than 20 scans in 10 minutes.
+- Script/watchlist alerts run server-side after creation. Essential notifications are in-app toast/sound and the platform inbox. Telegram requires Plus or higher (3 Telegram alerts on Plus); webhook requires Premium or higher. Do not upgrade for this test.
 
 References:
 - https://supercharting.com/learn/free-pine-screener-nse
@@ -51,17 +52,18 @@ This is a starter observation universe, not a recommendation to buy or sell thes
 1. In SuperCharting Script Editor, create a new private script named `Bullseye India Watchlist Scanner`.
 2. Paste the full contents of `indicator/bullseye-watchlist-screener.pine`, Save, and Add to chart.
 3. Confirm it compiles without an error. Do not use Auto-fix or Publish.
-4. On a 15m chart, open `Alert on this list…` for `Bullseye India — Starter 10`. Select the new scanner and `Any alert() function call`, then choose `Once per bar close`. This single alert covers both LONG and SHORT and its message includes Entry, SL and TP.
-5. Switch the active chart to 1h and create the same watchlist alert. This creates two watchlist alerts total, each applying to the 10-symbol list.
-6. Confirm Alerts panel shows the two list alerts and their per-symbol alerts. Essential in-app notifications only; no Telegram/webhook on the free plan. If the watchlist dialog does not offer `Any alert() function call`, stop and send a screenshot rather than creating incomplete alerts.
-7. Run the Pine Screener separately on 15m and 1h, choosing the same watchlist and `Bullseye India Watchlist Scanner`. Filter `Bullseye Signal` greater than 0 for LONG or less than 0 for SHORT. It reports the latest bar only; it is not a historical scan.
-8. Check one signal row's Entry, Stop and Target columns against its chart. Treat the screener result as a research alert, not a trade instruction.
+4. On a 15m chart, open the watchlist name and choose `Alert on this list…`. Select the new scanner's `Bullseye LONG` condition, set `Once per bar close`, and keep notifications to toast/sound only. Create a second 15m watchlist alert for `Bullseye SHORT`.
+5. Switch the active chart to 1h and create the same two list alerts: `Bullseye LONG` and `Bullseye SHORT`. This creates four watchlist alerts total, each applying to the 10-symbol list (40 technical alerts in total). The list is copied when each alert is created; later list edits require recreating the alerts.
+6. Confirm the Alerts panel shows the four list alerts and their per-symbol alerts. Essential delivers through the platform/app only; Telegram is a paid feature (Plus) and webhook is a paid feature (Premium). No customer Telegram delivery is enabled in this free setup.
+7. Run the Pine Screener separately on 15m and 1h, choosing the same watchlist and `Bullseye India Watchlist Scanner`. Filter `Bullseye Signal` greater than 0 for LONG or less than 0 for SHORT. The scan shows the latest bar only; it is not a historical scan and does not itself send alerts.
+8. Read the `Bullseye Entry`, `Bullseye Stop`, and `Bullseye Target` columns for the latest signal and open the symbol's chart to review it. The named watchlist `alertcondition()` message carries direction/symbol/timeframe/close; the separate `alert()` call carries dynamic Entry/SL/TP for an individual chart-level alert.
 
 ## Limits and cautions
 
-- The screener runs one watchlist at a time and is limited to 100 symbols; do not run rapid repeated scans.
-- The Essential free plan's technical-alert cap is 100. Two 10-symbol watchlist alerts use 20 technical alert slots; do not expand the list without checking remaining capacity.
+- The screener runs one watchlist at a time, is limited to 100 symbols, and allows at most 20 scans in 10 minutes; it only evaluates the latest bar.
+- Four 10-symbol watchlist alerts use 40 of the 100 technical-alert slots. Keep room for the two existing original RELIANCE alerts and the individual scanner test alert.
+- The Essential free plan cannot send Telegram alerts or webhook requests. Do not enter the Premium channel as an external data destination through unofficial workarounds.
 - A watchlist alert snapshots the current symbols. If the list changes, recreate the watchlist alert to include new members.
 - Alerts are best-effort and may be late, duplicated or missed. Check the chart and completed candle before acting.
-- The Pine screener script has not yet been compiled on the user's account or parity-tested against the Node engine. Keep the original chart script and existing Reliance alerts until this new scanner script passes compile and one-symbol validation.
+- Owner-reported visual validation: the new scanner was saved and added to RELIANCE 1h; the separate `Bullseye Scan` pane appeared. The same scanner still needs a 15m chart-load check, latest-bar scan check and alert-delivery check. This does not establish identical-candle Pine/Node parity or signal performance.
 - No broker order placement, automated trading, paid-member distribution, external market-data export, or production website feed is included.
