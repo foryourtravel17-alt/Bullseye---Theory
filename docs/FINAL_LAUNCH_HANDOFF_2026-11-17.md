@@ -1,6 +1,6 @@
 # Bullseye Theory — final launch handoff
 
-Date: 17 November 2026
+Date: 18 November 2026
 Status: repository-side hardening and CI are complete for the current release candidate. Production release remains intentionally held.
 
 ## Current verified state
@@ -46,6 +46,21 @@ Status: repository-side hardening and CI are complete for the current release ca
 - Core Pine features used by the script are mostly listed as supported by the platform's compatibility test suite, but compilation and identical-candle output still need manual verification. Keep the fixed Bullseye rules unchanged. Do not claim Pine/Node parity from compilation alone.
 - This does not remove the production data-source gate: the website remains CSV-only using separately permitted OHLCV files, and no live NSE/BSE feed is connected.
 
+## SuperCharting free scanner verification — personal use only (18 Nov 2026)
+
+- The owner saved a separate private script named `BULLS EYE INDIA WATCHLIST SCANNER`, added it to the `NSE:RELIANCE` 1h chart, and observed the separate `Bullseye Scan` pane. Treat this as an owner-reported visual chart-load check only. The scanner still requires a separate 15m chart check and Pine/Node parity tests.
+- The owner created two `RELIANCE 1h Bullseye India Watchlist Scanner` alerts by mistake. Keep one individual 1h scanner alert and remove the duplicate only after checking both have the same condition/timeframe/trigger. Existing original RELIANCE 15m and 1h alerts are separate and should remain until a replacement is verified.
+- The existing `@BullseyeTheoryAI_Bot` was connected inside SuperCharting and the private `Bullseye Theory Premium` channel was detected. The bot is already an admin in the Premium channel. However, saving Telegram notification delivery showed the **Upgrade to Plus** gate. The Essential/free plan cannot send Telegram alerts; it only provides the platform's in-app/toast/sound and Notifications inbox. SuperCharting webhooks require Premium. Do not upgrade just to continue this personal test.
+- The bot's existing GitHub-to-Free-channel publishing pipeline is a separate route and must not be modified by this SuperCharting experiment. No SuperCharting Telegram alert is currently verified as delivered to Premium.
+- The free Pine Screener can scan one watchlist of up to 100 symbols, one scan at a time, latest completed bar only, with up to 20 scans per 10 minutes. Watchlist alerts use the script's named `alertcondition()` entries; one watchlist alert creates one technical alert per symbol. A 10-symbol list with LONG and SHORT on both 15m and 1h consumes 40 technical-alert slots. Free Essential notifications are in-platform only.
+- SuperCharting market data remains licensed for personal, non-commercial use inside the service. Do not scrape/export it or feed it to the Bullseye website, customer alert service, paid memberships, or external Telegram pipeline.
+
+Official platform references:
+- https://supercharting.com/learn/free-pine-screener-nse
+- https://supercharting.com/learn/watchlists-and-watchlist-alerts
+- https://supercharting.com/learn/free-telegram-stock-alerts
+- https://supercharting.com/learn/webhook-alerts
+
 ## Remaining owner-only actions
 
 - **Course and quiz testing:** owner confirmed on 17 November 2026 that course testing and quizzes have been checked and completed. This is recorded as owner-reported QA, not an automated test of a live student account.
@@ -62,7 +77,7 @@ Status: repository-side hardening and CI are complete for the current release ca
 - Do not enable TRC20 or indicator checkout, payment polling, automatic activation, or public payment instructions.
 - Do not buy TradingView Pro/Premium.
 - Do not claim live NSE/BSE data, market-wide scanning, proven Pine/Node parity, profitability, or guaranteed results.
-- Keep Telegram automation as currently tested; do not re-enable Facebook or Instagram publishing without a separate request.
+- Keep the existing GitHub-to-Free-channel Telegram pipeline unchanged. SuperCharting's Telegram notification integration is blocked on Essential; do not upgrade or re-route the existing bot without explicit product approval. Do not re-enable Facebook or Instagram publishing without a separate request.
 
 ## Free-first security note
 
