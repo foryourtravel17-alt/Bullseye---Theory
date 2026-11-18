@@ -67,3 +67,12 @@ This is a starter observation universe, not a recommendation to buy or sell thes
 - Alerts are best-effort and may be late, duplicated or missed. Check the chart and completed candle before acting.
 - Owner-reported visual validation: the new scanner was saved and added to RELIANCE 1h; the separate `Bullseye Scan` pane appeared. The same scanner still needs a 15m chart-load check, latest-bar scan check and alert-delivery check. This does not establish identical-candle Pine/Node parity or signal performance.
 - No broker order placement, automated trading, paid-member distribution, external market-data export, or production website feed is included.
+
+
+## GitHub Actions billing block — confirmed from owner screenshot
+
+On 18 Nov 2026, the owner expanded the failing job's Annotations. The exact error is: "The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings". The accompanying Ubuntu runner-image migration notice is informational, not the failure cause.
+
+This is a GitHub account billing/quota gate before any workflow step starts; it is not a Pine Script compile/test failure. The job API showed zero steps and no runner logs, which is consistent with the annotation. Do not change indicator code or workflow YAML to try to fix this. The owner prefers not to add payment details or allow spend, so do not raise budgets or add a card. Check GitHub Settings → Billing & licensing → Payment information and Budgets and alerts for account state, failed payment/authorization, included Actions usage, and any hard-stop budget. If the account must remain zero-spend, wait for included usage/billing cycle reset or request GitHub Support to investigate a billing lock if the dashboard does not explain it. Re-run the failed jobs only after GitHub clears the block.
+
+Owner also confirmed the personal RELIANCE 15m alert was created successfully; screenshot shows it in Alerts. SuperCharting Essential's toast-only alert is personal platform notification, not premium-channel delivery.
