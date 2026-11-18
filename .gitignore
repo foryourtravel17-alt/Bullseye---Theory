@@ -1,0 +1,36 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Dependencies
+.venv/
+venv/
+node_modules/
+
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Cloudflare local state
+.wrangler/
+
+# Local databases and backups
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*.bak
+*.tar.gz
+*.bundle
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
