@@ -32,8 +32,10 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  // For all other requests, do not intercept or cache.
-  if (url.pathname !== "/terminal.html" && url.pathname !== "/market-briefs.json") return;
+  // Explicit allow-list: for every other path, do not intercept or cache.
+  const isTerminalPage = url.pathname === "/terminal.html";
+  const isDemoPack = url.pathname === "/market-briefs.json";
+  if (!isTerminalPage && !isDemoPack) return;
 
   event.respondWith((async () => {
     const cache = await caches.open(CACHE_NAME);
