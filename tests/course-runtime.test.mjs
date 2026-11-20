@@ -203,12 +203,12 @@ test("Market Lab offline cache is limited to the public educational demo shell",
   const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
   const page = await readFile(resolve(root, "terminal.html"), "utf8");
   const worker = await readFile(resolve(root, "terminal-sw.js"), "utf8");
-  assert.match(page, /navigator\\.serviceWorker\\.register\\(["']\\/terminal-sw\\.js["']\\)/);
+  assert.match(page, /navigator\.serviceWorker\.register\(["']\/terminal-sw\.js["']\)/);
   assert.match(page, /id="offlineStatus"/);
   assert.match(worker, /const CACHE_NAME = "bullseye-terminal-shell-v1"/);
-  assert.match(worker, /const SHELL_URLS = \\[["']\\/terminal\\.html["'], ["']\\/market-briefs\\.json["']\\]/);
-  assert.match(worker, /url\\.pathname === ["']\\/terminal\\.html["']/);
-  assert.match(worker, /url\\.pathname === ["']\\/market-briefs\\.json["']/);
-  assert.doesNotMatch(worker, /lesson-[0-9]|course-assets|\\/auth\\.html|\\/dashboard\\.html|\\/payment\\.html/);
+  assert.match(worker, /const SHELL_URLS = \["\/terminal\.html", "\/market-briefs\.json"\]/);
+  assert.match(worker, /url\.pathname === ["']\/terminal\.html["']/);
+  assert.match(worker, /url\.pathname === ["']\/market-briefs\.json["']/);
+  assert.doesNotMatch(worker, /lesson-[0-9]|course-assets|\/auth\.html|\/dashboard\.html|\/payment\.html/);
   assert.match(worker, /For all other requests, do not intercept or cache/);
 });
