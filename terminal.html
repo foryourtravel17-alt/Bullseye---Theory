@@ -5,7 +5,7 @@
 </style></head><body>
 <header class="top"><a class="brand" href="index.html">◎ BULLSEYE <b>THEORY</b></a><nav aria-label="Primary"><a href="index.html">Home</a><a href="dashboard.html">Course</a><a href="#live-market">Market Data</a><a href="#factory-feed">Observations</a><a href="#scenarios">Scenario Lab</a><a href="#risk">Risk Lab</a><a href="#journal">Journal</a><a href="membership.html">Membership</a></nav><span class="pill">EDUCATION MODE</span></header>
 <main class="wrap">
-<section class="hero"><div><div class="eyebrow">BULLSEYE / MARKET LAB</div><h1>Read the structure.<br><em>Respect the risk.</em></h1><p>A practical workspace for conditional market scenarios, position-sizing practice and disciplined trade reviews. Think in scenarios—not certainty.</p></div><div class="asof"><small>CONTENT REVIEW DATE</small><strong id="reviewDate">02 NOV 2026 · DEMO PACK</strong><small>Quotes: disabled pending compliance review</small></div></section>
+<section class="hero"><div><div class="eyebrow">BULLSEYE / MARKET LAB</div><h1>Read the structure.<br><em>Respect the risk.</em></h1><p>A practical workspace for conditional market scenarios, position-sizing practice and disciplined trade reviews. Think in scenarios—not certainty.</p></div><div class="asof"><small>CONTENT REVIEW DATE</small><strong id="reviewDate">02 NOV 2026 · DEMO PACK</strong><small>Quotes: disabled pending compliance review</small><small id="offlineStatus">Offline demo cache is setting up…</small></div></section>
 <div class="alert" role="note"><strong>EDUCATIONAL / RISK NOTICE</strong> The Scenario Lab and sample watchlist are illustrative. Live/recent quote displays and public factory observations are paused pending data-age, licensing and compliance review. Telegram approval alone does not establish permission to use market-price data. Nothing on this page is a forecast or a recommendation to buy, sell, or hold.</div>
 <section class="stats"><div class="stat"><small>WORKSPACE MODE</small><strong>Paper / Demo</strong><span>No broker connection</span></div><div class="stat"><small>RISK PLANNING</small><strong>Pre-trade</strong><span>Calculate before committing</span></div><div class="stat"><small>SCENARIO METHOD</small><strong>3 paths</strong><span>Bull · Base · Bear</span></div><div class="stat"><small>CONTENT REVIEW</small><strong>2× / week</strong><span>Demo pack reviewed separately</span></div></section>
 
@@ -40,4 +40,30 @@ loadBriefs();
 
 function calc(){var c=Number($("capital").value),p=Number($("riskPct").value),e=Number($("entry").value),s=Number($("stop").value);if(![c,p,e,s].every(Number.isFinite)||c<=0||p<=0||p>100||e<=0||s<=0||e===s){$("shares").textContent="Check inputs";$("riskResult").textContent="Use positive values; risk must be above 0 and no more than 100%.";return}var budget=c*p/100,perUnit=Math.abs(e-s),units=Math.floor(budget/perUnit);$("shares").textContent=fmt(units)+" units";$("riskResult").textContent="Planned price risk ₹"+fmt(units*perUnit)+" of ₹"+fmt(budget)+" budget; excludes fees, slippage, gaps and liquidity."}$("calculate").addEventListener("click",calc);["capital","riskPct","entry","stop"].forEach(function(id){$(id).addEventListener("input",calc)});calc();
 var key="bullseye_market_lab_journal_v1";function load(){try{var v=JSON.parse(localStorage.getItem(key)||"[]");return Array.isArray(v)?v.filter(function(x){return x&&typeof x.symbol==="string"&&typeof x.notes==="string"}).slice(0,100):[]}catch(e){return []}}function save(items){try{localStorage.setItem(key,JSON.stringify(items.slice(0,100)));return true}catch(e){return false}}function render(){var list=$("journalList"),items=load();list.replaceChildren();if(!items.length){var empty=document.createElement("div");empty.className="empty";empty.textContent="No entries yet. Add your first practice review.";list.append(empty);return}items.forEach(function(item,index){var card=document.createElement("article");card.className="entry";var title=document.createElement("strong");title.textContent=item.symbol+" · "+item.setup;var date=document.createElement("p");date.textContent=item.date;var note=document.createElement("p");note.textContent=item.notes;var del=document.createElement("button");del.className="btn secondary";del.type="button";del.textContent="DELETE ENTRY";del.addEventListener("click",function(){var next=load();next.splice(index,1);save(next);render()});card.append(title,date,note,del);list.append(card)})}$("journalForm").addEventListener("submit",function(e){e.preventDefault();var items=load();items.unshift({symbol:$("symbol").value.trim(),setup:$("setup").value,notes:$("notes").value.trim(),date:new Date().toLocaleString()});if(!save(items)){alert("Browser storage unavailable. Try another browser.");return}$("journalForm").reset();render()});$("clearJournal").addEventListener("click",function(){if(confirm("Clear all local demo journal entries from this browser?")){localStorage.removeItem(key);render()}});render()})();
+
+(function registerTerminalOfflineShell() {
+  var status = document.getElementById("offlineStatus");
+  function setNetworkStatus() {
+    if (!status) return;
+    status.textContent = navigator.onLine
+      ? "OFFLINE DEMO COPY · saved after first visit"
+      : "OFFLINE MODE · cached educational demo only";
+  }
+  if ("serviceWorker" in navigator && window.isSecureContext) {
+    navigator.serviceWorker.register("/terminal-sw.js")
+      .then(function () { return navigator.serviceWorker.ready; })
+      .then(function () {
+        if (status) status.textContent = "OFFLINE COPY READY · Market Lab demo only";
+        setNetworkStatus();
+      })
+      .catch(function () {
+        if (status) status.textContent = "Offline cache unavailable · online demo still works";
+      });
+  } else if (status) {
+    status.textContent = "Offline cache requires HTTPS and a supported browser";
+  }
+  window.addEventListener("online", setNetworkStatus);
+  window.addEventListener("offline", setNetworkStatus);
+})();
+
 </script></body></html>
