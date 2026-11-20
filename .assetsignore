@@ -5,9 +5,20 @@
 **/.wrangler
 **/.github
 lessons/
-scripts/
 supabase/
 readme.txt
 lesson.html
+_worker.js
 wrangler.toml
 .assetsignore
+
+# Internal project, review, and design files must not be publicly served
+AGENTS.md
+README.md
+DESIGN_SKILL_TRIAL.md
+.mcp.json
+package.json
+package-lock.json
+scripts/
+docs/
+design-system/

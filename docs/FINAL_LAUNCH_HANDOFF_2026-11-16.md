@@ -1,0 +1,198 @@
+# Bullseye Theory — current launch handoff
+Date: 16 November 2026
+Status: consolidated release candidate passes the latest Cloudflare no-deploy preflight; production release remains intentionally held.
+
+## 1. Current product decisions
+
+| Product | Price | Current entitlement/config | Current delivery |
+|---|---:|---:|---|
+| Complete Course | ₹999 | 85 days | 11 lessons, student dashboard, server-graded quizzes, course PDFs/chart drills |
+| Premium Telegram | ₹1,999 | Unconfigured (`accessDays = null`); checkout hard-blocked until owner confirms the term | Separate private Telegram membership; manual fulfilment |
+| Bullseye India Indicator | ₹9,999 | 365 days | Website-based historical NSE/BSE OHLCV CSV analyzer; not a live scanner |
+
+The website must continue to show all three products separately. Course and indicator are independent products. Do not invent a bundle discount.
+
+## 2. Verified social automation status
+
+The separate private content repository is `foryourtravel17-alt/ai-trending-content-factory`.
+
+- PR #91 (Telegram-only social automation) merged 16 Nov 2026.
+- PR #92 (Supabase Storage readiness request content type) merged.
+- PR #93 (daily Telegram report and readiness checks) merged.
+- Facebook and Instagram publisher integrations, health checks and recovery workflows were removed.
+- Owner confirmed the private Telegram approval notifications were tested, approved, and the resulting Telegram channel auto-post succeeded.
+- Market cards and educational Reels remain owner-approval-gated before public Telegram channel publishing.
+- The separate Premium workflow is an explicit exception: it auto-publishes evergreen lessons only to its configured private Premium Telegram destination.
+- Daily/weekly Telegram reporting and the five-minute approval poller are in the repository.
+- Repository visibility remains private.
+
+No Meta credentials are needed by the Telegram-only workflow. Keep Telegram and Supabase secrets in GitHub Actions Secrets; never paste them into chat or source code.
+
+## 3. Course and indicator release candidate
+
+Product repository: `foryourtravel17-alt/Bullseye---Theory`.
+
+- Release PR #47: https://github.com/foryourtravel17-alt/Bullseye---Theory/pull/47
+- India CSV analyzer work PR #49 is included in the current release candidate.
+- Latest release-candidate head at this handoff refresh: `5e155daede2fedbe46669464c665b007246066f6`.
+- Current release branch head: `5e155daede2fedbe46669464c665b007246066f6`.
+- Post-baseline hardening now adds Supabase Auth validation, a fail-closed 365-day entitlement gate, a signed-in analyzer UI, owner-only manual indicator entitlement controls, a closed payment page and a no-network checkout stub.
+- Latest Cloudflare Preview Preflight run on the current release head passed: dependency install, complete root `npm test` (build validators + course runtime tests), Cloudflare Worker dry-run bundle build. Indicator private-source tests separately passed on the immediately preceding code candidate. Do not describe this as a TradingView Pine compiler run or a real-market Pine/Node parity result.
+- Latest Cloudflare Preview deployment: https://release-bullseye-india-course-indicator-integra-bullseye-theory.foryourtravel17.workers.dev
+- A previous Cloudflare preview URL is documented above; this session's final CI verifies a local Worker build and a hosted Render access-gate smoke test. The existing Render/Cloudflare preview services may reflect an earlier candidate than the current 0099 head, so visually review the exact latest candidate before production.
+- The current release preflight passed on 16 Nov 2026. The separate latest main-branch Cloudflare production deploy also completed successfully and its smoke checks returned PASS for `/index.html`, `/auth.html`, `/dashboard.html`, `/admin.html`, `/payment.html`, `/terms.html`, `/refund.html` and `/membership.html`. This production deploy is the manual-only closed-enrollment main-branch state, not the unmerged release candidate. GitHub Pages deployment is intentionally disabled; the Pages workflow failure is not the active production host.
+- PR #47 is open and ready for review; it is not merged to `main`. Duplicate/stale PRs #50, #58 and #61 were closed as superseded by the consolidated release candidate.
+
+### Manual-only membership hardening added after the last full CI pass
+
+- Analyzer `GET /api/access` and `POST /api/analyze-csv` validate the Supabase bearer token, call the authenticated `get-indicator-access` function, and require an active, unexpired 365-day `bullseye-india-indicator` entitlement before reading/parsing CSV.
+- Analyzer page includes Supabase sign-in/sign-out, session restoration, and access refresh. Only the public Supabase URL/publishable key are exposed; no service-role key is sent to the browser.
+- Admin page includes separate indicator member controls. Payment verification starts unchecked and requires explicit confirmation; revoking a verified flag also requires confirmation. An unverified record is labelled pending and does not grant access.
+- The production `indicator_access` migration and Edge Function remain unapplied/undeployed. Until approved and deployed, the analyzer correctly fails closed and the admin panel reports that indicator controls are not deployed.
+- Payment page is a closed notice only. The old wallet/QR/order controls were removed; `payment-checkout.js` is a no-network guard that disables any cached old order UI.
+- The student dashboard exposes 10 PDFs and 6 slide decks only to active course members. The current candidate also includes protected course resources and 11 chart drills.
+
+### Important deployment boundary
+
+`.github/workflows/deploy-cloudflare.yml` deploys automatically on every push to `main`. Merging PR #47 therefore triggers a production Cloudflare deployment. Do not merge this release PR, apply production migrations, deploy Supabase Edge Functions, or open checkout until the owner explicitly approves the final production release.
+
+## 4. Course implementation and QA
+
+- All 11 lesson pages exist.
+- All 11 lesson pages load the shared `lesson-secure-client.js` with their matching lesson number.
+- Each lesson has five radio-answer groups and the server-side grading module has 11 answer keys. The build now validates all 55 UI-to-server answer mappings against reviewed correct-answer text.
+- A new CI contract test checks all 11 lesson pages against the server-side answer keys and verifies all five questions/options are present.
+- The student dashboard now exposes 10 existing PDFs and 6 slide decks as download links only when the course entitlement is active; the asset paths are checked by CI and remain protected by the server/Worker entitlement gate.
+- Pass mark is 4/5 (80%).
+- Lesson 1 is the free preview; lessons 2–11 require an active, payment-verified, unexpired course entitlement.
+- Quiz grading and lesson completion are handled by server-side Supabase Edge Functions. The browser does not contain the answer keys or write completion directly.
+- The course uses an 85-day entitlement from verified payment.
+
+A previous owner QA pass confirmed the course lessons were working. Repository asset audit found 11 interactive HTML lessons, 10 lesson PDF files and 6 slide decks, but no video files or embedded video players, and no Lesson 11 PDF. The membership page must not promise recorded video lessons until those files are supplied. The final release acceptance should still include one signed-in staging run across all 11 quizzes, progress saving, certificate and password reset, using a disposable test account only. The 16 November release candidate also integrates the terminal HUD homepage, radar hero image, closed-enrollment price labels, production canonical URL and refreshed CSS cache key; PR #44's design work is incorporated into PR #47.
+
+## 5. Bullseye Levels and TradingView
+
+- Free-plan step-by-step owner instructions: [TRADINGVIEW_FREE_PLAN_RUNBOOK.md](TRADINGVIEW_FREE_PLAN_RUNBOOK.md).
+
+The locked rule contract is `indicator/RULES.md`. Do not change it without explicit owner approval:
+
+- 15m and 1h only.
+- Strict confirmed 3-left / 3-right swing pivots.
+- Same-side pivots cluster using 0.25 × ATR(14); minimum two touches.
+- LONG: close > zone top + 0.10 × ATR(14), and volume > SMA(volume,20) × 1.5.
+- SHORT: close < zone bottom − 0.10 × ATR(14), with the same volume condition.
+- Entry at breakout close; stop beyond opposite zone edge by 0.20 × ATR; target 2R.
+- Per-zone cooldown: 12 bars.
+- Closed candles only; confirmed pivots and alerts must not repaint.
+
+The product's v1 delivery is the **website-based historical CSV analyzer**:
+- Accepts user-supplied OHLCV CSV, max 5 MB.
+- Processes uploads in memory; does not persist uploaded files.
+- Supports 15m and 1h and NSE/BSE symbol labels.
+- Does not fetch live NSE market data, scan the whole market, or claim live signals.
+- Node tests and the Pine/Node streaming reference model are automated checks, not proof that TradingView has executed the Pine script.
+
+No TradingView Pro/Premium purchase is required or authorized. The owner can compile and run `indicator/bullseye.pine` on their own TradingView chart using the Free Pine Editor; a CSV export is not required for this personal chart use. TradingView Free CSV export is unavailable in the owner's current plan, so do not request an upgrade. For numerical Pine-vs-Node parity, the same completed OHLCV candles must come from another broker/data source whose terms permit the intended use. No permitted free 15m/1h source has yet been verified. NSE daily Bhavcopy alone cannot validate 15m/1h rules.
+
+The indicator is educational, not broker-connected, not an order execution system, and has no proven profitability claim.
+
+## 6. Supabase, payments and access status
+
+- Read-only Supabase audit on 16 Nov: project is `ACTIVE_HEALTHY`; 11 lesson rows, 4 profile rows, 4 course-access rows, 2 quiz-attempt rows, 0 lesson-progress rows, 0 payment orders, and 0 rows in `quizzes` / `quiz_questions`.
+- Six production Edge Functions are active: `grade-quiz` and `complete-lesson` v9; the four TRC-20 payment functions v8. These are the current production versions, not the new indicator release candidate.
+- Quiz grading currently uses the checked-in server-side `grading.ts` answer keys; the new build-time validator checks all 55 page-to-answer mappings.
+- The new `indicator_access` table is defined by an additive migration in the release candidate; it does not exist in production and has not been applied.
+- The release candidate's `indicator/server.mjs` validates the user's Supabase JWT, calls the `get-indicator-access` Edge Function, and blocks `/api/analyze-csv` unless the exact active, verified 365-day `bullseye-india-indicator` entitlement is returned. It uses the publishable key only; no service-role key is exposed to the browser.
+- No production migration or production Edge Function deployment has been performed for the indicator membership. The production `indicator_access` table is absent, the `get-indicator-access` function is not deployed, and the production `payment_orders` schema still has the older course/premium-only constraints.
+- Supabase has no development branches; no paid branch was created. CI uses disposable PostgreSQL and isolated test fixtures.
+- Supabase Storage currently has only the `REELS` bucket (134 objects, 116 video files); those are social Reels, not course lesson videos or PDFs. Course assets are maintained in the repository.
+- Supabase health advisor returned no health lints. Security advisor reports leaked-password protection disabled and five SECURITY DEFINER warnings; source inspection confirms the admin RPCs check `is_admin()` and all inspected functions pin `search_path`. Enable leaked-password protection in Supabase Auth settings before accepting student registrations.
+- `USDT_CHECKOUT_ENABLED` and `INDICATOR_CHECKOUT_ENABLED` must remain false. Payment verification and customer fulfilment remain manual as requested.
+- Do not use real payments or customer data in tests. Do not create a paid Supabase branch.
+
+## 7. Supabase security review
+
+- The Supabase security advisor reports leaked-password protection is disabled. Enable it in Supabase Dashboard → Authentication → Security before accepting customers.
+- Five `SECURITY DEFINER` functions are reported as executable by authenticated users. Their definitions were inspected: admin-management functions call `public.is_admin()`, certificate self-service is user-scoped, and the functions pin `search_path`. These are still linter warnings; retain the current grants only after owner/security review.
+- Five unused-index performance notices are informational; no health lints were returned.
+
+## 8. Website/legal launch review
+
+- Membership page displays ₹999 / ₹1,999 / ₹9,999 separately and says enrollment is closed.
+- Payment checkout is deliberately closed and instructs visitors not to transfer funds.
+- Terms and privacy pages are preliminary and were last updated 25 October 2026.
+- Refund page explicitly says a final refund/cancellation policy is not yet available.
+- Before accepting money, the owner must finalize the Premium Telegram membership term; the server plan currently uses `accessDays = null` and blocks new Premium orders even if checkout flags are accidentally enabled. Also finalize refund/cancellation rules, support response expectations, business identity and applicable Indian tax/consumer/legal disclosures with a qualified adviser.
+
+## 9. Remaining work — automation vs owner action
+
+### Automated/repository work
+1. Keep Telegram-only automation and its approval gates stable; no Instagram/Facebook work.
+2. Keep release candidate tests green after any further code change.
+3. Keep preview environment isolated from production Supabase.
+4. Maintain the private release PR and this handoff until final acceptance.
+5. Do not auto-activate payment or indicator entitlements.
+
+### Owner actions that cannot be completed safely by repository automation
+1. Compile and save the Pine script in TradingView Free Pine Editor; add it to an NSE chart on 15m and 1h.
+2. Review confirmed-bar behavior in Bar Replay/forward bars; no TradingView account session is available to the automation.
+3. If exact numerical parity with Node is required, identify a permitted 15m/1h OHLCV data source. Do not buy a TradingView plan for CSV export.
+4. Complete one disposable signed-in course staging pass and confirm password reset, all 11 quizzes, lesson progress and certificate.
+5. Confirm the Premium Telegram membership duration; Premium checkout remains hard-blocked while `accessDays = null`.
+6. Finalize refund/cancellation, business identity, support and legal/tax details.
+7. Decide when production deployment and any production migration are authorized.
+8. Keep payment verification and course/Telegram customer fulfilment manual.
+
+## 10. Do not do before final approval
+
+- Do not merge PR #47 or trigger the automatic production Cloudflare deployment.
+- Do not apply the indicator migration to production.
+- Do not deploy Supabase Edge Functions to production.
+- Do not enable TRC20 checkout or indicator checkout.
+- Do not publish a paid TradingView invite-only script or buy TradingView Pro/Premium.
+- Do not claim live NSE data, Pine runtime parity, guaranteed signals or profitability.
+- Do not re-enable Facebook or Instagram automation.
+
+## 11. Local test commands
+
+From the repository root:
+```bash
+npm install --no-audit --no-fund
+npm test
+```
+
+From `indicator/`:
+```bash
+npm install --ignore-scripts --no-audit --no-fund
+npm test
+node --check server.mjs
+npm start
+```
+
+
+## 12. Automation completion refresh — 16 November 2026
+
+### Social automation
+- Telegram approval notifications and approved channel auto-posting were personally confirmed by the owner.
+- Telegram repository PRs #92 and #93 are merged. The read-only Supabase Storage readiness request now sends JSON content-type; daily report counts are built from the canonical shared state and use the active India-time schedules.
+- Latest read-only readiness doctor passed 12/12 checks with zero failures and zero warnings.
+- Market/Reel public publishing remains owner-approval-gated. No Instagram/Facebook publishing was reintroduced.
+
+### Release verification
+- Current release branch: `release/bullseye-india-course-indicator-integration`.
+- Current head: `5e155daede2fedbe46669464c665b007246066f6`.
+- Cloudflare Preview Preflight on that head: SUCCESS; full root build/test command and Wrangler dry-run completed.
+- Production main deployment on 16 Nov: Cloudflare Worker deploy SUCCESS; smoke checks passed for the homepage, login, dashboard, admin, payment, terms, refund and membership pages.
+- Production payment page is still deliberately closed. It exposes no QR, wallet, payment order, or automatic checkout.
+- The release PR #47 remains unmerged. Merging it triggers the production Cloudflare deployment workflow; do not merge or deploy until the remaining owner-only gates are complete.
+
+### Remaining owner actions (not automatable without account access or business facts)
+1. TradingView Free: open Pine Editor, paste the private release's `indicator/bullseye.pine`, save/add to chart, compile and visually inspect on 15m and 1h. No CSV export and no paid TradingView plan are required for this personal chart test.
+2. Real-market parity: supply the same completed 15m/1h OHLCV candles from a provider whose terms permit technical-tool development/use. TradingView Free CSV export is unavailable; FYERS terms do not currently permit this analyzer use without written consent. Do not use an unapproved source.
+3. Course staging: perform one disposable signed-in staging journey for password reset, all 11 quizzes, progress saving, PDF/slide downloads and certificate. No disposable test account/session is available to this automation.
+4. Confirm the Premium Telegram membership term and deliverables; server-side Premium checkout remains hard-blocked until the term is set.
+5. Supply/confirm the official UPI QR or other manual payment instructions. PayPal is not configured. Do not publish a payment method before confirming ownership and settlement destination.
+6. Finalize refund/cancellation terms, business identity/address, support response expectations and applicable Indian legal/tax/consumer disclosures with a qualified adviser.
+7. Enable any additional account security setting available on the chosen Supabase plan; leaked-password protection is currently reported disabled on the free-first setup.
+8. Only after these items are accepted, explicitly authorize the production migration/Edge Function deployment for indicator access and the final release PR merge.
+

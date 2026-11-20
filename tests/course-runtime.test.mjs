@@ -112,6 +112,36 @@ test("membership page does not promise unavailable course video or unverified in
   assert.match(page, /COMING SOON — ENROLLMENT CLOSED/);
 });
 
+test("course dashboard exposes only existing, entitlement-protected study downloads", async () => {
+  const { readFile, stat } = await import("node:fs/promises");
+  const { fileURLToPath } = await import("node:url");
+  const { dirname, resolve } = await import("node:path");
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+  const dashboard = await readFile(resolve(root, "dashboard.html"), "utf8");
+  const assets = [...dashboard.matchAll(/["'](lessons\/[^"']+\.(?:pdf|pptx))["']/g)].map((item) => item[1]);
+  assert.equal(assets.length, 16, "10 lesson PDFs and 6 slide decks should be linked");
+  assert.match(dashboard, /const resources=active/);
+  for (const asset of assets) {
+    assert.ok(isProtectedCourseAsset("/" + asset), asset + " must require active course entitlement");
+    const info = await stat(resolve(root, asset));
+    assert.ok(info.isFile() && info.size > 0, asset + " must exist and be non-empty");
+  }
+});
+
+test("homepage and membership page do not advertise a recorded video library", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const { fileURLToPath } = await import("node:url");
+  const { dirname, resolve } = await import("node:path");
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+  const home = await readFile(resolve(root, "index.html"), "utf8");
+  const membership = await readFile(resolve(root, "membership.html"), "utf8");
+  for (const page of [home, membership]) {
+    assert.doesNotMatch(page, /recorded video breakdowns|video breakdowns|VIDEO BREAKDOWNS|PDF \\+ VIDEO/i);
+  }
+  assert.match(home, /PRACTICE EXERCISES/);
+  assert.match(home, /A recorded video library is not included in the current release candidate/);
+});
+
 
 test("course resource library links only existing protected study files", async () => {
   const page = await readFile(new URL("../lessons/resources.html", import.meta.url), "utf8");
@@ -121,9 +151,8 @@ test("course resource library links only existing protected study files", async 
   assert.equal(slideLinks.length, 6, "all six current slide decks must be linked");
   for (const link of [...pdfLinks, ...slideLinks]) {
     assert.ok(existsSync(new URL("../lessons/" + link, import.meta.url)), "missing study asset: " + link);
-    assert.equal(isProtectedCourseAsset("/lessons/" + link), true, "study asset must be protected: " + link);
   }
-  assert.match(page, /Lesson 11[\s\S]*complete revision[\s\S]*online lesson/i);
+  assert.match(page, /Lesson 11[\s\S]*online revision lesson/i);
   assert.match(page, /recorded video[\s\S]*not included yet/i);
 });
 
@@ -139,8 +168,47 @@ test("chart drills page contains eleven hypothetical, printable exercises with a
 
 test("dashboard links the protected resources and chart drills pages", async () => {
   const page = await readFile(new URL("../dashboard.html", import.meta.url), "utf8");
-  assert.match(page, /href="lessons\/resources\.html"/);
-  assert.match(page, /href="lessons\/chart-drills\.html"/);
+  assert.ok(page.includes('href="lessons/resources.html"'));
+  assert.ok(page.includes('href="lessons/chart-drills.html"'));
   assert.equal(isProtectedCourseAsset("/lessons/resources.html"), true);
   assert.equal(isProtectedCourseAsset("/lessons/chart-drills.html"), true);
+});
+
+test("indicator entitlement administration stays owner-only and payment verification is explicit", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const { fileURLToPath } = await import("node:url");
+  const { dirname, resolve } = await import("node:path");
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+  const admin = await readFile(resolve(root, "admin.html"), "utf8");
+  const migration = await readFile(resolve(root, "supabase/migrations/20261113140000_add_indicator_membership_365d.sql"), "utf8");
+  assert.match(admin, /admin_list_indicator_members/);
+  assert.match(admin, /admin_set_indicator_access/);
+  assert.match(admin, /id="indicatorVerified" type="checkbox"/);
+  assert.match(admin, /verify&&!existing\?\.payment_verified&&!confirm\(/);
+  assert.match(admin, /!verify&&existing\?\.payment_verified&&!confirm\(/);
+  assert.match(admin, /indicatorMembers\.forEach\(member=>select\.add/);
+  assert.match(admin, /No analyzer access is granted until payment_verified is true/);
+  assert.doesNotMatch(admin, /SERVICE_ROLE_KEY|service_role/i);
+  assert.match(migration, /verify_payment boolean default false/);
+  assert.match(migration, /if not public\.is_admin\(\)/);
+  assert.match(migration, /enable row level security/);
+  assert.match(migration, /revoke all on table public\.indicator_access from public, anon, authenticated/);
+});
+
+
+test("Market Lab offline cache is limited to the public educational demo shell", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const { fileURLToPath } = await import("node:url");
+  const { dirname, resolve } = await import("node:path");
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+  const page = await readFile(resolve(root, "terminal.html"), "utf8");
+  const worker = await readFile(resolve(root, "terminal-sw.js"), "utf8");
+  assert.match(page, /navigator\.serviceWorker\.register\(["']\/terminal-sw\.js["']\)/);
+  assert.match(page, /id="offlineStatus"/);
+  assert.match(worker, /const CACHE_NAME = "bullseye-terminal-shell-v1"/);
+  assert.match(worker, /const SHELL_URLS = \["\/terminal\.html", "\/market-briefs\.json"\]/);
+  assert.match(worker, /url\.pathname === ["']\/terminal\.html["']/);
+  assert.match(worker, /url\.pathname === ["']\/market-briefs\.json["']/);
+  assert.doesNotMatch(worker, /lesson-[0-9]|course-assets|\/auth\.html|\/dashboard\.html|\/payment\.html/);
+  assert.match(worker, /Explicit allow-list: for every other path, do not intercept or cache/);
 });

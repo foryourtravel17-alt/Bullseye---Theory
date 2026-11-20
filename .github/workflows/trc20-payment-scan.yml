@@ -1,0 +1,46 @@
+name: TRC20 Payment Scanner
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+    inputs:
+      run_now:
+        description: "Run the payment scanner now (requires the repository enable switch)"
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bullseye-trc20-payment-scanner
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    if: vars.TRC20_SCANNER_ENABLED == 'true' && (github.event_name == 'schedule' || inputs.run_now == true)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Validate scanner configuration
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          TRC20_SCANNER_CRON_SECRET: ${{ secrets.TRC20_SCANNER_CRON_SECRET }}
+        run: |
+          test -n "$SUPABASE_URL" || { echo "Missing SUPABASE_URL secret"; exit 1; }
+          test -n "$TRC20_SCANNER_CRON_SECRET" || { echo "Missing TRC20_SCANNER_CRON_SECRET secret"; exit 1; }
+      - name: Scan confirmed TRC-20 transfers
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          TRC20_SCANNER_CRON_SECRET: ${{ secrets.TRC20_SCANNER_CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          response="$(curl --fail --silent --show-error --max-time 60 \
+            --request POST \
+            --header "Authorization: Bearer $TRC20_SCANNER_CRON_SECRET" \
+            --header "Content-Type: application/json" \
+            --data '{}' \
+            "${SUPABASE_URL%/}/functions/v1/scan-trc20-payments")"
+          printf '%s' "$response" | python -c 'import json,sys; d=json.load(sys.stdin); print("TRC-20 scan OK | expired={expired} pending={pending} verified={verified}".format(expired=d.get("expired",0), pending=d.get("pending",0), verified=d.get("verified",0)))'
