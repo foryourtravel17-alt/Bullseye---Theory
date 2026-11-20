@@ -210,5 +210,5 @@ test("Market Lab offline cache is limited to the public educational demo shell",
   assert.match(worker, /url\.pathname === ["']\/terminal\.html["']/);
   assert.match(worker, /url\.pathname === ["']\/market-briefs\.json["']/);
   assert.doesNotMatch(worker, /lesson-[0-9]|course-assets|\/auth\.html|\/dashboard\.html|\/payment\.html/);
-  assert.match(worker, /For all other requests, do not intercept or cache/);
+  assert.match(worker, /Explicit allow-list: for every other path, do not intercept or cache/);
 });
