@@ -31,7 +31,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
 
-      - name: Smoke-test deployed public pages
+      - name: Smoke-test deployed public pages and unknown routes
         shell: bash
         run: |
           set -euo pipefail
@@ -47,6 +47,22 @@ jobs:
             fi
             echo "PASS /$path"
           }
+          check_unknown_route() {
+            local path="$1"
+            local body_file="$2"
+            local status
+            status="$(curl --silent --show-error --location --output "$body_file" --write-out "%{http_code}" "$base/$path")"
+            if [[ "$status" != "404" ]]; then
+              echo "::error::Unknown route /$path expected HTTP 404, got $status"
+              return 1
+            fi
+            if ! grep -Fqi "Page not found" "$body_file"; then
+              echo "::error::Unknown route /$path did not return the branded 404 page"
+              return 1
+            fi
+            echo "PASS /$path returns HTTP 404 with branded page"
+          }
+
           check_page "index.html" "READ THE MARKET"
           check_page "auth.html" "Student Login"
           check_page "dashboard.html" "Student Dashboard"
@@ -55,3 +71,7 @@ jobs:
           check_page "terms.html" "Terms of Use"
           check_page "refund.html" "Refund Information"
           check_page "membership.html" "ENROLLMENT CLOSED"
+
+          # Test both path shapes: SPA-like extensionless routes and file-like routes.
+          check_unknown_route "automation-probe-does-not-exist" "/tmp/bullseye-404-extensionless.html"
+          check_unknown_route "automation-probe-does-not-exist.html" "/tmp/bullseye-404-extension.html"
