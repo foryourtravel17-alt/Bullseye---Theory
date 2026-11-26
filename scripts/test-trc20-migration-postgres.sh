@@ -318,4 +318,48 @@ end;
 $$;
 SQL
 
-echo "PASS: course and indicator settlement, Premium manual review, isolated entitlements, 85-day course and 365-day indicator grants."
+# The historical settlement path is tested above, then explicitly retired.
+psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f supabase/migrations/20261126101500_retire_automatic_trc20_settlement.sql
+
+psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
+do $retirement$
+declare
+  table_name text;
+  role_name text;
+begin
+  foreach table_name in array array['payment_orders','payment_transactions','payment_review_events'] loop
+    if not (select relrowsecurity from pg_class where oid = ('public.' || table_name)::regclass) then
+      raise exception 'RLS must remain enabled on %', table_name;
+    end if;
+    foreach role_name in array array['anon','authenticated','service_role'] loop
+      if has_table_privilege(role_name, 'public.' || table_name, 'SELECT')
+         or has_table_privilege(role_name, 'public.' || table_name, 'INSERT')
+         or has_table_privilege(role_name, 'public.' || table_name, 'UPDATE')
+         or has_table_privilege(role_name, 'public.' || table_name, 'DELETE') then
+        raise exception 'Retired payment table % is still accessible to %', table_name, role_name;
+      end if;
+    end loop;
+  end loop;
+  if has_function_privilege(
+    'service_role',
+    'public.finalize_trc20_payment(uuid,text,numeric,text,text,text,timestamptz,bigint)',
+    'EXECUTE'
+  ) then
+    raise exception 'service_role must not execute the retired payment finalizer';
+  end if;
+  if not has_function_privilege(
+    'postgres',
+    'public.finalize_trc20_payment(uuid,text,numeric,text,text,text,timestamptz,bigint)',
+    'EXECUTE'
+  ) then
+    raise exception 'postgres must retain owner access to the historical finalizer';
+  end if;
+  if (select count(*) from public.payment_orders) <> 7
+     or (select count(*) from public.payment_transactions) <> 5 then
+    raise exception 'Historical payment fixture counts changed unexpectedly';
+  end if;
+end;
+$retirement$;
+SQL
+
+echo "PASS: historical settlement contract; 85-day course and 365-day indicator grants; payment tables and finalizer retired from all API roles."
