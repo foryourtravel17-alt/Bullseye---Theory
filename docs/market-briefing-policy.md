@@ -45,7 +45,11 @@ If trustworthy evidence is unavailable, keep scenarios generic and label them ed
 ## Commercial / regulatory checkpoints
 Before adding paid market-specific recommendations, research reports, personalised advice, referral tracking, a real data feed or payments, obtain qualified advice on applicable SEBI regulations, exchange requirements, market-data licensing, privacy, consumer, tax and payment obligations. Referrals require written partner terms and clear disclosures. Never collect customer trading credentials or funds.
 
-## Pricing intent
-- Standalone course: planned ₹999.
-- Premium bundle: planned ₹1,999 and intended to include the course.
-- Billing duration is not yet defined; payment remains disabled until duration, renewal/refund terms, support, gateway and server-side payment verification are implemented.
+## Pricing and manual enrolment policy
+- Complete Course: ₹999; standard course access is 85 days from admin activation.
+- Premium Bundle: ₹1,999; intended to include the Complete Course and private Telegram membership. Confirm the Telegram term and exact delivery in writing before enrolment.
+- Bullseye India Indicator: ₹9,999 listed price; do not offer or activate until the permitted data source and production entitlement controls are ready.
+- The website displays prices only. Do not add an online payment gateway, UPI/QR checkout, wallet, order form, payment polling or automatic fulfilment.
+- Any manual payment arrangement happens separately and privately only after the administrator confirms availability, product scope, access term and written terms. Independently verify settlement before enabling access.
+- The administrator manually activates course access in the admin panel and separately arranges private Telegram membership. The student must create an account before course access can be granted.
+- Provide product-specific cancellation/refund terms in writing before accepting any manual payment. Obtain qualified Indian consumer/tax/legal advice before scaling paid enrolment.
