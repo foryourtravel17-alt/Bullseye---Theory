@@ -93,7 +93,7 @@ if (existsSync(membershipPath)) {
     "₹9,999",
     "MANUAL ENROLMENT — NO WEBSITE CHECKOUT.",
     "Checkout and payment methods are inactive on this website.",
-    "Do not send money based on old or unofficial instructions.",
+    "Do not send money or cryptocurrency based on old or unofficial instructions.",
     "administrator manually enables course access",
     "Premium Bundle is intended to include the Complete Course"
   ]) {
