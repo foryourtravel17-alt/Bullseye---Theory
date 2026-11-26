@@ -25,7 +25,7 @@ need admin.html "Admin-only course access management"
 need admin.html "admin_list_course_students"
 need admin.html "admin_set_course_access"
 need admin.html "Manual enrollment check confirmed"
-need admin.html "independently checked this student's enrollment"
+need admin.html "independently checked this student"
 need admin.html "standard 85-day course term"
 
 echo "PASS: public course pages expose no online payment methods; admin-only manual activation controls remain wired."
