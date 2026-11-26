@@ -66,3 +66,35 @@ test("cached checkout script is a no-network closed stub", async () => {
   assert.match(nodes.get("checkoutStatus").textContent, /closed/i);
   assert.ok(hiddenSelectors.length >= 1);
 });
+
+test("pricing page displays prices but keeps all enrolment and payment arrangements manual", async () => {
+  const page = await readFile(resolve(root, "membership.html"), "utf8");
+  for (const price of ["₹999", "₹1,999", "₹9,999"]) assert.ok(page.includes(price), "missing listed price " + price);
+  assert.match(page, /MANUAL ENROLMENT — NO WEBSITE CHECKOUT/);
+  assert.match(page, /administrator manually enables course access/i);
+  assert.match(page, /Contact administrator/);
+  assert.doesNotMatch(page, /create-trc20-order|functions\.invoke|walletAddress|createOrder/i);
+});
+
+test("all deployed payment API source files are retired 410 stubs with no payment logic", async () => {
+  const paths = [
+    "supabase/functions/create-trc20-order/index.ts",
+    "supabase/functions/get-trc20-order-status/index.ts",
+    "supabase/functions/get-trc20-payment-config/index.ts",
+    "supabase/functions/scan-trc20-payments/index.ts"
+  ];
+  for (const path of paths) {
+    const source = await readFile(resolve(root, path), "utf8");
+    assert.match(source, /status:\s*410/, path + " must return HTTP 410");
+    assert.match(source, /Online payments are disabled/, path + " must explain payments are disabled");
+    assert.match(source, /manual enrolment/, path + " must point to manual enrolment");
+    assert.doesNotMatch(source, /\bfetch\s*\(|createClient|payment_orders|payment_transactions|TRONGRID_API_KEY|TRC20_SCANNER_CRON_SECRET/i, path + " must not perform payment work");
+  }
+});
+
+test("scheduled TRC20 scanner has been retired", async () => {
+  const workflow = await readFile(resolve(root, ".github/workflows/trc20-payment-scan.yml"), "utf8");
+  assert.doesNotMatch(workflow, /^\s{2}schedule:/m);
+  assert.doesNotMatch(workflow, /functions\/v1\/scan-trc20-payments/);
+  assert.match(workflow, /payment scanning has been retired/i);
+});
