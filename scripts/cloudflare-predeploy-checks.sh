@@ -37,17 +37,29 @@ grep -Fq 'grant execute on function public.admin_list_course_students() to authe
 grep -Fq 'admin_list_course_students' admin.html || fail "admin UI list RPC wiring missing"
 grep -Fq 'admin_set_course_access' admin.html || fail "admin UI access RPC wiring missing"
 
-# Verify all published lesson pages retain the access/expiry/progress gates.
+# Lesson HTML pages intentionally share one security runtime. The paid-course
+# entitlement checks live in lesson-secure-client.js, not duplicated in each
+# HTML document. Lesson 1 is an explicitly free HTML preview; lessons 2–11
+# require active + payment-verified + unexpired course_access in that runtime,
+# and the Worker independently protects paid lesson assets.
+secure_client="lesson-secure-client.js"
+test -s "$secure_client" || fail "shared lesson security runtime missing"
+grep -Fq 'from("course_access")' "$secure_client" || fail "shared lesson runtime missing course_access lookup"
+grep -Fq 'payment_verified' "$secure_client" || fail "shared lesson runtime missing payment verification"
+grep -Fq 'expires_at' "$secure_client" || fail "shared lesson runtime missing expiry check"
+grep -Fq 'from("lesson_progress")' "$secure_client" || fail "shared lesson runtime missing lesson_progress wiring"
+grep -Fq 'if (lesson !== 1)' "$secure_client" || fail "shared lesson runtime must exempt only the free Lesson 1 preview"
+
 lesson_count=0
 for lesson in lesson-[0-9]*.html; do
   [[ -f "$lesson" ]] || continue
   test -s "$lesson" || fail "empty lesson page: $lesson"
-  grep -Fq 'course_access' "$lesson" || fail "$lesson missing course_access gate"
-  grep -Fq 'payment_verified' "$lesson" || fail "$lesson missing payment_verified gate"
-  grep -Fq 'expires_at' "$lesson" || fail "$lesson missing expiry gate"
-  grep -Fq 'lesson_progress' "$lesson" || fail "$lesson missing lesson_progress wiring"
+  lesson_number="${lesson#lesson-}"
+  lesson_number="${lesson_number%.html}"
+  grep -Fq 'lesson-secure-client.js' "$lesson" || fail "$lesson missing shared lesson security runtime"
+  grep -Fq "data-lesson-number=\"$lesson_number\"" "$lesson" || fail "$lesson has incorrect/missing lesson number binding"
   lesson_count=$((lesson_count + 1))
 done
 (( lesson_count >= 11 )) || fail "expected at least 11 lesson pages; found $lesson_count"
 
-echo "PASS: manual enrollment policy, SQL integrity markers, admin RPC guards, and $lesson_count lesson access gates."
+echo "PASS: manual enrollment policy, SQL integrity markers, admin RPC guards, shared lesson entitlement/progress runtime, and $lesson_count lesson page bindings."
