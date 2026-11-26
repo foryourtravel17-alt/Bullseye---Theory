@@ -105,7 +105,7 @@ function render(){
 }
 $('save').addEventListener('click',async()=>{
  const id=$('student').value;if(!id){setAdminStatus('Choose a student first.',true);return}
- if($('verified').checked&&!confirm('Confirm that you independently checked this student's enrollment outside this website?'))return;
+ if($("verified").checked&&!confirm("Confirm that you independently checked this student\u0027s enrollment outside this website?"))return;
  let expiry=null;if($('expiry').value){expiry=new Date($('expiry').value+'T23:59:59').toISOString();if(new Date(expiry)<=new Date()){setAdminStatus('Expiry must be in the future.',true);return}}
  $('save').disabled=true;
  const {error}=await sb.rpc('admin_set_course_access',{target_user:id,make_active:$('active').checked,verify_payment:$('verified').checked,access_expires_at:expiry});
