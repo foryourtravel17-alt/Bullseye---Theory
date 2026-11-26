@@ -168,7 +168,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
-    if (session && location.pathname.endsWith("/auth.html")) {
+    if (session && (location.pathname.endsWith("/auth.html") || location.pathname === "/auth")) {
     // A signed-in user can still open auth.html, but we send them to their dashboard.
       await syncCourseCookie(session);
       window.location.href = await authenticatedRedirectTarget(session);
