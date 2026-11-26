@@ -210,3 +210,122 @@ Deno.test("cross-origin session exchange is rejected", async () => {
   } as never);
   if (response.status !== 403) throw new Error("Expected 403 for cross-origin exchange, got " + response.status);
 });
+
+
+Deno.test("indicator access API requires a valid bearer token before calling Supabase", async () => {
+  const originalFetch = globalThis.fetch;
+  let upstreamCalled = false;
+  globalThis.fetch = (async () => {
+    upstreamCalled = true;
+    return new Response(JSON.stringify({ access_active: true }), { status: 200 });
+  }) as typeof fetch;
+  try {
+    const response = await worker.fetch(new Request("https://bullseye-theory.foryourtravel17.workers.dev/api/access", {
+      headers: { Origin: "https://bullseye-theory.foryourtravel17.workers.dev" },
+    }), {
+      SUPABASE_URL: "https://example.supabase.co",
+      SUPABASE_PUBLISHABLE_KEY: "public-key",
+      ASSETS: { fetch: async () => new Response("asset") },
+    } as never);
+    if (response.status !== 401) throw new Error("Expected 401 without bearer token, got " + response.status);
+    if (upstreamCalled) throw new Error("Unauthenticated indicator request reached Supabase");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("indicator access API rejects cross-origin requests before calling Supabase", async () => {
+  const originalFetch = globalThis.fetch;
+  let upstreamCalled = false;
+  globalThis.fetch = (async () => {
+    upstreamCalled = true;
+    return new Response(JSON.stringify({ access_active: true }), { status: 200 });
+  }) as typeof fetch;
+  try {
+    const response = await worker.fetch(new Request("https://bullseye-theory.foryourtravel17.workers.dev/api/access", {
+      headers: {
+        Origin: "https://attacker.example",
+        Authorization: "Bearer " + testToken(Math.floor(Date.now() / 1000) + 1800),
+      },
+    }), {
+      SUPABASE_URL: "https://example.supabase.co",
+      SUPABASE_PUBLISHABLE_KEY: "public-key",
+      ASSETS: { fetch: async () => new Response("asset") },
+    } as never);
+    if (response.status !== 403) throw new Error("Expected 403 for cross-origin indicator request, got " + response.status);
+    if (upstreamCalled) throw new Error("Cross-origin indicator request reached Supabase");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("indicator access API forwards the caller JWT and returns private verified entitlement", async () => {
+  const originalFetch = globalThis.fetch;
+  const token = testToken(Math.floor(Date.now() / 1000) + 1800);
+  let upstreamUrl = "";
+  let upstreamMethod = "";
+  let upstreamKey = "";
+  let upstreamAuthorization = "";
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    upstreamUrl = String(input);
+    upstreamMethod = init?.method || "GET";
+    const headers = new Headers(init?.headers);
+    upstreamKey = headers.get("apikey") || "";
+    upstreamAuthorization = headers.get("Authorization") || "";
+    return new Response(JSON.stringify({
+      product: "bullseye-india-indicator",
+      access_active: true,
+      access_days: 365,
+      expires_at: new Date(Date.now() + 60_000).toISOString(),
+      delivery: "website_historical_analyzer",
+    }), { status: 200, headers: { "Content-Type": "application/json" } });
+  }) as typeof fetch;
+  try {
+    const response = await worker.fetch(new Request("https://bullseye-theory.foryourtravel17.workers.dev/api/access", {
+      headers: {
+        Origin: "https://bullseye-theory.foryourtravel17.workers.dev",
+        Authorization: "Bearer " + token,
+      },
+    }), {
+      SUPABASE_URL: "https://example.supabase.co/",
+      SUPABASE_PUBLISHABLE_KEY: "public-key",
+      ASSETS: { fetch: async () => new Response("asset") },
+    } as never);
+    const body = await response.json();
+    if (response.status !== 200) throw new Error("Expected 200, got " + response.status);
+    if (!upstreamUrl.endsWith("/functions/v1/get-indicator-access")) throw new Error("Unexpected Supabase function URL: " + upstreamUrl);
+    if (upstreamMethod !== "GET") throw new Error("Indicator entitlement must use GET");
+    if (upstreamKey !== "public-key") throw new Error("Supabase publishable key was not forwarded");
+    if (upstreamAuthorization !== "Bearer " + token) throw new Error("Caller JWT was not forwarded");
+    if (body.access_active !== true || body.access_days !== 365) throw new Error("Verified indicator entitlement was not returned");
+    if (response.headers.get("Cache-Control") !== "private, no-store, max-age=0") throw new Error("Indicator entitlement response must not be cached");
+    if (response.headers.get("Vary") !== "Authorization") throw new Error("Indicator response must vary by Authorization");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("expired indicator JWT is rejected without an upstream request", async () => {
+  const originalFetch = globalThis.fetch;
+  let upstreamCalled = false;
+  globalThis.fetch = (async () => {
+    upstreamCalled = true;
+    return new Response(JSON.stringify({ access_active: true }), { status: 200 });
+  }) as typeof fetch;
+  try {
+    const response = await worker.fetch(new Request("https://bullseye-theory.foryourtravel17.workers.dev/api/access", {
+      headers: {
+        Origin: "https://bullseye-theory.foryourtravel17.workers.dev",
+        Authorization: "Bearer " + testToken(Math.floor(Date.now() / 1000) - 60),
+      },
+    }), {
+      SUPABASE_URL: "https://example.supabase.co",
+      SUPABASE_PUBLISHABLE_KEY: "public-key",
+      ASSETS: { fetch: async () => new Response("asset") },
+    } as never);
+    if (response.status !== 401) throw new Error("Expected 401 for expired indicator JWT, got " + response.status);
+    if (upstreamCalled) throw new Error("Expired indicator JWT reached Supabase");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
