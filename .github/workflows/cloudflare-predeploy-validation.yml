@@ -1,0 +1,49 @@
+name: Cloudflare Predeploy Safety Validation
+
+on:
+  pull_request:
+    paths:
+      - "_worker.js"
+      - "wrangler.toml"
+      - ".assetsignore"
+      - "admin.html"
+      - "lesson-*.html"
+      - "lesson-secure-client.js"
+      - "scripts/cloudflare-predeploy-checks.sh"
+      - "scripts/check-course-asset-protection.mjs"
+      - "scripts/check-manual-course-activation.sh"
+      - "supabase/admin-production.sql"
+      - "supabase/migrations/**"
+      - ".github/workflows/deploy-cloudflare.yml"
+      - ".github/workflows/cloudflare-predeploy-validation.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "_worker.js"
+      - "wrangler.toml"
+      - ".assetsignore"
+      - "admin.html"
+      - "lesson-*.html"
+      - "lesson-secure-client.js"
+      - "scripts/cloudflare-predeploy-checks.sh"
+      - "scripts/check-course-asset-protection.mjs"
+      - "scripts/check-manual-course-activation.sh"
+      - "supabase/admin-production.sql"
+      - "supabase/migrations/**"
+      - ".github/workflows/deploy-cloudflare.yml"
+      - ".github/workflows/cloudflare-predeploy-validation.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  predeploy-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run complete Cloudflare pre-deploy safety checks
+        run: bash scripts/cloudflare-predeploy-checks.sh
