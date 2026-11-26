@@ -91,7 +91,7 @@ if index.is_file():
         errors.append("index.html: canonical URL must use the Cloudflare production origin, not a preview URL")
     if "bullseye-theory-secure-preview.onrender.com" in source:
         errors.append("index.html: canonical URL must never point to the Render preview")
-    for phrase in ("ENROLLMENT CLOSED", "PLANNED PRICE", "₹999", "₹9,999", "VIEW ENROLLMENT STATUS"):
+    for phrase in ("MANUAL ENROLMENT", "NO ONLINE CHECKOUT", "₹999", "₹9,999", "VIEW PLANS & PRICING"):
         if phrase not in source:
             errors.append(f"index.html: missing closed-enrollment marker: {phrase}")
     if "START THE COURSE" in source or "ENROLL NOW" in source:
