@@ -1,79 +1,93 @@
 import { readFileSync } from "node:fs";
 
 const read = (path) => readFileSync(new URL("../" + path, import.meta.url), "utf8");
-const migration = read("supabase/migrations/20261113140000_add_indicator_membership_365d.sql");
-const order = read("supabase/functions/create-trc20-order/index.ts");
-const paymentConfig = read("supabase/functions/get-trc20-payment-config/index.ts");
+const manualMigration = read("supabase/migrations/20261126110000_manual_indicator_entitlements.sql");
+const retirementMigration = read("supabase/migrations/20261126101546_retire_automatic_trc20_settlement.sql");
+const createOrder = read("supabase/functions/create-trc20-order/index.ts");
 const orderStatus = read("supabase/functions/get-trc20-order-status/index.ts");
+const paymentConfig = read("supabase/functions/get-trc20-payment-config/index.ts");
+const paymentScanner = read("supabase/functions/scan-trc20-payments/index.ts");
 const accessEndpoint = read("supabase/functions/get-indicator-access/index.ts");
-const plans = read("supabase/functions/_shared/product-plans.ts");
 const paymentPage = read("payment.html");
+const membershipPage = read("membership.html");
 const paymentClient = read("payment-checkout.js");
+const adminPage = read("admin.html");
+const indicatorPage = read("indicator/indicator.html");
 const config = read("supabase/config.toml");
-const postgresTest = read("scripts/test-trc20-migration-postgres.sh");
 const errors = [];
 
 function requireText(source, text, message) {
   if (!source.includes(text)) errors.push(message);
 }
 
-requireText(migration, "create table if not exists public.indicator_access", "indicator_access table is missing");
-requireText(migration, "alter table public.indicator_access enable row level security", "indicator_access must have RLS enabled");
-requireText(migration, "revoke all on table public.indicator_access from public, anon, authenticated", "indicator_access must not be directly readable by browser roles");
-requireText(migration, "grant select, insert, update on table public.indicator_access to service_role", "indicator_access must be server-managed");
-requireText(migration, "plan_code = 'course' and inr_amount_paise = 99900 and access_days = 85", "course plan must remain ₹999 / 85 days");
-requireText(migration, "plan_code = 'indicator' and inr_amount_paise = 999900 and access_days = 365", "indicator plan must be ₹9,999 / 365 days");
-requireText(migration, "if v_order.plan_code = 'indicator' then", "payment finalizer must route indicator purchases separately");
-requireText(migration, "insert into public.indicator_access", "payment finalizer must grant indicator_access");
-requireText(migration, "insert into public.course_access", "payment finalizer must preserve the course entitlement path");
-requireText(migration, "admin_set_indicator_access", "admin-only manual indicator entitlement control is missing");
-requireText(migration, "public.is_admin()", "manual indicator entitlement control must verify admin role");
+// Manual indicator entitlement is independent of all online-payment tables and APIs.
+requireText(manualMigration, "create table if not exists public.indicator_access", "manual indicator entitlement table is missing");
+requireText(manualMigration, "alter table public.indicator_access enable row level security", "indicator entitlement table must have RLS enabled");
+requireText(manualMigration, "revoke all on table public.indicator_access from public, anon, authenticated, service_role", "indicator entitlement table must deny direct API-role access");
+requireText(manualMigration, "grant select on table public.indicator_access to service_role", "authenticated access endpoint needs read-only service-role access");
+requireText(manualMigration, "now() + interval '365 days'", "default indicator entitlement must be 365 days");
+requireText(manualMigration, "create or replace function public.admin_set_indicator_access", "admin indicator grant/revoke RPC is missing");
+requireText(manualMigration, "create or replace function public.admin_list_indicator_members", "admin indicator member-list RPC is missing");
+requireText(manualMigration, "if not public.is_admin() then", "indicator RPCs must enforce admin authorization");
+requireText(manualMigration, "grant execute on function public.admin_set_indicator_access", "authenticated admin grant/revoke RPC permission is missing");
+requireText(manualMigration, "grant execute on function public.admin_list_indicator_members()", "authenticated admin member-list RPC permission is missing");
+if (/payment_orders|payment_transactions|finalize_trc20_payment|trc20|wallet|checkout/i.test(manualMigration)) {
+  errors.push("manual indicator entitlement migration must not depend on payment-order or blockchain settlement code");
+}
 
-requireText(plans, 'indicator: { plan: "indicator", inrPaise: 999_900, accessDays: 365 }', "server-side indicator amount and duration must be fixed");
-requireText(plans, 'course: { plan: "course", inrPaise: 99_900, accessDays: 85 }', "server-side course amount and duration must be fixed");
-requireText(order, "resolveProductPlan(plan)", "order creation must resolve price and duration server-side");
-requireText(order, 'Deno.env.get("INDICATOR_CHECKOUT_ENABLED") === "true"', "indicator order creation must have its own explicit enable flag");
-requireText(order, "selected.accessDays", "order creation must persist the server-side duration");
-requireText(order, "selected.inrPaise", "order creation must persist the server-side amount");
-requireText(paymentConfig, 'Deno.env.get("INDICATOR_CHECKOUT_ENABLED") === "true"', "public config must keep indicator checkout independently gated");
-requireText(paymentConfig, "indicator_access_days: indicatorEnabled ? 365 : null", "public config must only expose 365-day duration when enabled");
+// The retired payment system is inaccessible even if historical objects remain in the database.
+for (const table of ["payment_orders", "payment_transactions", "payment_review_events"]) {
+  requireText(retirementMigration, `revoke all on table public.${table} from public, anon, authenticated, service_role`, `${table} must be inaccessible to all API roles`);
+}
+requireText(retirementMigration, "revoke all on function public.finalize_trc20_payment", "automatic payment finalizer must be disabled");
+for (const [name, source] of [
+  ["create-trc20-order", createOrder],
+  ["get-trc20-order-status", orderStatus],
+  ["get-trc20-payment-config", paymentConfig],
+  ["scan-trc20-payments", paymentScanner],
+]) {
+  requireText(source, "status: 410", name + " must return HTTP 410 while online payments are disabled");
+  requireText(source, "Online payments are disabled", name + " must clearly report disabled payments");
+}
 
-requireText(orderStatus, "indicator_access_active", "order status must independently verify indicator entitlement");
-requireText(accessEndpoint, 'auth.getUser(', "indicator status endpoint must validate the user's JWT");
-requireText(accessEndpoint, '.eq("user_id", userData.user.id)', "indicator status endpoint must use the authenticated user's id");
+// Public pricing/enrolment pages only display prices and explain manual handling.
+requireText(membershipPage, "₹999", "course price must be displayed");
+requireText(membershipPage, "₹1,999", "premium bundle price must be displayed");
+requireText(membershipPage, "₹9,999", "indicator price must be displayed");
+requireText(membershipPage, "NO WEBSITE CHECKOUT", "pricing page must explain that there is no website checkout");
+requireText(membershipPage, "activated manually", "pricing page must explain manual activation");
+requireText(paymentPage, "Manual Course Activation", "manual activation page marker is missing");
+requireText(paymentPage, "does not collect money or transaction details", "activation page must not collect payment data");
+requireText(paymentPage, "does not process a payment", "activation page must explicitly rule out payment processing");
+if (/payment-checkout\.js|<form|create-trc20-order|wallet address|upi|usdt|trc20/i.test(paymentPage)) {
+  errors.push("public activation page must not expose checkout, wallet, UPI or crypto payment controls");
+}
+if (/payment-checkout\.js/i.test(membershipPage)) errors.push("pricing page must not load the legacy checkout client");
+const legacyPaymentForbidden = ["fetch(", "supabase", "functions.invoke", "create-trc20-order", "get-trc20-order-status", "get-trc20-payment-config"];
+for (const marker of legacyPaymentForbidden) {
+  if (paymentClient.toLowerCase().includes(marker)) errors.push("legacy payment client must not call payment APIs or create/poll orders: " + marker);
+}
+
+// Course activation and indicator access remain admin-controlled.
+requireText(adminPage, "admin_set_course_access", "admin course access RPC is not wired");
+requireText(adminPage, "admin_list_course_students", "admin course student list RPC is not wired");
+requireText(adminPage, "admin_set_indicator_access", "admin manual indicator grant/revoke RPC is not wired");
+requireText(adminPage, "admin_list_indicator_members", "admin indicator member list RPC is not wired");
+requireText(adminPage, "independently checked the payment settlement", "admin indicator activation must require explicit manual verification");
+requireText(accessEndpoint, "auth.getUser(", "indicator access endpoint must validate the user's JWT");
+requireText(accessEndpoint, '.eq("user_id", userData.user.id)', "indicator access endpoint must query only the authenticated user's entitlement");
+requireText(accessEndpoint, 'delivery: "website_historical_analyzer"', "indicator access must identify the actual website analyzer delivery");
 if (accessEndpoint.includes("req.json()") || accessEndpoint.includes("body.user_id")) {
-  errors.push("indicator status endpoint must not accept a caller-selected user id");
+  errors.push("indicator access endpoint must not accept a caller-selected user id");
 }
 requireText(config, "[functions.get-indicator-access]", "indicator access function must be registered in Supabase config");
 requireText(config, "verify_jwt = true", "indicator access function must require JWT verification");
-
-requireText(paymentPage, "₹9,999", "payment page must explain the planned annual indicator product");
-requireText(paymentPage, "Bullseye India Indicator", "payment page must identify the annual indicator product");
-requireText(paymentPage, "website-based historical analyzer", "payment page must explain the website analyzer v1 delivery");
-requireText(paymentPage, "Planned 365-day access", "payment page must state the planned annual term");
-const publicPaymentForbidden = ["payment-checkout.js", "<form", "createorder", "walletaddress", "copywallet", "data-payment-qr", "upi", "usdt", "trc20", "checkout"];
-for (const marker of publicPaymentForbidden) {
-  if (paymentPage.toLowerCase().includes(marker)) errors.push("public payment page exposes a forbidden checkout marker: " + marker);
-}
-requireText(paymentClient, "ENROLLMENT CLOSED", "legacy payment guard must keep cached order controls disabled");
-requireText(paymentClient, "Do not transfer funds", "legacy payment guard must preserve the no-transfer warning");
-const legacyPaymentForbidden = ["fetch(", "supabase", "functions.invoke", "create-trc20-order", "get-trc20-order-status", "get-trc20-payment-config"];
-for (const marker of legacyPaymentForbidden) {
-  if (paymentClient.toLowerCase().includes(marker)) errors.push("legacy payment guard must not call payment APIs or create/poll orders: " + marker);
-}
-requireText(order, "Premium membership duration is not finalized", "Premium orders must remain blocked until their access duration is set");
-requireText(accessEndpoint, 'delivery: "website_historical_analyzer"', "indicator access must identify the website analyzer delivery route");
-if (/tradingview_invite_required|invite-only access/i.test(accessEndpoint)) errors.push("indicator access endpoint must not claim TradingView invite-only delivery");
-if (/TradingView invite-only|TradingView invitation is manual|invite-only access/i.test(paymentClient)) errors.push("checkout client must describe website analyzer delivery, not TradingView invitations");
-
-requireText(postgresTest, "20261113140000_add_indicator_membership_365d.sql", "disposable PostgreSQL test must apply the indicator migration");
-requireText(postgresTest, "indicator", "disposable PostgreSQL test must seed and test indicator orders");
-requireText(postgresTest, "HASH_D", "disposable PostgreSQL test must cover indicator payment finalization");
-requireText(postgresTest, "HASH_E", "disposable PostgreSQL test must cover indicator renewal");
+requireText(indicatorPage, "get-indicator-access", "indicator analyzer must call the protected entitlement endpoint");
+requireText(indicatorPage, "access_active", "indicator analyzer must gate access on verified entitlement");
 
 if (errors.length) {
-  console.error("Indicator entitlement contract failed:");
+  console.error("Manual indicator / payment-retirement contract failed:");
   for (const error of errors) console.error("- " + error);
   process.exit(1);
 }
-console.log("Indicator entitlement contract OK: isolated 365-day product, server-side price, secure entitlement checks and manual-only enrollment.");
+console.log("Manual-only contract OK: informational pricing, disabled payment APIs, admin-only 85/365-day access and JWT-protected analyzer entitlement.");
