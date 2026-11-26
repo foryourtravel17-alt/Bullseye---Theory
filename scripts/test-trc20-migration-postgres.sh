@@ -319,7 +319,7 @@ $$;
 SQL
 
 # The historical settlement path is tested above, then explicitly retired.
-psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f supabase/migrations/20261126101500_retire_automatic_trc20_settlement.sql
+psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f supabase/migrations/20261126101546_retire_automatic_trc20_settlement.sql
 
 psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
 do $retirement$
