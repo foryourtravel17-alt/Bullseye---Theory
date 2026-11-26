@@ -37,7 +37,7 @@ async function loadSupabaseLibrary(){
   'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js'
  ];
  for(let i=0;i<sources.length;i++){
-  status('Loading Supabase browser library ('+(i+1)+'/'+sources.length+')…');
+  setAdminStatus('Loading Supabase browser library ('+(i+1)+'/'+sources.length+')…');
   try{
    await new Promise((resolve,reject)=>{
     const script=document.createElement('script');
@@ -52,12 +52,12 @@ async function loadSupabaseLibrary(){
    if(window.supabase?.createClient)return true;
    throw new Error('CDN loaded but Supabase createClient was not exposed');
   }catch(error){
-   status('Supabase CDN '+(i+1)+' unavailable: '+error.message+(i===0?'. Trying backup…':'.'),i===1);
+   setAdminStatus('Supabase CDN '+(i+1)+' unavailable: '+error.message+(i===0?'. Trying backup…':'.'),i===1);
   }
  }
  throw new Error('Both Supabase CDN attempts failed. Check network/DNS filtering, then retry.');
 }
-function status(message,error=false){$('status').textContent=message;$('status').classList.toggle('error',error)}
+function setAdminStatus(message,error=false){$('status').textContent=message;$('status').classList.toggle('error',error)}
 function el(tag,txt,cls){const n=document.createElement(tag);n.textContent=txt;if(cls)n.className=cls;return n}
 function withTimeout(promise,ms,label){
  let timer;
@@ -66,34 +66,34 @@ function withTimeout(promise,ms,label){
 async function init(){
  try{
    await loadSupabaseLibrary();
-   if(!window.supabase?.createClient){status('Supabase browser library did not load after both CDN attempts.',true);return}
-   if(!window.BULLSEYE_SUPABASE_URL||!window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY){status('Supabase configuration did not load. Please report this to support.',true);return}
+   if(!window.supabase?.createClient){setAdminStatus('Supabase browser library did not load after both CDN attempts.',true);return}
+   if(!window.BULLSEYE_SUPABASE_URL||!window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY){setAdminStatus('Supabase configuration did not load. Please report this to support.',true);return}
    sb=window.supabase.createClient(BULLSEYE_SUPABASE_URL,BULLSEYE_SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
-   status('Checking saved sign-in session…');
+   setAdminStatus('Checking saved sign-in session…');
    const authResult=await withTimeout(sb.auth.getSession(),12000,'Admin sign-in check');
    const {data:{session},error}=authResult;
-   if(error||!session){status('No active sign-in session. Open sign-in / Forgot password and sign in with the administrator account.',true);return}
-   status('Signed in as '+(session.user.email||'email unavailable')+' · Checking admin profile…');
+   if(error||!session){setAdminStatus('No active sign-in session. Open sign-in / Forgot password and sign in with the administrator account.',true);return}
+   setAdminStatus('Signed in as '+(session.user.email||'email unavailable')+' · Checking admin profile…');
    const {data:profile,error:pe}=await withTimeout(sb.from('profiles').select('is_admin,role').eq('id',session.user.id).maybeSingle(),12000,'Admin profile lookup');
-   if(pe){status('Profile lookup failed: '+pe.message,true);return}
-   if(!profile){status('No profile row exists for this signed-in user. Sign out and use the designated admin account.',true);return}
-   if(profile.is_admin!==true){status('This account is not marked as an administrator. Sign out and use an approved admin account.',true);return}
-   status('Admin access confirmed. Loading course student list…');
+   if(pe){setAdminStatus('Profile lookup failed: '+pe.message,true);return}
+   if(!profile){setAdminStatus('No profile row exists for this signed-in user. Sign out and use the designated admin account.',true);return}
+   if(profile.is_admin!==true){setAdminStatus('This account is not marked as an administrator. Sign out and use an approved admin account.',true);return}
+   setAdminStatus('Admin access confirmed. Loading course student list…');
    await loadStudents();
    await loadIndicatorMembers();
- }catch(error){status('Admin panel could not finish loading: '+(error?.message||String(error))+'. Refresh once; if it repeats, send this message to support.',true)}
+ }catch(error){setAdminStatus('Admin panel could not finish loading: '+(error?.message||String(error))+'. Refresh once; if it repeats, send this message to support.',true)}
 }
 async function loadStudents(){
  let result;
  try{result=await withTimeout(sb.rpc('admin_list_course_students'),15000,'Course student list')}
- catch(error){status('Admin access is confirmed, but the student list did not respond: '+error.message+'. Check the admin_list_course_students RPC and its permissions.',true);return}
+ catch(error){setAdminStatus('Admin access is confirmed, but the student list did not respond: '+error.message+'. Check the admin_list_course_students RPC and its permissions.',true);return}
  const {data,error}=result;
- if(error){status('Admin access is confirmed, but student list failed: '+error.message,true);return}
+ if(error){setAdminStatus('Admin access is confirmed, but student list failed: '+error.message,true);return}
  students=data||[];const select=$('student');select.replaceChildren();
- if(!students.length){select.add(new Option('No student accounts yet',''));$('list').replaceChildren(el('div','No student accounts yet.','card'));status('Admin access active. No student accounts found.');return}
+ if(!students.length){select.add(new Option('No student accounts yet',''));$('list').replaceChildren(el('div','No student accounts yet.','card'));setAdminStatus('Admin access active. No student accounts found.');return}
  select.add(new Option('Choose a student…',''));
  students.forEach(s=>select.add(new Option((s.full_name?s.full_name+' — ':'')+(s.email||s.user_id),s.user_id)));
- render();status('Admin access active. Loaded '+students.length+' account(s).');
+ render();setAdminStatus('Admin access active. Loaded '+students.length+' account(s).');
 }
 function render(){
  const list=$('list');list.replaceChildren();
@@ -104,14 +104,14 @@ function render(){
  const b=el('button','EDIT THIS STUDENT');b.addEventListener('click',()=>{ $('student').value=s.user_id;$('active').checked=!!s.is_active;$('verified').checked=!!s.payment_verified;$('expiry').value=s.expires_at?s.expires_at.slice(0,10):'';window.scrollTo({top:0,behavior:'smooth'});});card.append(b);list.append(card);});
 }
 $('save').addEventListener('click',async()=>{
- const id=$('student').value;if(!id){status('Choose a student first.',true);return}
+ const id=$('student').value;if(!id){setAdminStatus('Choose a student first.',true);return}
  if($('verified').checked&&!confirm('Confirm that you independently checked this student's enrollment outside this website?'))return;
- let expiry=null;if($('expiry').value){expiry=new Date($('expiry').value+'T23:59:59').toISOString();if(new Date(expiry)<=new Date()){status('Expiry must be in the future.',true);return}}
+ let expiry=null;if($('expiry').value){expiry=new Date($('expiry').value+'T23:59:59').toISOString();if(new Date(expiry)<=new Date()){setAdminStatus('Expiry must be in the future.',true);return}}
  $('save').disabled=true;
  const {error}=await sb.rpc('admin_set_course_access',{target_user:id,make_active:$('active').checked,verify_payment:$('verified').checked,access_expires_at:expiry});
  $('save').disabled=false;
- if(error){status('Access was not saved: '+error.message,true);return}
- status('Course access updated. The student can enter only when access is active and the manual enrollment check is confirmed.');await loadStudents();
+ if(error){setAdminStatus('Access was not saved: '+error.message,true);return}
+ setAdminStatus('Course access updated. The student can enter only when access is active and the manual enrollment check is confirmed.');await loadStudents();
 });
 $('refresh').addEventListener('click',()=>loadStudents());
 $('adminLogout').addEventListener('click',async()=>{
