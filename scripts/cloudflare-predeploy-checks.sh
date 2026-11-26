@@ -28,6 +28,25 @@ grep -Fq '$$;' "$lesson_migration" || fail "lesson migration missing function te
 grep -Fq 'and quiz_passed = true) < 11 then' "$admin_sql" || fail "admin SQL certificate threshold is not 11"
 grep -Fq 'and quiz_passed = true) < 11 then' "$lesson_migration" || fail "lesson migration certificate threshold is not 11"
 
+# Parse every inline script in admin.html before deployment. This catches
+# browser-blocking SyntaxErrors that an HTTP-only smoke test cannot detect.
+node <<'NODE'
+const fs = require('node:fs');
+const vm = require('node:vm');
+const html = fs.readFileSync('admin.html', 'utf8');
+const scripts = [...html.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi)]
+  .map(match => match[1])
+  .filter(source => source.trim().length > 0);
+if (scripts.length === 0) {
+  console.error('FAIL: admin.html has no inline JavaScript to validate');
+  process.exit(1);
+}
+scripts.forEach((source, index) => {
+  new vm.Script(source, { filename: `admin.html:inline-script-${index + 1}` });
+});
+console.log(`PASS: parsed ${scripts.length} admin inline JavaScript block(s).`);
+NODE
+
 # Verify admin-only RPC protections and frontend wiring.
 grep -Fq 'create or replace function public.admin_list_course_students' "$admin_migration" || fail "admin student-list RPC missing"
 grep -Fq 'create or replace function public.admin_set_course_access' "$admin_migration" || fail "admin access RPC missing"
