@@ -118,7 +118,7 @@ async function getIndicatorAccess(request, env) {
     return json({ error: "Session expired" }, 401);
   }
 
-  const base = String(env.SUPABASE_URL || "").replace(/\\/$/, "");
+  const base = String(env.SUPABASE_URL || "").replace(/\/$/, "");
   const key = env.SUPABASE_PUBLISHABLE_KEY;
   if (!base || !key) return json({ error: "Indicator access service is not configured" }, 503);
 
