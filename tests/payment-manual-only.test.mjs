@@ -103,7 +103,7 @@ test("scheduled TRC20 scanner has been retired", async () => {
 });
 
 test("retired payment database tables and finalizer are inaccessible to API roles", async () => {
-  const migration = await readFile(resolve(root, "supabase/migrations/20261126101500_retire_automatic_trc20_settlement.sql"), "utf8");
+  const migration = await readFile(resolve(root, "supabase/migrations/20261126101546_retire_automatic_trc20_settlement.sql"), "utf8");
   for (const table of ["payment_orders", "payment_transactions", "payment_review_events"]) {
     assert.match(migration, new RegExp("revoke all on table public\\." + table + " from public, anon, authenticated, service_role", "i"));
   }
