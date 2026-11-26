@@ -81,4 +81,8 @@ for lesson in lesson-[0-9]*.html; do
 done
 (( lesson_count >= 11 )) || fail "expected at least 11 lesson pages; found $lesson_count"
 
+# Inventory every static course asset and fail if any paid lesson/download path
+# falls outside the Worker entitlement matcher.
+node scripts/check-course-asset-protection.mjs
+
 echo "PASS: manual enrollment policy, SQL integrity markers, admin RPC guards, shared lesson entitlement/progress runtime, and $lesson_count lesson page bindings."

@@ -21,8 +21,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Verify manual-only course activation policy
-        run: bash scripts/check-manual-course-activation.sh
+      - name: Run full production pre-deploy safety checks
+        run: bash scripts/cloudflare-predeploy-checks.sh
 
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v4
@@ -55,3 +55,27 @@ jobs:
           check_page "terms.html" "Terms of Use"
           check_page "refund.html" "Refund Information"
           check_page "membership.html" "ENROLLMENT CLOSED"
+
+          check_unknown_route() {
+            local path="$1"
+            local body_file
+            body_file="$(mktemp)"
+            local status
+            status="$(curl --silent --show-error --location --output "$body_file" --write-out "%{http_code}" "$base/$path")"
+            if [[ "$status" != "404" ]]; then
+              echo "::error::Unknown route /$path expected HTTP 404, got $status"
+              cat "$body_file"
+              rm -f "$body_file"
+              return 1
+            fi
+            if ! grep -Fqi "Page not found" "$body_file"; then
+              echo "::error::Unknown route /$path did not return the branded 404 page"
+              cat "$body_file"
+              rm -f "$body_file"
+              return 1
+            fi
+            rm -f "$body_file"
+            echo "PASS /$path returns branded HTTP 404"
+          }
+          check_unknown_route "bullseye-unknown-route-probe"
+          check_unknown_route "bullseye-unknown-route-probe.html"
