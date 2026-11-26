@@ -90,9 +90,12 @@ if (existsSync(membershipPath)) {
   for (const marker of [
     "₹999",
     "₹1,999",
-    "COMING SOON — ENROLLMENT CLOSED.",
-    "Checkout and payment methods are inactive.",
-    "Do not send money or cryptocurrency"
+    "₹9,999",
+    "MANUAL ENROLMENT — NO WEBSITE CHECKOUT.",
+    "No payment methods are available on this website.",
+    "Do not send money based on old or unofficial instructions.",
+    "administrator manually enables course access",
+    "Premium Bundle is intended to include the Complete Course"
   ]) {
     if (!membership.includes(marker)) errors.push("membership.html is missing pricing/payment guardrail: " + marker);
   }
