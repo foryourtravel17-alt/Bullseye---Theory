@@ -5,7 +5,7 @@
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 Arial,sans-serif}.wrap{max-width:1000px;margin:auto;padding:24px}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}.green{color:var(--green)}.muted{color:var(--muted);font-size:13px}.status{padding:12px;border-radius:8px;background:#102019;margin:12px 0}.error{background:#321719;color:var(--red)}label{display:block;margin:12px 0 6px;font-size:13px;color:#c6d8cf}input,select{width:100%;padding:11px;background:#07100b;border:1px solid var(--line);color:var(--text);border-radius:8px}button{padding:10px 13px;background:var(--green);color:#07100b;border:0;border-radius:8px;font-weight:bold;cursor:pointer;margin:6px 6px 0 0}button.secondary{background:#172820;color:var(--text);border:1px solid var(--line)}.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.check{display:flex;align-items:center;gap:8px}.check input{width:auto}.check label{margin:0}@media(max-width:600px){.wrap{padding:14px}.row{grid-template-columns:1fr}}
 </style></head><body><main class="wrap"><h1 class="green">BULLSEYE THEORY — ADMIN</h1>
 <p class="muted">Admin-only course access management. This website does not collect money or transaction details. Independently confirm enrollment outside this system before activating a student's access.</p>
-<div id="status" class="status">Checking admin access…</div>
+<div id="status" class="status">Starting admin diagnostics…</div>
 <p class="muted"><a href="auth.html">Open sign-in / Forgot password</a> · <button class="secondary" id="adminLogout" type="button">SIGN OUT / SWITCH ACCOUNT</button></p>
 <section class="card"><h2>Grant or update student access</h2>
 <p class="muted">First ask the customer to create an account at <a href="auth.html">Student sign in / Create account</a>. This panel grants access to an existing account; it does not create login credentials. After sign-up, select REFRESH STUDENTS.</p>
@@ -29,8 +29,34 @@
 <div id="indicatorList"></div>
 </section>
 </main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="document.getElementById('status').textContent='Primary Supabase CDN failed; trying backup…'"></script><script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js" onerror="document.getElementById('status').textContent='Supabase browser library failed on both CDNs. Check connection or retry.'"></script><script src="supabase-config.js?v=20261126-1"></script><script>
+<script src="supabase-config.js?v=20261126-2"></script><script>
 const $=id=>document.getElementById(id);let sb=null;let students=[];let indicatorMembers=[];
+async function loadSupabaseLibrary(){
+ const sources=[
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
+  'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js'
+ ];
+ for(let i=0;i<sources.length;i++){
+  status('Loading Supabase browser library ('+(i+1)+'/'+sources.length+')…');
+  try{
+   await new Promise((resolve,reject)=>{
+    const script=document.createElement('script');
+    let settled=false;
+    const finish=(error)=>{if(settled)return;settled=true;clearTimeout(timer);script.onload=null;script.onerror=null;if(error){script.remove();reject(error)}else resolve()};
+    const timer=setTimeout(()=>finish(new Error('CDN request timed out after 8 seconds')),8000);
+    script.src=sources[i];script.async=true;
+    script.onload=()=>finish();
+    script.onerror=()=>finish(new Error('CDN network request failed'));
+    document.head.appendChild(script);
+   });
+   if(window.supabase?.createClient)return true;
+   throw new Error('CDN loaded but Supabase createClient was not exposed');
+  }catch(error){
+   status('Supabase CDN '+(i+1)+' unavailable: '+error.message+(i===0?'. Trying backup…':'.'),i===1);
+  }
+ }
+ throw new Error('Both Supabase CDN attempts failed. Check network/DNS filtering, then retry.');
+}
 function status(message,error=false){$('status').textContent=message;$('status').classList.toggle('error',error)}
 function el(tag,txt,cls){const n=document.createElement(tag);n.textContent=txt;if(cls)n.className=cls;return n}
 function withTimeout(promise,ms,label){
@@ -39,7 +65,8 @@ function withTimeout(promise,ms,label){
 }
 async function init(){
  try{
-   if(!window.supabase?.createClient){status('Supabase browser library did not load. Refresh once; if it persists, check CDN/network access.',true);return}
+   await loadSupabaseLibrary();
+   if(!window.supabase?.createClient){status('Supabase browser library did not load after both CDN attempts.',true);return}
    if(!window.BULLSEYE_SUPABASE_URL||!window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY){status('Supabase configuration did not load. Please report this to support.',true);return}
    sb=window.supabase.createClient(BULLSEYE_SUPABASE_URL,BULLSEYE_SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
    status('Checking saved sign-in session…');
