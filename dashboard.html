@@ -58,6 +58,13 @@ async function init(){
   const {data:{session}}=await sb.auth.getSession();
   if(!session){location.href="auth.html";return}
   const user=session.user;
+  // Keep administrator identities out of the customer/student dashboard.
+  // The Admin Panel independently checks the same profiles authorization.
+  const {data:profile,error:profileError}=await sb.from("profiles").select("is_admin,role").eq("id",user.id).maybeSingle();
+  if(!profileError && (profile?.is_admin===true || profile?.role==="admin")){
+    location.replace("admin.html");
+    return;
+  }
   document.getElementById("email").textContent=user.email||"";
   const name=(user.user_metadata?.full_name||user.email?.split("@")[0]||"Student").trim();
   const nameParts=name.split(/\s+/).filter(Boolean);
