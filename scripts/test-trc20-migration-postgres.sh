@@ -320,6 +320,7 @@ SQL
 
 # The historical settlement path is tested above, then explicitly retired.
 psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f supabase/migrations/20261126101546_retire_automatic_trc20_settlement.sql
+psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f supabase/migrations/20261126110000_manual_indicator_entitlements.sql
 
 psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
 do $retirement$
@@ -362,4 +363,51 @@ end;
 $retirement$;
 SQL
 
-echo "PASS: historical settlement contract; 85-day course and 365-day indicator grants; payment tables and finalizer retired from all API roles."
+psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
+do $manual_indicator$
+begin
+  if has_table_privilege('anon', 'public.indicator_access', 'SELECT')
+     or has_table_privilege('authenticated', 'public.indicator_access', 'SELECT')
+     or has_table_privilege('anon', 'public.indicator_access', 'INSERT')
+     or has_table_privilege('authenticated', 'public.indicator_access', 'UPDATE') then
+    raise exception 'Browser roles must not directly access indicator entitlements';
+  end if;
+  if not has_table_privilege('service_role', 'public.indicator_access', 'SELECT')
+     or has_table_privilege('service_role', 'public.indicator_access', 'INSERT')
+     or has_table_privilege('service_role', 'public.indicator_access', 'UPDATE') then
+    raise exception 'Indicator Edge Function service role must have read-only access';
+  end if;
+  if has_function_privilege('anon', 'public.admin_set_indicator_access(uuid,boolean,boolean,timestamptz)', 'EXECUTE')
+     or not has_function_privilege('authenticated', 'public.admin_set_indicator_access(uuid,boolean,boolean,timestamptz)', 'EXECUTE')
+     or has_function_privilege('anon', 'public.admin_list_indicator_members()', 'EXECUTE')
+     or not has_function_privilege('authenticated', 'public.admin_list_indicator_members()', 'EXECUTE') then
+    raise exception 'Indicator admin RPC grants are not restricted to authenticated users';
+  end if;
+end;
+$manual_indicator$;
+
+SET ROLE authenticated;
+SELECT public.admin_set_indicator_access('00000000-0000-4000-8000-000000000004', true, true, null);
+RESET ROLE;
+
+do $manual_grant$
+begin
+  if not exists (
+    select 1 from public.indicator_access
+    where user_id='00000000-0000-4000-8000-000000000004'
+      and is_active and payment_verified
+      and expires_at between now() + interval '364 days' and now() + interval '366 days'
+  ) then
+    raise exception 'Manual indicator admin grant did not create a verified 365-day entitlement';
+  end if;
+  if exists (
+    select 1 from public.course_access
+    where user_id='00000000-0000-4000-8000-000000000004'
+  ) then
+    raise exception 'Manual indicator grant must not create course access';
+  end if;
+end;
+$manual_grant$;
+SQL
+
+echo "PASS: retired payment APIs; 85-day course and 365-day manual indicator entitlements; admin-only access and read-only service-role lookup."
