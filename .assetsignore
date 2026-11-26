@@ -11,3 +11,6 @@ readme.txt
 lesson.html
 wrangler.toml
 .assetsignore
+
+# Retired payment artwork must never be served as a static asset
+assets/usdt-tron-mainnet-trc20.svg
