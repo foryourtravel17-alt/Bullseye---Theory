@@ -29,32 +29,39 @@
 <div id="indicatorList"></div>
 </section>
 </main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js?v=20261026-3"></script><script>
-const sb=supabase.createClient(BULLSEYE_SUPABASE_URL,BULLSEYE_SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
-const $=id=>document.getElementById(id);let students=[];let indicatorMembers=[];
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="document.getElementById('status').textContent='Primary Supabase CDN failed; trying backup…'"></script><script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js" onerror="document.getElementById('status').textContent='Supabase browser library failed on both CDNs. Check connection or retry.'"></script><script src="supabase-config.js?v=20261126-1"></script><script>
+const $=id=>document.getElementById(id);let sb=null;let students=[];let indicatorMembers=[];
 function status(message,error=false){$('status').textContent=message;$('status').classList.toggle('error',error)}
 function el(tag,txt,cls){const n=document.createElement(tag);n.textContent=txt;if(cls)n.className=cls;return n}
+function withTimeout(promise,ms,label){
+ let timer;
+ return Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error(label+' timed out after '+Math.round(ms/1000)+' seconds')),ms)})]).finally(()=>clearTimeout(timer));
+}
 async function init(){
- const authResult=await Promise.race([
-   sb.auth.getSession(),
-   new Promise(resolve=>setTimeout(()=>resolve({timeout:true}),12000))
- ]);
- if(authResult?.timeout){
-   status('Admin sign-in check timed out. Refresh this page; if needed, open sign-in / Forgot password and sign in with the administrator account.',true);
-   return;
- }
- const {data:{session},error}=authResult;
- if(error||!session){status('No active sign-in session. Open sign-in / Forgot password and sign in with the administrator account.',true);return}
- $('status').textContent='Signed in: '+(session.user.email||'email unavailable')+' · Checking profile…';
- const {data:profile,error:pe}=await sb.from('profiles').select('is_admin,role').eq('id',session.user.id).maybeSingle();
- if(pe){status('Profile lookup failed: '+pe.message,true);return}
- if(!profile){status('No profile row for signed-in user '+session.user.id+'. Log out and sign in again.',true);return}
- if(!profile.is_admin && profile.role!=='admin'){status('This account is not marked admin: '+(session.user.email||'email unavailable')+'.',true);return}
- status('Admin access confirmed. Loading student accounts…');await loadStudents();await loadIndicatorMembers();
+ try{
+   if(!window.supabase?.createClient){status('Supabase browser library did not load. Refresh once; if it persists, check CDN/network access.',true);return}
+   if(!window.BULLSEYE_SUPABASE_URL||!window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY){status('Supabase configuration did not load. Please report this to support.',true);return}
+   sb=window.supabase.createClient(BULLSEYE_SUPABASE_URL,BULLSEYE_SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
+   status('Checking saved sign-in session…');
+   const authResult=await withTimeout(sb.auth.getSession(),12000,'Admin sign-in check');
+   const {data:{session},error}=authResult;
+   if(error||!session){status('No active sign-in session. Open sign-in / Forgot password and sign in with the administrator account.',true);return}
+   status('Signed in as '+(session.user.email||'email unavailable')+' · Checking admin profile…');
+   const {data:profile,error:pe}=await withTimeout(sb.from('profiles').select('is_admin,role').eq('id',session.user.id).maybeSingle(),12000,'Admin profile lookup');
+   if(pe){status('Profile lookup failed: '+pe.message,true);return}
+   if(!profile){status('No profile row exists for this signed-in user. Sign out and use the designated admin account.',true);return}
+   if(profile.is_admin!==true){status('This account is not marked as an administrator. Sign out and use an approved admin account.',true);return}
+   status('Admin access confirmed. Loading course student list…');
+   await loadStudents();
+   await loadIndicatorMembers();
+ }catch(error){status('Admin panel could not finish loading: '+(error?.message||String(error))+'. Refresh once; if it repeats, send this message to support.',true)}
 }
 async function loadStudents(){
- const {data,error}=await sb.rpc('admin_list_course_students');
- if(error){status('Could not load students: '+error.message,true);return}
+ let result;
+ try{result=await withTimeout(sb.rpc('admin_list_course_students'),15000,'Course student list')}
+ catch(error){status('Admin access is confirmed, but the student list did not respond: '+error.message+'. Check the admin_list_course_students RPC and its permissions.',true);return}
+ const {data,error}=result;
+ if(error){status('Admin access is confirmed, but student list failed: '+error.message,true);return}
  students=data||[];const select=$('student');select.replaceChildren();
  if(!students.length){select.add(new Option('No student accounts yet',''));$('list').replaceChildren(el('div','No student accounts yet.','card'));status('Admin access active. No student accounts found.');return}
  select.add(new Option('Choose a student…',''));
@@ -93,7 +100,10 @@ function indicatorRpcUnavailable(error){
 async function loadIndicatorMembers(){
  const statusEl=$('indicatorStatus');
  statusEl.textContent='Loading indicator membership…';
- const {data,error}=await sb.rpc('admin_list_indicator_members');
+ let result;
+ try{result=await withTimeout(sb.rpc('admin_list_indicator_members'),15000,'Indicator member list')}
+ catch(error){statusEl.textContent='Course admin panel is available, but indicator list did not respond: '+error.message;statusEl.classList.add('error');$('indicatorStudent').replaceChildren(new Option('Indicator list timed out',''));return}
+ const {data,error}=result;
  if(error){
    statusEl.textContent=indicatorRpcUnavailable(error)
      ?'Indicator access controls are not deployed in this database yet. The additive migration remains unapplied; no indicator access can be granted here.'
