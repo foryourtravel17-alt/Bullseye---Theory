@@ -1,0 +1,62 @@
+name: Manual Enrolment Only Checks
+
+on:
+  pull_request:
+    paths:
+      - "payment.html"
+      - "payment-checkout.js"
+      - "membership.html"
+      - "supabase/functions/create-trc20-order/**"
+      - "supabase/functions/get-trc20-order-status/**"
+      - "supabase/functions/get-trc20-payment-config/**"
+      - "supabase/functions/scan-trc20-payments/**"
+      - "tests/payment-manual-only.test.mjs"
+      - ".github/workflows/trc20-payments-ci.yml"
+      - ".github/workflows/trc20-payment-scan.yml"
+  push:
+    branches: [main]
+    paths:
+      - "payment.html"
+      - "payment-checkout.js"
+      - "membership.html"
+      - "supabase/functions/create-trc20-order/**"
+      - "supabase/functions/get-trc20-order-status/**"
+      - "supabase/functions/get-trc20-payment-config/**"
+      - "supabase/functions/scan-trc20-payments/**"
+      - "tests/payment-manual-only.test.mjs"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate legacy browser script syntax
+        run: node --check payment-checkout.js
+      - name: Verify checkout is a closed no-network stub
+        run: node scripts/check-payment-checkout-closed-order.mjs
+      - name: Test manual-only product pages and retired payment endpoints
+        run: node --test tests/payment-manual-only.test.mjs
+      - name: Verify retired payment Edge Functions type-check
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check disabled payment endpoints
+        run: |
+          deno check supabase/functions/create-trc20-order/index.ts
+          deno check supabase/functions/get-trc20-order-status/index.ts
+          deno check supabase/functions/get-trc20-payment-config/index.ts
+          deno check supabase/functions/scan-trc20-payments/index.ts
+      - name: Ensure scheduled scanner remains retired
+        shell: bash
+        run: |
+          ! grep -Eq '^  schedule:' .github/workflows/trc20-payment-scan.yml
+          ! grep -Fq '/functions/v1/scan-trc20-payments' .github/workflows/trc20-payment-scan.yml
+          echo "PASS: no scheduled payment scanner remains."

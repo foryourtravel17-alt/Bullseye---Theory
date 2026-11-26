@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bullseye India — Historical Analyzer</title>
+<style>
+:root{color-scheme:dark;--bg:#05070a;--panel:#0b1016;--line:#22332e;--muted:#9aa9a4;--text:#edf5f0;--lime:#a8f05a;--gold:#e7bf62;--red:#ff7182;--green:#55d9a0}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0%,#103327 0,transparent 34%),var(--bg);color:var(--text);font:14px/1.55 Inter,system-ui,Arial,sans-serif}
+header{padding:20px max(16px,calc((100vw - 1180px)/2));border-bottom:1px solid var(--line);background:#080e0d}
+.brand{font-weight:900;letter-spacing:.1em}.brand span{color:var(--lime)}.sub{color:var(--muted);font-size:12px}
+main{max-width:1180px;margin:24px auto;padding:0 16px}.intro{margin-bottom:18px}.intro h1{font-size:clamp(25px,4vw,38px);line-height:1.1;margin:5px 0 8px}.intro h1 span{color:var(--lime)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px;margin-bottom:14px}.toolbar{display:grid;grid-template-columns:1fr 1fr 1.2fr auto;gap:10px;align-items:end}
+label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}input,select,button{width:100%;background:#101a18;border:1px solid #30443b;color:var(--text);padding:11px;border-radius:8px;font:inherit;min-width:0}button{background:var(--lime);color:#0b1608;font-weight:900;border-color:var(--lime);cursor:pointer}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:14px}.chart{height:440px}.panelhead{display:flex;justify-content:space-between;gap:10px;margin-bottom:10px}.metrics{display:grid;grid-template-columns:1fr 1fr;gap:9px}.metric{padding:11px;background:#101a18;border:1px solid var(--line);border-radius:8px}.metric small{display:block;color:var(--muted);font-size:11px}.metric b{font-size:17px;overflow-wrap:anywhere}.status{font-size:23px;font-weight:900;color:var(--muted);margin:4px 0 12px}.status.long{color:var(--green)}.status.short{color:var(--red)}
+.notice{color:var(--muted);font-size:12px;margin-top:12px}.authrow{display:grid;grid-template-columns:1fr 1fr auto auto;gap:9px;align-items:end}.authrow button{min-width:110px}.error{color:var(--red)}.success{color:var(--green)}table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:9px 7px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted)}.tablewrap{overflow:auto}.foot{color:var(--muted);font-size:11px;margin:14px 2px}
+@media(max-width:800px){.authrow{grid-template-columns:1fr 1fr}.authrow button{width:100%}.toolbar{grid-template-columns:1fr 1fr}.toolbar button{grid-column:1/-1}.layout{grid-template-columns:1fr}.chart{height:350px}.side{order:-1}}
+@media(max-width:420px){.authrow{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr}.toolbar button{grid-column:auto}.panel{padding:12px}}
+</style>
+<script src="/supabase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/node_modules/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+<header><div class="brand">BULLSEYE <span>INDIA</span></div><div class="sub">HISTORICAL MARKET ANALYSIS · NO BROKER EXECUTION</div></header>
+<main>
+<section class="panel" id="accessPanel">
+<div class="panelhead"><b>MEMBER ACCESS</b><span class="sub" id="accessStatus">Sign in to verify your 365-day indicator entitlement.</span></div>
+<div class="authrow">
+<div><label for="email">Account email</label><input id="email" type="email" autocomplete="username" placeholder="Your member email"></div>
+<div><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" placeholder="Your password"></div>
+<button id="signIn" type="button">Sign in</button>
+<button id="signOut" type="button" disabled>Sign out</button>
+</div>
+<div id="authMessage" class="notice">Only accounts with a manually verified, active indicator entitlement can analyze CSV files. Enrollment is currently closed.</div>
+</section>
+<section class="intro"><div class="sub">BULLSEYE LEVELS · FREE-FIRST WORKFLOW</div><h1>Study the chart. <span>Test the process.</span></h1><div class="sub">Upload an OHLCV CSV exported from a market-data source you are allowed to use. No exchange feed or paid subscription is bundled.</div></section>
+<section class="panel">
+<div class="toolbar">
+<div><label for="symbol">Market symbol</label><input id="symbol" maxlength="32" value="NSE:RELIANCE" autocomplete="off" disabled></div>
+<div><label for="timeframe">Timeframe</label><select id="timeframe" disabled><option value="15m">15 minutes</option><option value="1h">1 hour</option></select></div>
+<div><label for="csvFile">Market OHLCV CSV (max 5 MB)</label><input id="csvFile" type="file" accept=".csv,text/csv" disabled></div>
+<button id="analyze" disabled>Analyze CSV</button>
+</div>
+<div id="message" class="notice">Export candles with columns: time, open, high, low, close, volume. The last row is excluded by default.</div>
+</section>
+<div class="layout">
+<section class="panel"><div class="panelhead"><b id="chartTitle">Uploaded candles</b><span class="sub" id="barCount">No file analyzed</span></div><div id="chart" class="chart"></div></section>
+<aside class="panel side"><div class="sub">HISTORICAL REFERENCE RESULT</div><div id="status" class="status">WAITING</div><div class="metrics">
+<div class="metric"><small>SIGNALS</small><b id="signalCount">—</b></div><div class="metric"><small>TIMEFRAME</small><b id="tfValue">—</b></div>
+<div class="metric"><small>LAST ENTRY</small><b id="entry">—</b></div><div class="metric"><small>STOP LOSS</small><b id="sl">—</b></div>
+<div class="metric"><small>TARGET</small><b id="target">—</b></div><div class="metric"><small>RISK / REWARD</small><b id="rr">—</b></div>
+</div><p class="notice" id="lastSignal">Upload a completed-candle CSV to begin.</p></aside>
+</div>
+<section class="panel"><div class="panelhead"><b>Historical signals</b><span class="sub">Node reference engine · 1:2 RR</span></div><div class="tablewrap"><table><thead><tr><th>Time</th><th>Side</th><th>Entry</th><th>Stop</th><th>Target</th><th>Touches</th></tr></thead><tbody id="signals"><tr><td colspan="6" class="sub">No report yet.</td></tr></tbody></table></div></section>
+<p class="foot">Educational historical analysis only — not financial advice, live signals, a recommendation, or guaranteed performance. Results are generated from the CSV you provide; files are processed in memory and not saved. Pine/TradingView runtime parity has not yet been independently verified.</p>
+</main>
+<script>
+const chartHost=document.getElementById('chart');
+const chart=LightweightCharts.createChart(chartHost,{layout:{background:{color:'#0b1016'},textColor:'#9aa9a4'},grid:{vertLines:{color:'#18251f'},horzLines:{color:'#18251f'}},rightPriceScale:{borderColor:'#30443b'},timeScale:{borderColor:'#30443b',timeVisible:true,secondsVisible:false}});
+const series=chart.addSeries(LightweightCharts.CandlestickSeries,{upColor:'#55d9a0',downColor:'#ff7182',borderVisible:false,wickUpColor:'#55d9a0',wickDownColor:'#ff7182'});
+const markers=LightweightCharts.createSeriesMarkers(series,[]);
+const supabaseClient = (
+  typeof window.BULLSEYE_SUPABASE_URL === 'string' &&
+  window.BULLSEYE_SUPABASE_URL.length > 0 &&
+  typeof window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY === 'string' &&
+  window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY.length > 0 &&
+  typeof window.supabase?.createClient === 'function'
+) ? window.supabase.createClient(
+  window.BULLSEYE_SUPABASE_URL,
+  window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY
+) : null;
+const authMessage = document.getElementById('authMessage');
+const accessStatus = document.getElementById('accessStatus');
+function setAnalyzerEnabled(enabled) {
+  for (const id of ['symbol','timeframe','csvFile','analyze']) {
+    document.getElementById(id).disabled = !enabled;
+  }
+  document.getElementById('signOut').disabled = !supabaseClient;
+}
+setAnalyzerEnabled(false);
+async function refreshAccess() {
+  setAnalyzerEnabled(false);
+  if (!supabaseClient) {
+    authMessage.textContent = 'Member sign-in is temporarily unavailable. Please contact support.';
+    accessStatus.textContent = 'Configuration unavailable';
+    return;
+  }
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) {
+    authMessage.textContent = 'Sign in with the email that owns your verified indicator membership. No account is granted access automatically.';
+    accessStatus.textContent = 'Sign-in required';
+    document.getElementById('signOut').disabled = true;
+    return;
+  }
+  document.getElementById('signOut').disabled = false;
+  try {
+    const response = await fetch('/api/access', { headers: { Authorization: 'Bearer ' + session.access_token } });
+    const result = await response.json();
+    if (!response.ok || result.access_active !== true) {
+      authMessage.textContent = result.error || 'No active verified indicator membership was found.';
+      accessStatus.textContent = 'Membership not active';
+      return;
+    }
+    setAnalyzerEnabled(true);
+    const expiry = result.expires_at ? new Date(result.expires_at).toLocaleDateString() : 'unknown';
+    authMessage.textContent = 'Verified indicator access active until ' + expiry + '. CSV uploads are processed in memory and are not saved.';
+    accessStatus.textContent = 'Verified · 365-day access';
+  } catch {
+    authMessage.textContent = 'Could not verify indicator access. Analysis remains locked until the service responds.';
+    accessStatus.textContent = 'Verification unavailable';
+  }
+}
+document.getElementById('signIn').addEventListener('click', async () => {
+  if (!supabaseClient) return;
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  if (!email || !password) { authMessage.textContent = 'Enter your account email and password.'; return; }
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (error) { authMessage.textContent = error.message; return; }
+  await refreshAccess();
+});
+document.getElementById('signOut').addEventListener('click', async () => {
+  if (!supabaseClient) return;
+  await supabaseClient.auth.signOut();
+  await refreshAccess();
+});
+supabaseClient?.auth.onAuthStateChange(() => { refreshAccess(); });
+refreshAccess();
+const fmt=n=>Number.isFinite(Number(n))?Number(n).toLocaleString(undefined,{maximumFractionDigits:4}):'—';
+function setMessage(text,kind='notice'){const el=document.getElementById('message');el.textContent=text;el.className=kind}
+function render(report){
+ const rows=report.candles.map(c=>({time:c.time,open:c.open,high:c.high,low:c.low,close:c.close}));
+ series.setData(rows);chart.timeScale().fitContent();
+ markers.setMarkers(report.signals.map(s=>({time:Math.floor(Date.parse(s.time)/1000),position:s.direction==='LONG'?'belowBar':'aboveBar',color:s.direction==='LONG'?'#55d9a0':'#ff7182',shape:s.direction==='LONG'?'arrowUp':'arrowDown',text:s.direction})));
+ document.getElementById('chartTitle').textContent=report.symbol+' · '+report.timeframe;
+ document.getElementById('barCount').textContent=report.evaluatedCandleCount+' candles evaluated / '+report.fileRows+' rows';
+ document.getElementById('signalCount').textContent=report.signalCount;
+ document.getElementById('tfValue').textContent=report.timeframe;
+ const last=report.signals.at(-1),status=document.getElementById('status');
+ status.textContent=report.signalCount?'HISTORICAL SETUPS':'NO SETUPS';status.className='status '+(last?last.direction.toLowerCase():'');
+ document.getElementById('entry').textContent=last?fmt(last.entry):'—';
+ document.getElementById('sl').textContent=last?fmt(last.stopLoss):'—';
+ document.getElementById('target').textContent=last?fmt(last.target):'—';
+ document.getElementById('rr').textContent=last?'1 : 2':'—';
+ document.getElementById('lastSignal').textContent=last?'Last setup: '+last.direction+' · '+last.time+' · '+last.zoneTouches+' zone touches.':'No qualifying historical breakout found.';
+ document.getElementById('signals').innerHTML=report.signals.length?report.signals.slice().reverse().map(s=>'<tr><td>'+s.time+'</td><td>'+s.direction+'</td><td>'+fmt(s.entry)+'</td><td>'+fmt(s.stopLoss)+'</td><td>'+fmt(s.target)+'</td><td>'+s.zoneTouches+'</td></tr>').join(''):'<tr><td colspan="6">No qualifying signals in this file.</td></tr>';
+ chart.timeScale().fitContent();
+}
+document.getElementById('analyze').addEventListener('click',async()=>{
+ const file=document.getElementById('csvFile').files[0];
+ if(!file){setMessage('Choose an OHLCV CSV file first.','error');return}
+ if(file.size>5*1024*1024){setMessage('File is larger than 5 MB. Export a smaller date range.','error');return}
+ const button=document.getElementById('analyze');button.disabled=true;button.textContent='Analyzing…';
+ try{
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) throw new Error('Sign in is required.');
+  const csv=await file.text();
+  const query=new URLSearchParams({timeframe:document.getElementById('timeframe').value,symbol:document.getElementById('symbol').value});
+  const response=await fetch('/api/analyze-csv?'+query.toString(),{method:'POST',headers:{'Content-Type':'text/csv','Authorization':'Bearer '+session.access_token},body:csv});
+  const data=await response.json();if(!response.ok)throw new Error(data.error||'Analysis failed');
+  render(data);
+  setMessage('Validated '+data.fileRows+' rows. '+(data.hasVolumeColumn?'Volume column found.':'Volume column missing — volume-qualified signals will be blocked.')+' Last row excluded: '+data.lastRowExcluded+'.','success');
+ }catch(error){setMessage(error.message,'error')}
+ finally{button.disabled=false;button.textContent='Analyze CSV'}
+});
+new ResizeObserver(()=>chart.applyOptions({width:chartHost.clientWidth,height:chartHost.clientHeight})).observe(chartHost);
+</script>
+</body></html>

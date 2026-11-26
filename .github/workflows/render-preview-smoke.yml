@@ -1,0 +1,28 @@
+name: Render Preview Security Smoke
+
+on:
+  pull_request:
+    paths:
+      - "server.mjs"
+      - "scripts/smoke-render-preview.mjs"
+      - ".github/workflows/render-preview-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hosted-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Test live Render preview access gates
+        env:
+          RENDER_PREVIEW_URL: https://bullseye-theory-secure-preview.onrender.com
+        run: node scripts/smoke-render-preview.mjs

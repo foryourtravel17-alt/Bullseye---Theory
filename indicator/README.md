@@ -1,0 +1,50 @@
+# Bullseye Levels — private product source
+
+## Product boundary
+- Bullseye India Indicator is planned at ₹9,999 for 365 days, separate from the ₹999 / 85-day Complete Course.
+- No broker execution. Educational historical analysis only.
+- Payment, entitlement activation and customer access remain manual until separately verified.
+- Do not open indicator checkout or deploy this app to production until data-source, Pine/Node parity, historical QA, customer access and compliance gates are complete.
+
+## India-first free workflow
+The Pine indicator in `bullseye.pine` reads the OHLCV data already present on the user's TradingView chart; compiling and running this personal script does not require a CSV export or a paid TradingView plan.
+
+The separate website analyzer accepts a user-supplied OHLCV CSV for NSE/BSE symbols. It does not fetch market data. TradingView Free does not provide the CSV export the owner needs, so do not make TradingView CSV export a launch task. FYERS API access is free for its account holders and supports 15m/60m candles, but FYERS API terms restrict exchange-data use for developing charting/technical tools and require written consent for redistribution. It is therefore not an approved data source for this analyzer, even for internal development, unless FYERS gives written permission. The owner has no FYERS account connected. See `docs/FYERS_FREE_INTRADAY_DATA_SETUP.md`.
+- Required CSV columns: time/date/timestamp, open, high, low, close. Volume is required for volume-qualified signals; when missing, the reference engine cannot emit signals.
+- Supported intervals: 15m and 1h only.
+- Upload limit: 5 MB. The server parses the file in memory; it does not save uploaded files.
+- The final row is excluded by default because it may be unfinished.
+- This workflow does not provide automatic NSE-wide scanning, exchange data licensing, or live data redistribution.
+
+## Member access and Render configuration
+- The analyzer browser receives only `SUPABASE_URL` and a public `SUPABASE_PUBLISHABLE_KEY` (legacy `SUPABASE_ANON_KEY` is accepted as a fallback).
+- Configure those two variables on the private Render analyzer service. Do not set `SUPABASE_SERVICE_ROLE_KEY` on the Render service and never expose it in browser code.
+- Both `/api/access` and `/api/analyze-csv` require the signed-in user's bearer token and call the authenticated `get-indicator-access` Supabase Edge Function.
+- Access is granted only when the server reports a verified, active, unexpired 365-day indicator entitlement.
+- Until the `indicator_access` migration and Edge Function are separately approved and deployed, the analyzer must fail closed and show access unavailable. This is expected; do not bypass it for launch testing.
+
+## Fixed Bullseye Levels rules
+Do not change these without explicit owner approval:
+- 3-bar left / 3-bar right confirmed swing pivots.
+- Cluster same-side pivots within 0.25 x ATR(14); at least 2 touches per zone.
+- Breakout close beyond zone edge by 0.10 x ATR(14), with volume > SMA(volume,20) x 1.5.
+- Entry at breakout close; stop beyond opposite zone edge by 0.20 x ATR; target at 2R.
+- 15m and 1h only; 12-bar per-zone cooldown.
+
+## Local test
+From this directory:
+~~~bash
+npm install --ignore-scripts --no-audit --no-fund
+npm test
+node --check server.mjs
+npm start
+~~~
+Open http://localhost:3000. Upload a permitted OHLCV CSV from a broker/data source. The Pine script itself can be compiled and run on a TradingView chart without exporting a CSV.
+
+The report executes the deterministic Node reference engine, not TradingView's Pine runtime. It cannot by itself prove Pine/TradingView parity, live non-repainting or profitability. Without the same completed candles, exact numerical Pine/Node parity remains unverified. Do not present the analyzer as a live signal service.
+
+## Security and release gates
+- No Telegram sending path or broker order execution is included.
+- Checkout flags must remain disabled until payment verification and access controls are implemented and tested.
+- Do not deploy to production or merge the release PR without owner approval.
+- Before commercial launch, review previously created forks, clones, downloads and caches of the private source repository.

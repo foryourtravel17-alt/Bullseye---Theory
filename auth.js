@@ -24,6 +24,26 @@ function redirectTarget() {
   return new URL("dashboard.html", window.location.href).href;
 }
 
+// Exchange the in-memory Supabase session for a short-lived HttpOnly course cookie.
+// The server-side course gate independently rechecks the user's entitlement before serving every paid lesson.
+async function syncCourseCookie(session) {
+  if (!session?.access_token) return false;
+  try {
+    const response = await fetch("/api/course-session", {
+      method: "POST",
+      credentials: "same-origin",
+      cache: "no-store",
+      headers: { Authorization: "Bearer " + session.access_token }
+    });
+    if (!response.ok) return false;
+    const result = await response.json();
+    return result.active === true;
+  } catch (error) {
+    console.warn("Bullseye secure course session could not be refreshed:", error);
+    return false;
+  }
+}
+
 async function handleSignIn(event) {
   event.preventDefault();
   setMessage("");
@@ -39,9 +59,9 @@ async function handleSignIn(event) {
       const message = error.message === "Failed to fetch"
         ? "Unable to reach Supabase Auth from this site. Please refresh and try again."
         : normalizedError.includes("invalid login credentials")
-          ? "Login failed. Check the exact email and password. If you just created this account, email confirmation may still be enabled in Supabase. Use Forgot password if needed."
+          ? "Login failed. Check the exact email and password, and confirm your email using the link sent by Supabase. Use Forgot password only if you need to reset the password."
           : normalizedError.includes("email not confirmed")
-            ? "Your email is not confirmed yet. Instant entry requires disabling Confirm email in Supabase project settings."
+            ? "Your email is not confirmed yet. Open the confirmation link Supabase sent to your inbox (check Spam too), then sign in again."
             : (error.message || "Login failed.");
       setMessage(message, "error");
       return;
@@ -52,6 +72,7 @@ async function handleSignIn(event) {
       return;
     }
 
+    await syncCourseCookie(data.session);
     window.location.href = redirectTarget();
   } catch (err) {
     console.error("Bullseye login network exception:", err);
@@ -93,9 +114,10 @@ async function handleSignUp(event) {
     }
 
     if (data.session) {
+      await syncCourseCookie(data.session);
       window.location.href = redirectTarget();
     } else {
-      setMessage("Account created, but Supabase did not start a signed-in session. Email confirmation is enabled in Supabase, so instant entry is not possible until Confirm email is disabled in project settings. Do not create the account again; after that setting is changed, sign in with this account.", "success");
+      setMessage("Account created. Check your inbox (and Spam) for the Supabase confirmation email and open its link. Then return here and sign in with this account. Do not create the account again.", "success");
     }
   } catch (err) {
     console.error("Bullseye signup network exception:", err);
@@ -128,6 +150,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session && location.pathname.endsWith("/auth.html")) {
     // A signed-in user can still open auth.html, but we send them to their dashboard.
+      await syncCourseCookie(session);
       window.location.href = redirectTarget();
       return;
     }
@@ -161,3 +184,15 @@ async function runSupabaseConnectionCheck() {
 }
 
 runSupabaseConnectionCheck();
+
+
+// Keep the edge cookie aligned with Supabase token refresh and clear it on logout.
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+    void syncCourseCookie(session);
+  } else if (event === "SIGNED_OUT") {
+    void fetch("/api/course-session/logout", {
+      method: "POST", credentials: "same-origin", cache: "no-store"
+    }).catch(() => {});
+  }
+});

@@ -1,0 +1,62 @@
+name: Edge Function Checks
+on:
+  pull_request:
+    paths:
+      - "supabase/functions/**"
+      - "supabase/migrations/**"
+      - "scripts/check-edge-function-contracts.sh"
+      - "server.mjs"
+      - "tests/**"
+      - "scripts/smoke-render-preview.mjs"
+      - "package.json"
+      - "_worker.js"
+      - "wrangler.toml"
+      - "auth.js"
+      - "dashboard.html"
+      - "certificate.html"
+      - ".assetsignore"
+      - "scripts/test-cloudflare-entitlement-worker.ts"
+      - "scripts/check-free-preview-policy.sh"
+      - "scripts/check-cloudflare-entitlement-gate.sh"
+      - "lesson-*.html"
+      - "lesson-secure-client.js"
+      - "scripts/check-secure-lessons.sh"
+      - "scripts/check-edge-function-contracts.sh"
+      - "supabase/config.toml"
+      - "docs/FREE_LOCAL_STAGING.md"
+      - ".github/workflows/edge-function-checks.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  deno-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check Edge Functions
+        run: deno check supabase/functions/grade-quiz/index.ts supabase/functions/complete-lesson/index.ts
+      - name: Build Cloudflare Worker locally without deploying
+        run: npx --yes wrangler@4 deploy --dry-run --outdir /tmp/bullseye-worker-dry-run
+      - name: Set up Node.js for secure course runtime tests
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run secure Node course runtime and site tests
+        run: npm test
+      - name: Smoke-test live Render preview access gates
+        run: node scripts/smoke-render-preview.mjs
+      - name: Run quiz grading contract tests
+        run: deno test supabase/functions/grade-quiz/grade.test.ts
+      - name: Verify all lesson pages use server-side grading
+        run: bash scripts/check-secure-lessons.sh
+      - name: Run free Edge Function security contract checks
+        run: bash scripts/check-edge-function-contracts.sh
+      - name: Test Cloudflare course entitlement Worker
+        run: deno test scripts/test-cloudflare-entitlement-worker.ts
+      - name: Check free preview and paid lesson access rules
+        run: bash scripts/check-free-preview-policy.sh
+      - name: Check static course asset gate wiring
+        run: bash scripts/check-cloudflare-entitlement-gate.sh

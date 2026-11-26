@@ -1,0 +1,38 @@
+name: Bullseye Levels — Private Source Tests
+
+on:
+  push:
+    branches:
+      - release/bullseye-india-course-indicator-integration
+    paths:
+      - "indicator/**"
+      - ".github/workflows/indicator-private-checks.yml"
+  pull_request:
+    paths:
+      - "indicator/**"
+      - ".github/workflows/indicator-private-checks.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  indicator-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install indicator dependencies
+        working-directory: indicator
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Test deterministic indicator engine
+        working-directory: indicator
+        run: npm test
+      - name: Check server syntax
+        working-directory: indicator
+        run: node --check server.mjs
+      - name: Check historical CSV validator syntax
+        working-directory: indicator
+        run: node --check scripts/validate-tradingview-export.mjs
