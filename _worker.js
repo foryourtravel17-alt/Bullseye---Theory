@@ -203,7 +203,8 @@ export default {
         },
       });
     }
-    if (url.pathname === "/api/access") return getIndicatorAccess(request, env);\n    if (url.pathname === "/api/course-session" && request.method === "POST") {
+    if (url.pathname === "/api/access") return getIndicatorAccess(request, env);
+    if (url.pathname === "/api/course-session" && request.method === "POST") {
       return setSession(request, env);
     }
     if (url.pathname === "/api/course-session/logout" && request.method === "POST") {
