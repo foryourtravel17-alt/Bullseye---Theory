@@ -33,12 +33,12 @@ function reveals(){
   document.querySelectorAll("h1,h2,.hero p,.section,.box,.quiz,.done,.continue,.stat,.lesson,.target,.tradebox,.myth,.phase,.item,.btv,article,.notice,.actions,.cards,.gridcards,.phases,.points,.flow,.steps,.sides").forEach(function(el){
     if(el.closest("script,style,template"))return;
     if(!el.classList.contains("bt-reveal"))el.classList.add("bt-reveal");
-    if(el.matches("h1,h2"))makeKinetic(el);
+    if(el.matches("h1,h2") && !document.body.classList.contains("bt-dashboard"))makeKinetic(el);
     el.classList.add("bt-glass");
     if(el.matches("article,.card,.lesson,.stat,.item,.phase,.tradebox,.myth"))el.classList.add("bt-hover");
     all.push(el);
   });
-  document.querySelectorAll(".hero,.section,.box,.quiz,.btv").forEach(function(el){el.classList.add("bt-scan","bt-orbit")});
+  document.querySelectorAll(".hero,.section,.box,.quiz,.btv").forEach(function(el){if(document.body.classList.contains("bt-dashboard")&&el.matches(".hero"))return;el.classList.add("bt-scan","bt-orbit")});
   var io=new IntersectionObserver(function(es){
     es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("bt-in");io.unobserve(e.target)}});
   },{threshold:.13,rootMargin:"0px 0px -7% 0px"});
@@ -79,6 +79,8 @@ function countdownHint(){
 }
 
 function injectHeroMorph(){
+  // Keep the student dashboard calm and readable: no floating bull/target trail over the name.
+  if(document.body.classList.contains("bt-dashboard"))return;
   if(document.getElementById("bt-hero-morph"))return;
   var hero=document.querySelector(".hero"); if(!hero)return;
   var wrap=document.createElement("div"); wrap.id="bt-hero-morph";
