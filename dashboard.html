@@ -58,12 +58,17 @@ async function init(){
   const {data:{session}}=await sb.auth.getSession();
   if(!session){location.href="auth.html";return}
   const user=session.user;
-  // Keep administrator identities out of the customer/student dashboard.
-  // The Admin Panel independently checks the same profiles authorization.
+  // Admins can also use their own student dashboard. Keep the admin route available
+  // as a separate navigation link; admin.html continues to enforce its own authorization.
   const {data:profile,error:profileError}=await sb.from("profiles").select("is_admin,role").eq("id",user.id).maybeSingle();
-  if(!profileError && (profile?.is_admin===true || profile?.role==="admin")){
-    location.replace("admin.html");
-    return;
+  const isAdmin=!profileError && (profile?.is_admin===true || profile?.role==="admin");
+  if(isAdmin){
+    const actions=document.querySelector("header .actions");
+    if(actions && !document.getElementById("adminPanelLink")){
+      const adminLink=document.createElement("a");
+      adminLink.id="adminPanelLink";adminLink.className="btn";adminLink.href="admin.html";adminLink.textContent="ADMIN PANEL";
+      actions.insertBefore(adminLink,document.getElementById("logout"));
+    }
   }
   document.getElementById("email").textContent=user.email||"";
   const name=(user.user_metadata?.full_name||user.email?.split("@")[0]||"Student").trim();
