@@ -1,11 +1,23 @@
 # Bullseye Theory — final launch handoff
 
+## Owner policy update — 26 November 2026
+
+This section supersedes older payment, pricing and owner-approval notes below wherever they conflict.
+
+- The website is a pricing and product-information page only. Do not implement or enable a payment gateway, UPI/QR checkout, wallet, order form, payment polling or automatic fulfilment.
+- Current displayed prices: Complete Course ₹999; Premium Bundle ₹1,999; Bullseye India Indicator ₹9,999.
+- Customers create their own account first. The owner independently verifies any separately arranged manual enrolment and grants course access through Admin. Standard course access is 85 days from activation.
+- Premium Bundle is intended to include the Complete Course and private Telegram membership. The Telegram duration and exact delivery must be confirmed in writing; the owner adds the customer to Telegram manually.
+- Indicator remains unavailable until a permitted data source and production entitlement controls are ready. Do not represent it as live scanning or proven Pine/Node parity.
+- Product-specific cancellation/refund terms must be given in writing before accepting any manual payment. The site itself does not accept payments.
+- Repository visibility was still Public at this update. The owner intends to switch it to Private after the remaining work; do not describe it as private until GitHub confirms the change.
+
 Date: 18 November 2026
 Status: repository-side hardening and CI are complete for the current release candidate. Production release remains intentionally held.
 
 ## Current verified state
 
-- Product repository: `foryourtravel17-alt/Bullseye---Theory` (private).
+- Product repository: `foryourtravel17-alt/Bullseye---Theory` (public at the time of this handoff update; owner plans to make it private).
 - Release PR: [#47 — Integrate Bullseye India indicator with secure course and annual membership](https://github.com/foryourtravel17-alt/Bullseye---Theory/pull/47).
 - The release branch is synced with the current `main` branch; GitHub reports no merge conflict.
 - Latest fully verified code head before this documentation-only handoff: `92e3c4b3b48b857dffbc4b8fb549be11a98789a4`.
