@@ -23,7 +23,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.get-trc20-payment-config]
-verify_jwt = false
+verify_jwt = true
 
 [functions.create-trc20-order]
 verify_jwt = true
@@ -32,7 +32,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.scan-trc20-payments]
-verify_jwt = false
+verify_jwt = true
 
 [functions.get-indicator-access]
 verify_jwt = true
