@@ -8,6 +8,7 @@ const orderStatus = read("supabase/functions/get-trc20-order-status/index.ts");
 const paymentConfig = read("supabase/functions/get-trc20-payment-config/index.ts");
 const paymentScanner = read("supabase/functions/scan-trc20-payments/index.ts");
 const accessEndpoint = read("supabase/functions/get-indicator-access/index.ts");
+const worker = read("_worker.js");
 const paymentPage = read("payment.html");
 const membershipPage = read("membership.html");
 const paymentClient = read("payment-checkout.js");
@@ -82,7 +83,9 @@ if (accessEndpoint.includes("req.json()") || accessEndpoint.includes("body.user_
 }
 requireText(config, "[functions.get-indicator-access]", "indicator access function must be registered in Supabase config");
 requireText(config, "verify_jwt = true", "indicator access function must require JWT verification");
-requireText(indicatorPage, "get-indicator-access", "indicator analyzer must call the protected entitlement endpoint");
+requireText(worker, `url.pathname === "/api/access"`, "Cloudflare Worker must expose the indicator access API route");
+requireText(worker, "/functions/v1/get-indicator-access", "Cloudflare Worker must proxy the authenticated indicator entitlement to Supabase");
+requireText(indicatorPage, "fetch('/api/access'", "indicator analyzer must call the protected Worker entitlement endpoint");
 requireText(indicatorPage, "access_active", "indicator analyzer must gate access on verified entitlement");
 
 if (errors.length) {
