@@ -22,3 +22,6 @@ package-lock.json
 scripts/
 docs/
 design-system/
+
+# Retired payment artwork must never be served as a static asset
+assets/usdt-tron-mainnet-trc20.svg
