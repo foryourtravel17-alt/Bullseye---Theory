@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 
 const read = (path) => readFileSync(new URL("../" + path, import.meta.url), "utf8");
 const errors = [];
-const migration = read("supabase/migrations/20261126101500_retire_automatic_trc20_settlement.sql");
+const migration = read("supabase/migrations/20261126101546_retire_automatic_trc20_settlement.sql");
 const workflow = read(".github/workflows/trc20-payment-scan.yml");
 const paymentPage = read("payment.html");
 const checkoutScript = read("payment-checkout.js");
