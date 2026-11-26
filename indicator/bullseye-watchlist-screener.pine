@@ -1,0 +1,132 @@
+//@version=6
+indicator("Bullseye India Watchlist Scanner", "Bullseye Scan", overlay=false)
+
+// Fixed Bullseye Levels v1.0 rules — keep in sync with indicator/RULES.md.
+const int leftBars = 3
+const int rightBars = 3
+const int atrLength = 14
+const float clusterAtr = 0.25
+const int minTouches = 2
+const float breakoutAtr = 0.10
+const int volumeLength = 20
+const float volumeMultiple = 1.5
+const float stopAtr = 0.20
+const float targetRR = 2.0
+const int cooldownBars = 12
+
+supportedTf = timeframe.period == "15" or timeframe.period == "60"
+atrValue = ta.atr(atrLength)
+volumeAverage = ta.sma(volume, volumeLength)
+volumeWindowComplete = ta.sma(not na(volume) ? 1.0 : 0.0, volumeLength) == 1
+volumeAvailable = volumeWindowComplete and not na(volume) and volume > 0 and not na(volumeAverage) and volumeAverage > 0
+
+// Each symbol runs this script on its own chart candles inside the platform screener.
+// No cross-symbol request.security calls or external market-data extraction are used.
+var array<float> seedPrices = array.new_float()
+var array<float> seedAtr = array.new_float()
+var array<int> zoneTypes = array.new_int()
+var array<float> zoneBottoms = array.new_float()
+var array<float> zoneTops = array.new_float()
+var array<int> zoneTouches = array.new_int()
+var array<int> lastSignalBars = array.new_int()
+
+f_addPivot(float price, float pAtr, int kind) =>
+    int bestIndex = -1
+    float bestDistance = na
+    int count = array.size(seedPrices)
+    if count > 0 and not na(pAtr) and pAtr > 0
+        for z = 0 to count - 1
+            if array.get(zoneTypes, z) == kind
+                float distance = math.abs(price - array.get(seedPrices, z))
+                float limit = clusterAtr * math.min(pAtr, array.get(seedAtr, z))
+                if distance <= limit and (na(bestDistance) or distance < bestDistance)
+                    bestIndex := z
+                    bestDistance := distance
+    if bestIndex == -1
+        array.push(seedPrices, price)
+        array.push(seedAtr, pAtr)
+        array.push(zoneTypes, kind)
+        array.push(zoneBottoms, price)
+        array.push(zoneTops, price)
+        array.push(zoneTouches, 1)
+        array.push(lastSignalBars, -1000000)
+    else
+        array.set(zoneBottoms, bestIndex, math.min(array.get(zoneBottoms, bestIndex), price))
+        array.set(zoneTops, bestIndex, math.max(array.get(zoneTops, bestIndex), price))
+        array.set(zoneTouches, bestIndex, array.get(zoneTouches, bestIndex) + 1)
+
+// Confirmed 3-left / 3-right strict pivots become available only after the
+// third right-hand candle closes; source index and source ATR are preserved.
+bool pivotHigh = bar_index >= leftBars + rightBars
+bool pivotLow = bar_index >= leftBars + rightBars
+if pivotHigh
+    float candidateHigh = high[rightBars]
+    for j = 0 to rightBars - 1
+        if candidateHigh <= high[j]
+            pivotHigh := false
+    for j = 1 to leftBars
+        if candidateHigh <= high[rightBars + j]
+            pivotHigh := false
+if pivotLow
+    float candidateLow = low[rightBars]
+    for j = 0 to rightBars - 1
+        if candidateLow >= low[j]
+            pivotLow := false
+    for j = 1 to leftBars
+        if candidateLow >= low[rightBars + j]
+            pivotLow := false
+
+if barstate.isconfirmed and pivotHigh and not na(atrValue[rightBars]) and atrValue[rightBars] > 0
+    f_addPivot(high[rightBars], atrValue[rightBars], 1)
+if barstate.isconfirmed and pivotLow and not na(atrValue[rightBars]) and atrValue[rightBars] > 0
+    f_addPivot(low[rightBars], atrValue[rightBars], -1)
+
+// Reset outputs on each bar. A signal is emitted only on a completed 15m/1h bar.
+bool longSignalNow = false
+bool shortSignalNow = false
+float signalEntry = na
+float signalStop = na
+float signalTarget = na
+bool firedOnBar = false
+
+if barstate.isconfirmed and supportedTf and volumeAvailable and not na(atrValue) and atrValue > 0
+    int zoneCount = array.size(seedPrices)
+    if zoneCount > 0
+        for z = 0 to zoneCount - 1
+            int touches = array.get(zoneTouches, z)
+            float bottom = array.get(zoneBottoms, z)
+            float top = array.get(zoneTops, z)
+            int lastSignal = array.get(lastSignalBars, z)
+            bool cooldownReady = bar_index - lastSignal >= cooldownBars
+            bool volumeReady = volume > volumeAverage * volumeMultiple
+            bool longBreak = touches >= minTouches and bottom <= top and close > top + breakoutAtr * atrValue and volumeReady
+            bool shortBreak = touches >= minTouches and bottom <= top and close < bottom - breakoutAtr * atrValue and volumeReady
+            if cooldownReady and not firedOnBar and (longBreak or shortBreak)
+                bool isLong = longBreak
+                float entryPrice = close
+                float stopPrice = isLong ? bottom - stopAtr * atrValue : top + stopAtr * atrValue
+                float risk = math.abs(entryPrice - stopPrice)
+                if risk > 0 and not na(risk)
+                    float targetPrice = isLong ? entryPrice + risk * targetRR : entryPrice - risk * targetRR
+                    string direction = isLong ? "LONG" : "SHORT"
+                    string message = "Bullseye India " + direction + " | " + syminfo.tickerid + " | TF " + timeframe.period + " | Entry: " + str.tostring(entryPrice, format.mintick) + " | SL: " + str.tostring(stopPrice, format.mintick) + " | TP: " + str.tostring(targetPrice, format.mintick) + " | RR 1:2"
+                    longSignalNow := isLong
+                    shortSignalNow := not isLong
+                    signalEntry := entryPrice
+                    signalStop := stopPrice
+                    signalTarget := targetPrice
+                    array.set(lastSignalBars, z, bar_index)
+                    firedOnBar := true
+                    alert(message, alert.freq_once_per_bar_close)
+
+// Titled plots are the columns available to the platform's Pine Screener.
+// 1 = fresh LONG, -1 = fresh SHORT, 0 = no fresh signal on the latest bar.
+float scannerSignal = longSignalNow ? 1.0 : shortSignalNow ? -1.0 : 0.0
+plot(scannerSignal, "Bullseye Signal", color=scannerSignal > 0 ? color.lime : scannerSignal < 0 ? color.red : color.gray, style=plot.style_columns)
+plot(signalEntry, "Bullseye Entry", display=display.data_window)
+plot(signalStop, "Bullseye Stop", display=display.data_window)
+plot(signalTarget, "Bullseye Target", display=display.data_window)
+
+// Named alert conditions are selectable in a watchlist alert for every symbol.
+alertcondition(longSignalNow, title="Bullseye LONG", message="Bullseye LONG | {{ticker}} | {{exchange}} | TF {{interval}} | Close {{close}}")
+alertcondition(shortSignalNow, title="Bullseye SHORT", message="Bullseye SHORT | {{ticker}} | {{exchange}} | TF {{interval}} | Close {{close}}")

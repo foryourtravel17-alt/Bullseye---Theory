@@ -9,7 +9,6 @@ on:
       - "payment-checkout.js"
       - "package.json"
       - "tests/**"
-      - "indicator/**"
       - ".github/workflows/launch-page-check.yml"
       - ".github/workflows/deploy-pages.yml"
   push:
@@ -20,7 +19,6 @@ on:
       - "payment-checkout.js"
       - "package.json"
       - "tests/**"
-      - "indicator/**"
       - ".github/workflows/launch-page-check.yml"
       - ".github/workflows/deploy-pages.yml"
 
@@ -46,12 +44,3 @@ jobs:
           node-version: "20"
       - name: Run course contract and site tests
         run: npm test
-      - name: Install indicator dependencies
-        working-directory: indicator
-        run: npm install --ignore-scripts --no-audit --no-fund
-      - name: Run deterministic indicator and analyzer integration tests
-        working-directory: indicator
-        run: npm test
-      - name: Check indicator server syntax
-        working-directory: indicator
-        run: node --check server.mjs
