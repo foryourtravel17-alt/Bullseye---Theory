@@ -34,7 +34,7 @@ node <<'NODE'
 const fs = require('node:fs');
 const vm = require('node:vm');
 const html = fs.readFileSync('admin.html', 'utf8');
-const scripts = [...html.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi)]
+const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
   .map(match => match[1])
   .filter(source => source.trim().length > 0);
 if (scripts.length === 0) {
