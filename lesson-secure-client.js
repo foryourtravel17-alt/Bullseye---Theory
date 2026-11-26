@@ -35,7 +35,18 @@
       showResult("Lesson configuration error. Please contact support.", false); return;
     }
     const { data: { session }, error: sessionError } = await sb.auth.getSession();
-    if (sessionError || !session) { location.href = "auth.html"; return; }
+    if (sessionError || !session) {
+      // Lesson 1 is the public free preview. A missing/restoring browser session
+      // must never bounce the reader back to login; only progress saving requires sign-in.
+      if (lesson === 1) {
+        if (statusEl) statusEl.textContent = "Free preview mode. Sign in to submit the quiz and save lesson progress.";
+        if (submitBtn) submitBtn.disabled = true;
+        if (completeBtn) completeBtn.disabled = true;
+        return;
+      }
+      location.href = "auth.html";
+      return;
+    }
     signedIn = true;
     if (lesson !== 1) {
       const { data: access, error: accessError } = await sb.from("course_access")
