@@ -59,7 +59,7 @@ requireText(membershipPage, "NO WEBSITE CHECKOUT", "pricing page must explain th
 requireText(membershipPage, "activated manually", "pricing page must explain manual activation");
 requireText(paymentPage, "Manual Course Activation", "manual activation page marker is missing");
 requireText(paymentPage, "does not collect money or transaction details", "activation page must not collect payment data");
-requireText(paymentPage, "process payments", "activation page must explicitly rule out payment processing");
+requireText(paymentPage, "does not process a payment", "activation page must explicitly rule out payment processing");
 if (/payment-checkout\.js|<form|create-trc20-order|wallet address|upi|usdt|trc20/i.test(paymentPage)) {
   errors.push("public activation page must not expose checkout, wallet, UPI or crypto payment controls");
 }
