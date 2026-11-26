@@ -24,6 +24,26 @@ function redirectTarget() {
   return new URL("dashboard.html", window.location.href).href;
 }
 
+// Route signed-in administrators to the admin console using the protected
+// profiles record. Never infer privileges from an email or browser metadata.
+async function authenticatedRedirectTarget(session) {
+  if (session?.user?.id) {
+    try {
+      const { data: profile, error } = await supabaseClient
+        .from("profiles")
+        .select("is_admin, role")
+        .eq("id", session.user.id)
+        .maybeSingle();
+      if (!error && (profile?.is_admin === true || profile?.role === "admin")) {
+        return new URL("admin.html", window.location.href).href;
+      }
+    } catch (error) {
+      console.warn("Bullseye role lookup failed; using student dashboard fallback:", error);
+    }
+  }
+  return redirectTarget();
+}
+
 // Exchange the in-memory Supabase session for a short-lived HttpOnly course cookie.
 // The server-side course gate independently rechecks the user's entitlement before serving every paid lesson.
 async function syncCourseCookie(session) {
@@ -73,7 +93,7 @@ async function handleSignIn(event) {
     }
 
     await syncCourseCookie(data.session);
-    window.location.href = redirectTarget();
+    window.location.href = await authenticatedRedirectTarget(data.session);
   } catch (err) {
     console.error("Bullseye login network exception:", err);
     setMessage("Unable to reach Supabase Auth. Please refresh the page and try again.", "error");
@@ -151,7 +171,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (session && location.pathname.endsWith("/auth.html")) {
     // A signed-in user can still open auth.html, but we send them to their dashboard.
       await syncCourseCookie(session);
-      window.location.href = redirectTarget();
+      window.location.href = await authenticatedRedirectTarget(session);
       return;
     }
   } catch (err) {
