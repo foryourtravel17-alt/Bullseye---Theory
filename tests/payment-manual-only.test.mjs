@@ -7,16 +7,19 @@ import vm from "node:vm";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-test("payment page is a closed notice and exposes no receiving wallet or checkout controls", async () => {
+test("manual activation page displays prices and never accepts funds or transaction details", async () => {
   const page = await readFile(resolve(root, "payment.html"), "utf8");
   assert.match(page, /MANUAL ENROLMENT ONLY/);
   assert.match(page, /Do not transfer funds based on old or unofficial instructions/);
+  assert.match(page, /does not collect money or transaction details/i);
+  assert.match(page, /written cancellation\/refund terms/i);
+  for (const price of ["₹999", "₹1,999", "₹9,999"]) assert.ok(page.includes(price));
   assert.doesNotMatch(page, /TF8aiK6Q8kboLBcaHtckapVpsEQyR3oWwV/);
   assert.doesNotMatch(page, /assets\/usdt-tron-mainnet-trc20\.svg/);
   assert.doesNotMatch(page, /id="createOrder"/);
   assert.doesNotMatch(page, /id="walletAddress"/);
   assert.doesNotMatch(page, /id="copyWallet"/);
-  assert.doesNotMatch(page, /id="copyOrderWallet"/);\n  assert.match(page, /does not collect money or transaction details/i);\n  assert.match(page, /written cancellation\/refund terms/i);
+  assert.doesNotMatch(page, /id="copyOrderWallet"/);
 });
 
 test("cached checkout script is a no-network closed stub", async () => {
