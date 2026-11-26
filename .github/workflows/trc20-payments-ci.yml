@@ -44,6 +44,8 @@ jobs:
         run: node scripts/check-payment-checkout-closed-order.mjs
       - name: Test manual-only product pages and retired payment endpoints
         run: node --test tests/payment-manual-only.test.mjs
+      - name: Validate manual-only payment retirement contract
+        run: node scripts/validate-trc20-migration.mjs
       - name: Verify retired payment Edge Functions type-check
         uses: denoland/setup-deno@v2
         with:
