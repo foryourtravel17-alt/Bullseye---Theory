@@ -7,17 +7,30 @@
 <p class="muted">Admin-only course access management. This website does not collect money or transaction details. Independently confirm enrollment outside this system before activating a student's access.</p>
 <div id="status" class="status">Checking admin access…</div>
 <section class="card"><h2>Grant or update student access</h2>
+<p class="muted">First ask the customer to create an account at <a href="auth.html">Student sign in / Create account</a>. This panel grants access to an existing account; it does not create login credentials. After sign-up, select REFRESH STUDENTS.</p>
 <label for="student">Student account (email)</label><select id="student"><option value="">Loading student accounts…</option></select>
-<div class="row"><div><label for="expiry">Access expiry (optional)</label><input id="expiry" type="date"><p class="muted">Leave blank to use the standard 85-day course term.</p></div><div><label>Access flags</label>
+<div class="row"><div><label for="expiry">Access expiry (optional)</label><input id="expiry" type="date"><p class="muted">Leave blank to use the standard 85-day course term. Choose a later date only for an approved admin extension.</p></div><div><label>Access flags</label>
 <div class="check"><input id="active" type="checkbox" checked><label for="active">Course access active</label></div>
 <div class="check"><input id="verified" type="checkbox"><label for="verified">Manual enrollment check confirmed</label></div>
 </div></div>
 <button id="save">SAVE ACCESS</button><button class="secondary" id="refresh">REFRESH STUDENTS</button>
 <p class="muted">Saving can create an access record for a newly registered student. This does not process a payment or send a receipt.</p></section>
-<section><h2>Student access status</h2><div id="list"></div></section></main>
+<section><h2>Student access status</h2><div id="list"></div></section>
+<section class="card" id="indicatorAccessCard"><h2>Manual Bullseye India indicator access</h2>
+<p class="muted">Separate from course access. The analyzer requires a 365-day active entitlement and independently verified payment. The payment checkbox starts unchecked; saving an unverified row does not grant access.</p>
+<div id="indicatorStatus" class="status">Indicator access controls not loaded.</div>
+<label for="indicatorStudent">Student account (email)</label><select id="indicatorStudent"><option value="">Loading student accounts…</option></select>
+<div class="row"><div><label for="indicatorExpiry">Indicator expiry (optional)</label><input id="indicatorExpiry" type="date"><p class="muted">Leave blank for 365 days from activation. Expiry must be in the future.</p></div><div><label>Indicator access flags</label>
+<div class="check"><input id="indicatorActive" type="checkbox"><label for="indicatorActive">Indicator access active</label></div>
+<div class="check"><input id="indicatorVerified" type="checkbox"><label for="indicatorVerified">Payment independently verified</label></div>
+</div></div>
+<button id="indicatorSave" type="button">SAVE INDICATOR ACCESS</button><button class="secondary" id="indicatorRefresh" type="button">REFRESH INDICATOR MEMBERS</button>
+<div id="indicatorList"></div>
+</section>
+</main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js?v=20261026-3"></script><script>
 const sb=supabase.createClient(BULLSEYE_SUPABASE_URL,BULLSEYE_SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
-const $=id=>document.getElementById(id);let students=[];
+const $=id=>document.getElementById(id);let students=[];let indicatorMembers=[];
 function status(message,error=false){$('status').textContent=message;$('status').classList.toggle('error',error)}
 function el(tag,txt,cls){const n=document.createElement(tag);n.textContent=txt;if(cls)n.className=cls;return n}
 async function init(){
@@ -28,7 +41,7 @@ async function init(){
  if(pe){status('Profile lookup failed: '+pe.message,true);return}
  if(!profile){status('No profile row for signed-in user '+session.user.id+'. Log out and sign in again.',true);return}
  if(!profile.is_admin && profile.role!=='admin'){status('This account is not marked admin: '+(session.user.email||'email unavailable')+'.',true);return}
- status('Admin access confirmed. Loading student accounts…');await loadStudents();
+ status('Admin access confirmed. Loading student accounts…');await loadStudents();await loadIndicatorMembers();
 }
 async function loadStudents(){
  const {data,error}=await sb.rpc('admin_list_course_students');
@@ -44,7 +57,7 @@ function render(){
  students.forEach(s=>{const card=el('article','','card');card.append(el('h3',(s.full_name||'Student')+' — '+(s.email||'email unavailable')));
  card.append(el('p','User ID: '+s.user_id,'muted'));
  card.append(el('p','Access: '+(s.is_active?'ACTIVE':'INACTIVE')+' · Manual check confirmed: '+(s.payment_verified?'YES':'NO')));
- card.append(el('p','Expiry: '+(s.expires_at?new Date(s.expires_at).toLocaleDateString():'No expiry')));
+ card.append(el('p','Expiry: '+(s.expires_at?new Date(s.expires_at).toLocaleDateString() :'Not set')));
  const b=el('button','EDIT THIS STUDENT');b.addEventListener('click',()=>{ $('student').value=s.user_id;$('active').checked=!!s.is_active;$('verified').checked=!!s.payment_verified;$('expiry').value=s.expires_at?s.expires_at.slice(0,10):'';window.scrollTo({top:0,behavior:'smooth'});});card.append(b);list.append(card);});
 }
 $('save').addEventListener('click',async()=>{
@@ -57,5 +70,91 @@ $('save').addEventListener('click',async()=>{
  if(error){status('Access was not saved: '+error.message,true);return}
  status('Course access updated. The student can enter only when access is active and the manual enrollment check is confirmed.');await loadStudents();
 });
-$('refresh').addEventListener('click',()=>loadStudents());init();
+$('refresh').addEventListener('click',()=>loadStudents());
+
+function indicatorRpcUnavailable(error){
+ const message=String(error?.message||'');
+ return /admin_list_indicator_members|admin_set_indicator_access|function.*not found|schema cache|does not exist/i.test(message);
+}
+async function loadIndicatorMembers(){
+ const statusEl=$('indicatorStatus');
+ statusEl.textContent='Loading indicator membership…';
+ const {data,error}=await sb.rpc('admin_list_indicator_members');
+ if(error){
+   statusEl.textContent=indicatorRpcUnavailable(error)
+     ?'Indicator access controls are not deployed in this database yet. The additive migration remains unapplied; no indicator access can be granted here.'
+     :'Could not load indicator members: '+error.message;
+   statusEl.classList.add('error');
+   $('indicatorList').replaceChildren();
+   $('indicatorStudent').replaceChildren(new Option('Indicator controls unavailable',''));
+   return;
+ }
+ statusEl.classList.remove('error');
+ indicatorMembers=data||[];
+ const select=$('indicatorStudent');select.replaceChildren(new Option('Choose a student…',''));
+ indicatorMembers.forEach(member=>select.add(new Option((member.full_name?member.full_name+' — ':'')+(member.email||member.user_id),member.user_id)));
+ renderIndicatorMembers();
+ statusEl.textContent='Indicator access control ready. '+indicatorMembers.length+' account record(s) found.';
+}
+function renderIndicatorMembers(){
+ const list=$('indicatorList');list.replaceChildren();
+ indicatorMembers.forEach(member=>{
+   const card=el('article','','card');
+   card.append(el('h3',(member.full_name||'Student')+' — '+(member.email||'email unavailable')));
+   card.append(el('p','User ID: '+member.user_id,'muted'));
+   const eligible=!!member.is_active&&!!member.payment_verified&&!!member.expires_at&&new Date(member.expires_at)>new Date();
+   const label=eligible?'ACCESS ACTIVE':(member.is_active&&!member.payment_verified?'PENDING — PAYMENT NOT VERIFIED':(member.expires_at&&new Date(member.expires_at)<=new Date()?'EXPIRED':'INACTIVE'));
+   card.append(el('p','Status: '+label+' · Payment verified: '+(member.payment_verified?'YES':'NO')));
+   card.append(el('p','Expiry: '+(member.expires_at?new Date(member.expires_at).toLocaleDateString():'Not set')));
+   const button=el('button','EDIT INDICATOR ACCESS');
+   button.addEventListener('click',()=>{
+     $('indicatorStudent').value=member.user_id;
+     $('indicatorActive').checked=!!member.is_active;
+     $('indicatorVerified').checked=!!member.payment_verified;
+     $('indicatorExpiry').value=member.expires_at?member.expires_at.slice(0,10):'';
+     window.scrollTo({top:$('indicatorAccessCard').offsetTop,behavior:'smooth'});
+   });
+   card.append(button);list.append(card);
+ });
+}
+$('indicatorStudent').addEventListener('change',()=>{
+ const member=indicatorMembers.find(item=>item.user_id===$('indicatorStudent').value);
+ $('indicatorActive').checked=!!member?.is_active;
+ $('indicatorVerified').checked=!!member?.payment_verified;
+ $('indicatorExpiry').value=member?.expires_at?member.expires_at.slice(0,10):'';
+});
+$('indicatorSave').addEventListener('click',async()=>{
+ const id=$('indicatorStudent').value;
+ if(!id){$('indicatorStatus').textContent='Choose a student first.';$('indicatorStatus').classList.add('error');return}
+ const verify=$('indicatorVerified').checked;
+ const existing=indicatorMembers.find(member=>member.user_id===id);
+ if(verify&&!existing?.payment_verified&&!confirm('Confirm you independently checked the payment settlement for this exact student and the ₹9,999 indicator product?'))return;
+ if(!verify&&existing?.payment_verified&&!confirm('Remove the verified-payment flag and revoke this student\'s indicator access immediately?'))return;
+ let expiry=null;
+ if($('indicatorExpiry').value){
+   expiry=new Date($('indicatorExpiry').value+'T23:59:59').toISOString();
+   if(new Date(expiry)<=new Date()){$('indicatorStatus').textContent='Expiry must be in the future.';$('indicatorStatus').classList.add('error');return}
+ }
+ const button=$('indicatorSave');button.disabled=true;
+ const {error}=await sb.rpc('admin_set_indicator_access',{
+   target_user:id,
+   make_active:$('indicatorActive').checked,
+   verify_payment:verify,
+   access_expires_at:expiry
+ });
+ button.disabled=false;
+ if(error){
+   $('indicatorStatus').textContent=indicatorRpcUnavailable(error)
+     ?'Indicator access controls are not deployed in this database yet. No change was made.'
+     :'Indicator access was not saved: '+error.message;
+   $('indicatorStatus').classList.add('error');return;
+ }
+ $('indicatorStatus').classList.remove('error');
+ $('indicatorStatus').textContent=verify
+   ?'Indicator access updated after your explicit payment-verification confirmation.'
+   :'Indicator record saved as unverified. No analyzer access is granted until payment_verified is true.';
+ await loadIndicatorMembers();
+});
+$('indicatorRefresh').addEventListener('click',()=>loadIndicatorMembers());
+init();
 </script></body></html>

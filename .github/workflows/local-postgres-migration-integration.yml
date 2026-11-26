@@ -1,0 +1,57 @@
+name: Bullseye Local Postgres Migration Integration
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "supabase/migrations/**"
+      - "scripts/test-course-progress-security-postgres.sh"
+      - "scripts/test-trc20-migration-postgres.sh"
+      - ".github/workflows/local-postgres-migration-integration.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  postgres-migration-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Check out release candidate
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Create isolated disposable test databases
+        env:
+          PGPASSWORD: postgres
+        run: |
+          createdb -h 127.0.0.1 -p 5432 -U postgres course_progress_test
+          createdb -h 127.0.0.1 -p 5432 -U postgres trc20_membership_test
+
+      - name: Test course progress RLS and function-only writes
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/course_progress_test
+        run: bash scripts/test-course-progress-security-postgres.sh
+
+      - name: Test TRC20 schema, payment separation, and entitlement durations
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/trc20_membership_test
+        run: bash scripts/test-trc20-migration-postgres.sh

@@ -1,0 +1,41 @@
+name: Market Lab Guard
+
+on:
+  push:
+    branches:
+      - feat/market-lab-clean-rebase
+    paths:
+      - "index.html"
+      - "terminal.html"
+      - "market-briefs.json"
+      - "docs/market-briefing-policy.md"
+      - "scripts/**"
+      - "package.json"
+      - ".github/workflows/market-lab-guard.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "index.html"
+      - "terminal.html"
+      - "market-briefs.json"
+      - "docs/market-briefing-policy.md"
+      - "scripts/**"
+      - "package.json"
+      - ".github/workflows/market-lab-guard.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  market-lab-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v5
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - name: Run market, site and compliance guards
+        run: npm test
