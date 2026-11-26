@@ -6,6 +6,7 @@
 </style></head><body><main class="wrap"><h1 class="green">BULLSEYE THEORY — ADMIN</h1>
 <p class="muted">Admin-only course access management. This website does not collect money or transaction details. Independently confirm enrollment outside this system before activating a student's access.</p>
 <div id="status" class="status">Checking admin access…</div>
+<p class="muted"><a href="auth.html">Open sign-in / Forgot password</a> · <button class="secondary" id="adminLogout" type="button">SIGN OUT / SWITCH ACCOUNT</button></p>
 <section class="card"><h2>Grant or update student access</h2>
 <p class="muted">First ask the customer to create an account at <a href="auth.html">Student sign in / Create account</a>. This panel grants access to an existing account; it does not create login credentials. After sign-up, select REFRESH STUDENTS.</p>
 <label for="student">Student account (email)</label><select id="student"><option value="">Loading student accounts…</option></select>
@@ -34,8 +35,16 @@ const $=id=>document.getElementById(id);let students=[];let indicatorMembers=[];
 function status(message,error=false){$('status').textContent=message;$('status').classList.toggle('error',error)}
 function el(tag,txt,cls){const n=document.createElement(tag);n.textContent=txt;if(cls)n.className=cls;return n}
 async function init(){
- const {data:{session},error}=await sb.auth.getSession();
- if(error||!session){location.href='auth.html';return}
+ const authResult=await Promise.race([
+   sb.auth.getSession(),
+   new Promise(resolve=>setTimeout(()=>resolve({timeout:true}),12000))
+ ]);
+ if(authResult?.timeout){
+   status('Admin sign-in check timed out. Refresh this page; if needed, open sign-in / Forgot password and sign in with the administrator account.',true);
+   return;
+ }
+ const {data:{session},error}=authResult;
+ if(error||!session){status('No active sign-in session. Open sign-in / Forgot password and sign in with the administrator account.',true);return}
  $('status').textContent='Signed in: '+(session.user.email||'email unavailable')+' · Checking profile…';
  const {data:profile,error:pe}=await sb.from('profiles').select('is_admin,role').eq('id',session.user.id).maybeSingle();
  if(pe){status('Profile lookup failed: '+pe.message,true);return}
@@ -71,6 +80,11 @@ $('save').addEventListener('click',async()=>{
  status('Course access updated. The student can enter only when access is active and the manual enrollment check is confirmed.');await loadStudents();
 });
 $('refresh').addEventListener('click',()=>loadStudents());
+$('adminLogout').addEventListener('click',async()=>{
+  try{await fetch('/api/course-session/logout',{method:'POST',credentials:'same-origin',cache:'no-store'})}catch(_){}
+  await sb.auth.signOut();
+  location.href='auth.html';
+});
 
 function indicatorRpcUnavailable(error){
  const message=String(error?.message||'');
