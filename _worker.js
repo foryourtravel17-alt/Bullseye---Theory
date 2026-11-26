@@ -106,6 +106,52 @@ async function setSession(request, env) {
   }
 }
 
+async function getIndicatorAccess(request, env) {
+  if (!originAllowed(request)) return json({ error: "Origin not allowed" }, 403);
+  if (request.method !== "GET") return json({ error: "Method not allowed" }, 405, { Allow: "GET" });
+
+  const authorization = request.headers.get("Authorization") || "";
+  if (!authorization.startsWith("Bearer ")) return json({ error: "Sign-in required" }, 401);
+  const token = authorization.slice(7).trim();
+  const exp = tokenExpiry(token);
+  if (!token || !exp || exp <= Math.floor(Date.now() / 1000)) {
+    return json({ error: "Session expired" }, 401);
+  }
+
+  const base = String(env.SUPABASE_URL || "").replace(/\/$/, "");
+  const key = env.SUPABASE_PUBLISHABLE_KEY;
+  if (!base || !key) return json({ error: "Indicator access service is not configured" }, 503);
+
+  try {
+    const upstream = await fetch(base + "/functions/v1/get-indicator-access", {
+      method: "GET",
+      headers: { apikey: key, Authorization: "Bearer " + token },
+      cf: { cacheTtl: 0, cacheEverything: false },
+    });
+    const payload = await upstream.json().catch(() => ({}));
+    if (!upstream.ok) {
+      const status = upstream.status === 401 || upstream.status === 403 ? upstream.status : 503;
+      return json({ error: payload?.error || "Could not verify indicator access" }, status, { Vary: "Authorization" });
+    }
+
+    const expiry = payload?.expires_at ? Date.parse(payload.expires_at) : 0;
+    const active = payload?.access_active === true &&
+      Number.isFinite(expiry) && expiry > Date.now();
+    return json({
+      product: "bullseye-india-indicator",
+      access_active: active,
+      access_days: 365,
+      expires_at: active ? payload.expires_at : null,
+      delivery: "website_historical_analyzer",
+      message: active
+        ? "Verified 365-day website analyzer entitlement is active."
+        : "No active verified website analyzer entitlement was found for this account.",
+    }, 200, { Vary: "Authorization" });
+  } catch {
+    return json({ error: "Could not verify indicator access" }, 503, { Vary: "Authorization" });
+  }
+}
+
 async function serveProtectedAsset(request, env) {
   const token = cookieValue(request.headers.get("Cookie"), COOKIE);
   if (!token) return Response.redirect(new URL("/auth.html", request.url), 302);
@@ -157,6 +203,7 @@ export default {
         },
       });
     }
+    if (url.pathname === "/api/access") return getIndicatorAccess(request, env);
     if (url.pathname === "/api/course-session" && request.method === "POST") {
       return setSession(request, env);
     }
