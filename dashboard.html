@@ -88,9 +88,24 @@ async function init(){
   const expired=!!access?.is_active && !!access?.payment_verified && Number.isFinite(expiry) && expiry<=Date.now();
   const expiryLabel=access?.expires_at?new Date(access.expires_at).toLocaleDateString():"not configured";
   // Always ask the Worker to establish the protected-asset session. The Worker independently verifies admin or paid-student entitlement; do not rely on the dashboard's client-side profile lookup.
-  await syncCourseCookie(session);
+  const protectedAssetAccess=await syncCourseCookie(session);
   document.getElementById("accessTitle").textContent=active?"COURSE ACTIVE":(expired?"ACCESS EXPIRED":"FREE PREVIEW AVAILABLE");
   document.getElementById("accessText").textContent=active?"Your Bullseye Theory course is active until "+expiryLabel+".":(expired?"Your 85-day course access expired on "+expiryLabel+". Lesson 1 remains free; renew to unlock Lessons 2–11.":"Lesson 1 is available as a free preview. Lessons 2–11 unlock only after the administrator manually activates your course access.");
+  // Never send a signed-in free-preview student into an auth redirect loop.
+  // Chart Drills remain available only to a server-verified admin or paid course student.
+  const chartDrillsLink=document.querySelector('a[href="lessons/chart-drills.html"]');
+  if(chartDrillsLink && !protectedAssetAccess){
+    chartDrillsLink.textContent="CHART DRILLS LOCKED";
+    chartDrillsLink.href="#chart-drills-locked";
+    chartDrillsLink.setAttribute("aria-disabled","true");
+    chartDrillsLink.title="Chart Drills unlock after manual course activation. The ₹9,999 indicator is a separate product.";
+    chartDrillsLink.addEventListener("click",event=>{
+      event.preventDefault();
+      document.getElementById("accessText").textContent="Chart Drills are part of the activated course and are not included in the free preview. Ask the administrator to activate course access after enrollment. The ₹9,999 Bullseye Indicator is separate and requires its own manual activation.";
+      document.getElementById("accessTitle").textContent="COURSE ACTIVATION REQUIRED";
+      document.getElementById("notice").scrollIntoView({behavior:"smooth",block:"center"});
+    });
+  }
 
   const {data:progressRows}=await sb.from("lesson_progress").select("lesson_number,completed,progress_percent").eq("user_id",user.id);
   const completed=new Map((progressRows||[]).map(row=>[row.lesson_number,row]));
