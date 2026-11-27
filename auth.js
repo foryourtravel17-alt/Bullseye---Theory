@@ -24,23 +24,10 @@ function redirectTarget() {
   return new URL("dashboard.html", window.location.href).href;
 }
 
-// Route signed-in administrators to the admin console using the protected
-// profiles record. Never infer privileges from an email or browser metadata.
-async function authenticatedRedirectTarget(session) {
-  if (session?.user?.id) {
-    try {
-      const { data: profile, error } = await supabaseClient
-        .from("profiles")
-        .select("is_admin, role")
-        .eq("id", session.user.id)
-        .maybeSingle();
-      if (!error && (profile?.is_admin === true || profile?.role === "admin")) {
-        return new URL("admin.html", window.location.href).href;
-      }
-    } catch (error) {
-      console.warn("Bullseye role lookup failed; using student dashboard fallback:", error);
-    }
-  }
+// Every successful sign-in opens the student dashboard, including admin
+// accounts. Admin tools remain available through the separately protected
+// ADMIN PANEL link inside dashboard.html. Never auto-route by role here.
+function authenticatedRedirectTarget() {
   return redirectTarget();
 }
 
