@@ -26,7 +26,7 @@
 
 ---
 
-### Task 1: Regression tests (RED)
+### Task 1: Regression tests (written before implementation)
 **Files:**
 - Modify: `scripts/test-cloudflare-entitlement-worker.ts`
 
@@ -34,7 +34,7 @@
 - Add a test proving an admin profile receives a short-lived HttpOnly course cookie even when `course_access` is empty.
 - Add a test proving an admin with a valid cookie can fetch `/lessons/chart-drills.html`.
 - Add a test proving a non-admin with no valid course entitlement remains denied and static assets are not fetched.
-- Run `deno test scripts/test-cloudflare-entitlement-worker.ts`; confirm the admin tests fail before implementation.
+- The tests were committed before the Worker implementation. A separate pre-fix RED execution was not captured; the exact PR head subsequently passed all 18 Deno Worker tests in GitHub Actions.
 
 ### Task 2: Worker authorization (GREEN)
 **Files:**
@@ -56,3 +56,12 @@
 - Inspect the complete diff and CI runs on the exact PR head.
 - Do not merge or deploy automatically; report any required manual checks.
 - Confirm no Supabase migrations or payment workflows were changed.
+
+
+## Verification record (2026-11-27)
+- PR #84 head: `c6eaa37e1ed78c44d2db8e064acb44dfcc76f788`.
+- Edge Function Checks run #336: success. Includes `npm test`, Render preview smoke test, Edge Function checks, 18/18 Worker Deno tests, free-preview policy checks, static gate checks, and Wrangler dry-run.
+- Cloudflare Predeploy Safety Validation run #6: success.
+- Market Lab Guard run #198: success.
+- No production deployment, Supabase migration, or payment changes were made.
+- Manual pre-fix RED output was not captured; do not claim a verified RED→GREEN cycle.
