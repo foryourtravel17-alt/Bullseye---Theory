@@ -225,3 +225,15 @@ test("signed-in admins route to the protected admin panel while students use the
   assert.match(dashboard, /adminLink\.href=["']admin\.html["']/);
   assert.match(dashboard, /adminLink\.textContent=["']ADMIN PANEL["']/);
 });
+
+
+test("Cloudflare bundles protected lessons pages so the Worker can entitlement-gate them", async () => {
+  const ignore = await readFile(new URL("../.assetsignore", import.meta.url), "utf8");
+  const rules = ignore.split(/\\r?\\n/).map(line => line.trim());
+  assert.ok(!rules.some(rule => ["lessons/", "/lessons/", "lessons/**", "/lessons/**"].includes(rule)),
+    "the entire lessons directory must not be excluded from the Worker asset bundle");
+  for (const path of ["../lessons/chart-drills.html", "../lessons/resources.html"]) {
+    const page = await readFile(new URL(path, import.meta.url), "utf8");
+    assert.match(page, /Bullseye|Chart Drills|study library/i);
+  }
+});
