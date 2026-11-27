@@ -214,12 +214,14 @@ test("Market Lab offline cache is limited to the public educational demo shell",
 });
 
 
-test("signed-in admin accounts are not automatically redirected to the admin panel", async () => {
+test("signed-in admins route to the protected admin panel while students use the dashboard", async () => {
   const { readFile } = await import("node:fs/promises");
   const auth = await readFile(new URL("../auth.js", import.meta.url), "utf8");
   const dashboard = await readFile(new URL("../dashboard.html", import.meta.url), "utf8");
-  assert.match(auth, /function authenticatedRedirectTarget\(\)\s*\{\s*return redirectTarget\(\);\s*\}/);
-  assert.doesNotMatch(auth, /new URL\(["']admin\.html["']/);
+  assert.match(auth, /async function authenticatedRedirectTarget\(session\)/);
+  assert.match(auth, /profile\?\.is_admin === true \|\| profile\?\.role === "admin"/);
+  assert.match(auth, /new URL\("admin\.html", window\.location\.href\)/);
+  assert.match(auth, /return redirectTarget\(\);/);
   assert.match(dashboard, /adminLink\.href=["']admin\.html["']/);
   assert.match(dashboard, /adminLink\.textContent=["']ADMIN PANEL["']/);
 });

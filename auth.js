@@ -24,10 +24,25 @@ function redirectTarget() {
   return new URL("dashboard.html", window.location.href).href;
 }
 
-// Every successful sign-in opens the student dashboard, including admin
-// accounts. Admin tools remain available through the separately protected
-// ADMIN PANEL link inside dashboard.html. Never auto-route by role here.
-function authenticatedRedirectTarget() {
+// Route administrators to their protected admin workspace after sign-in.
+// If the profile lookup fails, fail safely to the ordinary student dashboard;
+// admin.html independently enforces authorization before showing admin data.
+async function authenticatedRedirectTarget(session) {
+  const userId = session?.user?.id;
+  if (userId) {
+    try {
+      const { data: profile, error } = await supabaseClient
+        .from("profiles")
+        .select("is_admin,role")
+        .eq("id", userId)
+        .maybeSingle();
+      if (!error && (profile?.is_admin === true || profile?.role === "admin")) {
+        return new URL("admin.html", window.location.href).href;
+      }
+    } catch (error) {
+      console.warn("Admin route lookup failed; opening student dashboard:", error);
+    }
+  }
   return redirectTarget();
 }
 
