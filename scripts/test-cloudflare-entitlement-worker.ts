@@ -113,6 +113,9 @@ Deno.test("expired or unentitled sessions never receive protected asset bytes", 
     if (url.includes("/rest/v1/course_access?")) {
       return new Response(JSON.stringify([{ is_active: true, payment_verified: false, expires_at: new Date(Date.now() + 60_000).toISOString() }]), { status: 200 });
     }
+    if (url.includes("/rest/v1/profiles?")) {
+      return new Response(JSON.stringify([{ is_admin: false }]), { status: 200 });
+    }
     throw new Error("Unexpected upstream request: " + url);
   }) as typeof fetch;
   try {
@@ -142,6 +145,9 @@ Deno.test("duplicate entitlement rows fail closed", async () => {
         { is_active: true, payment_verified: true, expires_at: new Date(Date.now() + 60_000).toISOString() },
         { is_active: false, payment_verified: false, expires_at: new Date(Date.now() + 60_000).toISOString() },
       ]), { status: 200 });
+    }
+    if (url.includes("/rest/v1/profiles?")) {
+      return new Response(JSON.stringify([{ is_admin: false }]), { status: 200 });
     }
     throw new Error("Unexpected upstream request: " + url);
   }) as typeof fetch;
@@ -325,6 +331,101 @@ Deno.test("expired indicator JWT is rejected without an upstream request", async
     } as never);
     if (response.status !== 401) throw new Error("Expected 401 for expired indicator JWT, got " + response.status);
     if (upstreamCalled) throw new Error("Expired indicator JWT reached Supabase");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+
+Deno.test("verified admin receives a course-session cookie without course entitlement", async () => {
+  const originalFetch = globalThis.fetch;
+  const token = testToken(Math.floor(Date.now() / 1000) + 1800);
+  let profileLookup = "";
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const url = String(input);
+    if (url.endsWith("/auth/v1/user")) return new Response(JSON.stringify({ id: "admin-1" }), { status: 200 });
+    if (url.includes("/rest/v1/course_access?")) return new Response(JSON.stringify([]), { status: 200 });
+    if (url.includes("/rest/v1/profiles?")) {
+      profileLookup = url;
+      return new Response(JSON.stringify([{ is_admin: true }]), { status: 200 });
+    }
+    throw new Error("Unexpected upstream request: " + url);
+  }) as typeof fetch;
+  try {
+    const response = await worker.fetch(new Request("https://bullseye-theory.foryourtravel17.workers.dev/api/course-session", {
+      method: "POST",
+      headers: {
+        Origin: "https://bullseye-theory.foryourtravel17.workers.dev",
+        Authorization: "Bearer " + token,
+      },
+    }), {
+      SUPABASE_URL: "https://example.supabase.co",
+      SUPABASE_PUBLISHABLE_KEY: "public-key",
+      ASSETS: { fetch: async () => new Response("asset") },
+    } as never);
+    const cookie = response.headers.get("Set-Cookie") || "";
+    const body = await response.json();
+    if (response.status !== 200 || body.active !== true) throw new Error("Verified admin should receive an active course session");
+    if (!profileLookup.includes("id=eq.admin-1")) throw new Error("Admin lookup must be scoped to the authenticated user");
+    if (!cookie.includes("bt_course_session=") || !cookie.includes("HttpOnly") || !cookie.includes("Secure")) {
+      throw new Error("Admin course cookie is missing required security attributes");
+    }
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("verified admin can fetch the protected Chart Drills page without course entitlement", async () => {
+  const originalFetch = globalThis.fetch;
+  const token = testToken(Math.floor(Date.now() / 1000) + 1800);
+  let assetFetched = false;
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const url = String(input);
+    if (url.endsWith("/auth/v1/user")) return new Response(JSON.stringify({ id: "admin-chart-drills" }), { status: 200 });
+    if (url.includes("/rest/v1/course_access?")) return new Response(JSON.stringify([]), { status: 200 });
+    if (url.includes("/rest/v1/profiles?")) return new Response(JSON.stringify([{ is_admin: true }]), { status: 200 });
+    throw new Error("Unexpected upstream request: " + url);
+  }) as typeof fetch;
+  try {
+    const response = await worker.fetch(new Request("https://bullseye-theory.foryourtravel17.workers.dev/lessons/chart-drills.html", {
+      headers: { Cookie: "bt_course_session=" + token },
+    }), {
+      SUPABASE_URL: "https://example.supabase.co",
+      SUPABASE_PUBLISHABLE_KEY: "public-key",
+      ASSETS: { fetch: async (request: Request) => {
+        assetFetched = new URL(request.url).pathname === "/lessons/chart-drills.html";
+        return new Response("<title>11 Chart Drills | Bullseye Theory</title>", { status: 200 });
+      } },
+    } as never);
+    if (response.status !== 200) throw new Error("Expected admin Chart Drills response 200, got " + response.status);
+    if (!assetFetched) throw new Error("Verified admin did not reach the Chart Drills static asset");
+    if (!(await response.text()).includes("11 Chart Drills")) throw new Error("Chart Drills page body was not returned");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("free non-admin cannot fetch Chart Drills even with a valid Supabase session cookie", async () => {
+  const originalFetch = globalThis.fetch;
+  const token = testToken(Math.floor(Date.now() / 1000) + 1800);
+  let assetFetched = false;
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const url = String(input);
+    if (url.endsWith("/auth/v1/user")) return new Response(JSON.stringify({ id: "free-student" }), { status: 200 });
+    if (url.includes("/rest/v1/course_access?")) return new Response(JSON.stringify([]), { status: 200 });
+    if (url.includes("/rest/v1/profiles?")) return new Response(JSON.stringify([{ is_admin: false }]), { status: 200 });
+    throw new Error("Unexpected upstream request: " + url);
+  }) as typeof fetch;
+  try {
+    const response = await worker.fetch(new Request("https://bullseye-theory.foryourtravel17.workers.dev/lessons/chart-drills.html", {
+      headers: { Cookie: "bt_course_session=" + token },
+    }), {
+      SUPABASE_URL: "https://example.supabase.co",
+      SUPABASE_PUBLISHABLE_KEY: "public-key",
+      ASSETS: { fetch: async () => { assetFetched = true; return new Response("secret drills"); } },
+    } as never);
+    if (response.status !== 403) throw new Error("Expected free non-admin to receive 403, got " + response.status);
+    if (assetFetched) throw new Error("Free non-admin received protected Chart Drills bytes");
   } finally {
     globalThis.fetch = originalFetch;
   }
