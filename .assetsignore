@@ -4,7 +4,7 @@
 **/node_modules
 **/.wrangler
 **/.github
-lessons/
+# Do not exclude lessons/: Worker-first routing protects every /lessons/* request before serving static assets.
 supabase/
 readme.txt
 lesson.html
