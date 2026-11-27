@@ -85,6 +85,9 @@ done
 grep -Fq 'await syncCourseCookie(session);' dashboard.html || fail "dashboard does not request server-verified protected asset session"
 if grep -Fq 'if(active || isAdmin) await syncCourseCookie(session);' dashboard.html; then fail "protected asset session must not depend on client-side admin/profile detection"; fi
 grep -Fq 'href="lessons/chart-drills.html"' dashboard.html || fail "Chart Drills dashboard navigation is missing"
+grep -Fq 'const protectedAssetAccess=await syncCourseCookie(session);' dashboard.html || fail "dashboard must use server-verified protected asset access"
+grep -Fq 'CHART DRILLS LOCKED' dashboard.html || fail "free-preview Chart Drills lock state is missing"
+grep -Fq 'Chart Drills are part of the activated course' dashboard.html || fail "Chart Drills lock explanation is missing"
 test -s lessons/chart-drills.html || fail "Chart Drills page is missing"
 
 # Inventory every static course asset and fail if any paid lesson/download path
