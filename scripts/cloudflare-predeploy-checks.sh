@@ -82,7 +82,8 @@ done
 (( lesson_count >= 11 )) || fail "expected at least 11 lesson pages; found $lesson_count"
 
 # Admins must establish the same Worker cookie as paid students before navigating to protected Chart Drills.
-grep -Fq 'if(active || isAdmin) await syncCourseCookie(session);' dashboard.html || fail "admin dashboard does not establish protected asset session"
+grep -Fq 'await syncCourseCookie(session);' dashboard.html || fail "dashboard does not request server-verified protected asset session"
+if grep -Fq 'if(active || isAdmin) await syncCourseCookie(session);' dashboard.html; then fail "protected asset session must not depend on client-side admin/profile detection"; fi
 grep -Fq 'href="lessons/chart-drills.html"' dashboard.html || fail "Chart Drills dashboard navigation is missing"
 test -s lessons/chart-drills.html || fail "Chart Drills page is missing"
 
