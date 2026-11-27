@@ -30,6 +30,20 @@ function walk(directory, result = []) {
 }
 
 const files = walk(root);
+// The Worker must be able to serve protected course files after it verifies
+// the short-lived entitlement cookie. Excluding the whole folder from the
+// static asset bundle makes valid student requests end in a branded 404.
+const assetsIgnore = readFileSync(resolve(root, ".assetsignore"), "utf8");
+const ignoredCourseDirectory = assetsIgnore.split(/\\r?\\n/)
+  .map(line => line.trim())
+  .some(line => line === "lessons/" || line === "/lessons/" || line === "lessons/**" || line === "/lessons/**");
+if (ignoredCourseDirectory) {
+  throw new Error("Do not exclude lessons/ from Cloudflare static assets; the Worker entitlement gate protects this directory.");
+}
+for (const required of ["/lessons/chart-drills.html", "/lessons/resources.html"]) {
+  if (!files.includes(required)) throw new Error("Missing protected course HTML asset: " + required);
+}
+
 const errors = [];
 if (isProtected("/lesson-1.html")) errors.push("Lesson 1 free preview must not be paid-gated");
 if (!isProtected("/lesson-1.pdf")) errors.push("Lesson 1 downloadable assets must remain protected");
