@@ -146,10 +146,23 @@
     .luxury-scene{position:relative;margin:2px -4px 0;overflow:hidden;border-radius:10px;background:linear-gradient(180deg,rgba(30,49,81,.22),rgba(7,13,27,.06));}
     .luxury-scene svg{display:block;width:100%;height:auto;filter:drop-shadow(0 7px 14px rgba(0,0,0,.3))}
     .tower-windows{animation:city-pulse 4.5s ease-in-out infinite alternate}
-    .car-body{transform-box:fill-box;transform-origin:center;animation:car-hover 4s ease-in-out infinite}
-    @keyframes city-pulse{from{opacity:.42}to{opacity:.88}}
-    @keyframes car-hover{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
-    @media(prefers-reduced-motion:reduce){.tower-windows,.car-body{animation:none!important}}
+    .cityscape{transform-box:fill-box;transform-origin:center;animation:city-drift 18s ease-in-out infinite alternate}
+    .car-body{transform-box:fill-box;transform-origin:center;animation:car-cruise 7s cubic-bezier(.45,0,.55,1) infinite}
+    .wheel{transform-box:fill-box;transform-origin:center;animation:wheel-roll 7s linear infinite}
+    .coin-orbit{transform-box:fill-box;transform-origin:center;animation:coin-float 5s ease-in-out infinite}
+    .coin-orbit.alt{animation-delay:-2.5s}
+    .scene-scan{animation:scene-scan 6s ease-in-out infinite}
+    .headlight-beam{animation:headlight 3s ease-in-out infinite alternate}
+    .market-visual{box-shadow:inset 0 0 35px rgba(77,119,185,.08),0 14px 38px rgba(0,0,0,.16)}
+    .luxury-scene{border:1px solid rgba(126,158,205,.2);box-shadow:inset 0 0 36px rgba(72,107,166,.12)}
+    @keyframes city-pulse{from{opacity:.38}to{opacity:.9}}
+    @keyframes city-drift{from{transform:translateX(-3px)}to{transform:translateX(3px)}}
+    @keyframes car-cruise{0%,100%{transform:translateX(-3px) translateY(1px)}50%{transform:translateX(4px) translateY(-2px)}}
+    @keyframes wheel-roll{to{transform:rotate(360deg)}}
+    @keyframes coin-float{0%,100%{transform:translateY(2px) rotateY(0)}50%{transform:translateY(-6px) rotateY(180deg)}}
+    @keyframes scene-scan{0%,15%{transform:translateX(-430px);opacity:0}35%{opacity:.55}75%{opacity:.3}100%{transform:translateX(430px);opacity:0}}
+    @keyframes headlight{from{opacity:.28}to{opacity:.85}}
+    @media(prefers-reduced-motion:reduce){.tower-windows,.cityscape,.car-body,.wheel,.coin-orbit,.scene-scan,.headlight-beam{animation:none!important}}
   </style>
 </head>
 <body>
@@ -204,6 +217,16 @@
               <g class="tower-windows" fill="#e2c98c" opacity=".72">
                 <path d="M16 42h5v6h-5zm12 0h5v6h-5zM16 56h5v6h-5zm12 0h5v6h-5zM84 20h6v7h-6zm15 0h6v7h-6zm-15 15h6v7h-6zm15 0h6v7h-6zm-15 15h6v7h-6zm15 0h6v7h-6zM201 15h7v8h-7zm17 0h7v8h-7zm-17 18h7v8h-7zm17 0h7v8h-7zm-17 18h7v8h-7zm17 0h7v8h-7zM328 29h6v7h-6zm15 0h6v7h-6zm-15 15h6v7h-6zm15 0h6v7h-6z"/>
               </g>
+              <g class="coin-orbit" aria-hidden="true">
+                <circle cx="51" cy="68" r="13" fill="#172b49" stroke="#dfc17d" stroke-width="1.5"/>
+                <circle cx="51" cy="68" r="9" fill="none" stroke="#61b9ff" stroke-opacity=".65"/>
+                <text x="51" y="72" text-anchor="middle" font-size="12" font-weight="900" fill="#f1d99d">₿</text>
+              </g>
+              <g class="coin-orbit alt" aria-hidden="true">
+                <circle cx="388" cy="62" r="11" fill="#292044" stroke="#bd8dff" stroke-width="1.5"/>
+                <path d="M388 53l-5 9 5 3 5-3-5-9Zm0 14l-5-3 5 7 5-7-5 3Z" fill="#d5c0ff"/>
+              </g>
+              <path class="scene-scan" d="M0 5V82" stroke="#9bd7ff" stroke-opacity=".6" stroke-width="1.5" stroke-dasharray="3 5"/>
               <path d="M0 84H440" stroke="#91a9c8" stroke-opacity=".5"/>
               <path d="M0 98H440" stroke="#d6bd84" stroke-opacity=".25" stroke-dasharray="4 7"/>
               <ellipse cx="225" cy="94" rx="120" ry="9" fill="#030713" opacity=".65"/>
@@ -212,10 +235,9 @@
                 <path d="M166 48l37-4c13-1 21 2 30 10l11 12H151l8-12c2-3 4-5 7-6Z" fill="#101c34" stroke="#91c6ee" stroke-width="1.2"/>
                 <path d="M205 45l-3 21M247 67H293" stroke="#f6e6bf" stroke-opacity=".7"/>
                 <path d="M106 82h-8l5-8 13-2M306 83l13 2-4 9h-12" fill="none" stroke="#e4c88c" stroke-width="2"/>
-                <circle cx="151" cy="91" r="14" fill="#080d19" stroke="#d8c18c" stroke-width="3"/>
-                <circle cx="151" cy="91" r="5" fill="#9aabc4"/>
-                <circle cx="280" cy="91" r="14" fill="#080d19" stroke="#d8c18c" stroke-width="3"/>
-                <circle cx="280" cy="91" r="5" fill="#9aabc4"/>
+                <path class="headlight-beam" d="M305 77l45-7-38 17Z" fill="#dfc17d" opacity=".4"/>
+                <g class="wheel"><circle cx="151" cy="91" r="14" fill="#080d19" stroke="#d8c18c" stroke-width="3"/><path d="M151 80v22m-11-11h22m-19-8 16 16m0-16-16 16" stroke="#9aabc4" stroke-width="1.4"/></g>
+                <g class="wheel"><circle cx="280" cy="91" r="14" fill="#080d19" stroke="#d8c18c" stroke-width="3"/><path d="M280 80v22m-11-11h22m-19-8 16 16m0-16-16 16" stroke="#9aabc4" stroke-width="1.4"/></g>
                 <path d="M105 82l15-2M300 82l12 2" stroke="#fff1ce" stroke-width="2" stroke-linecap="round"/>
               </g>
               <path d="M110 105H330" stroke="#5bbdff" stroke-opacity=".3" stroke-width="2"/>
