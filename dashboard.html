@@ -87,7 +87,7 @@ async function init(){
   const active=!!access?.is_active && !!access?.payment_verified && Number.isFinite(expiry) && expiry>Date.now();
   const expired=!!access?.is_active && !!access?.payment_verified && Number.isFinite(expiry) && expiry<=Date.now();
   const expiryLabel=access?.expires_at?new Date(access.expires_at).toLocaleDateString():"not configured";
-  if(active) await syncCourseCookie(session);
+  // Admins need the same short-lived Worker session cookie to open protected Chart Drills and course resources.\n  if(active || isAdmin) await syncCourseCookie(session);
   document.getElementById("accessTitle").textContent=active?"COURSE ACTIVE":(expired?"ACCESS EXPIRED":"FREE PREVIEW AVAILABLE");
   document.getElementById("accessText").textContent=active?"Your Bullseye Theory course is active until "+expiryLabel+".":(expired?"Your 85-day course access expired on "+expiryLabel+". Lesson 1 remains free; renew to unlock Lessons 2–11.":"Lesson 1 is available as a free preview. Lessons 2–11 unlock only after the administrator manually activates your course access.");
 
