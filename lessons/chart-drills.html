@@ -9,6 +9,24 @@
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#123b31 0,transparent 35%),var(--bg);color:var(--text);font:15px/1.65 Inter,Arial,sans-serif}
 header{padding:18px 6%;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}.brand{font-weight:900;letter-spacing:2px;color:var(--text);text-decoration:none}.brand span{color:var(--lime)}nav{display:flex;gap:9px;flex-wrap:wrap}nav a,.print{display:inline-block;padding:9px 12px;border:1px solid var(--line);border-radius:8px;color:var(--text);text-decoration:none;font-weight:800;font-size:11px;background:#091410;cursor:pointer}
 main{max-width:1050px;margin:auto;padding:42px 20px 80px}.eyebrow{color:var(--lime);font-size:10px;font-weight:900;letter-spacing:2px}h1{font-size:clamp(34px,6vw,54px);line-height:1.05;letter-spacing:-2px;margin:12px 0}h2{font-size:19px;margin:0 0 8px}.muted{color:var(--muted)}.notice{padding:16px;border:1px solid #66552b;background:#17150f;color:#e6d4a3;border-radius:12px;margin:22px 0}.drill{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:20px;margin:16px 0;break-inside:avoid}.drill-head{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.tag{color:var(--gold);font-size:9px;letter-spacing:1.5px;font-weight:900}.chart{display:block;width:100%;height:auto;max-height:270px;margin:12px 0;background:#07110f;border:1px solid #1c3930;border-radius:10px}.prompt{color:#d6e5dd}.question{border-left:2px solid var(--lime);padding:8px 12px;margin:12px 0;color:#dcebe3}.answer{margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:12px;background:#081410}.answer summary{cursor:pointer;color:var(--lime);font-weight:800}.answer p{color:var(--muted);margin-bottom:0}.small{font-size:12px;color:var(--muted)}svg text{font-family:Arial,sans-serif;font-size:11px;fill:#b9c9c1}.axis{stroke:#35554b;stroke-width:1}.bull{stroke:#a8ff61;fill:#a8ff61}.bear{stroke:#ff958d;fill:#ff958d}.zone{fill:#e4b957;fill-opacity:.13;stroke:#e4b957;stroke-dasharray:5 4}.price{stroke:#a8ff61;stroke-width:2;fill:none}.print-row{display:flex;justify-content:flex-end;margin:20px 0}@media print{body{background:#fff;color:#111}.drill,.notice{background:#fff;color:#111;border-color:#bbb}.muted,.prompt,.small,.answer p{color:#333}.chart{background:#fff;border-color:#bbb}svg text{fill:#222}header,nav,.print-row,.answer summary{display:none}.drill{break-inside:avoid}main{max-width:none;padding:0}.answer{border-color:#bbb}details.answer:not([open])>*:not(summary){display:block}}
+
+.drill-work{margin-top:16px;padding:16px;border:1px solid #315b40;border-radius:12px;background:#091713}
+.drill-work label{display:block;color:var(--lime);font-size:11px;font-weight:900;letter-spacing:1px;margin-bottom:8px}
+.drill-work textarea{width:100%;min-height:112px;resize:vertical;padding:12px;border:1px solid var(--line);border-radius:9px;background:#050e0b;color:var(--text);font:14px/1.6 Inter,Arial,sans-serif}
+.drill-work textarea:focus{outline:2px solid #a8ff61;outline-offset:1px}
+.drill-work .drill-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.drill-work button{padding:10px 14px;border:1px solid var(--lime);border-radius:8px;background:var(--lime);color:#07100f;font-weight:900;cursor:pointer}
+.drill-work button:disabled{opacity:.55;cursor:wait}
+.drill-work .save-state{font-size:12px;color:var(--muted)}
+.drill-work .save-state.saved{color:#baff8b}
+.answer.review-locked summary{opacity:.45;cursor:not-allowed}
+.drill-progress{margin:18px 0;padding:15px;border:1px solid var(--line);border-radius:12px;background:#091713}
+.drill-progress-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-bottom:8px}
+.drill-progress-track{height:8px;background:#06100d;border-radius:99px;overflow:hidden}
+.drill-progress-fill{height:100%;width:0;background:var(--lime);transition:width .2s}
+.drill-auth-error{padding:14px;border:1px solid #8a4a40;border-radius:10px;background:#211311;color:#ffd0c6;margin:16px 0}
+@media print{.drill-work,.drill-progress{display:none!important}.answer.review-locked summary{display:none}}
+
 </style>
 </head>
 <body>
@@ -79,6 +97,109 @@ main{max-width:1050px;margin:auto;padding:42px 20px 80px}.eyebrow{color:var(--li
 </main>
 <script>
 document.getElementById("printDrills")?.addEventListener("click", () => window.print());
+</script>
+<script src="../supabase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+(() => {
+  const statusBox=document.createElement("div");
+  statusBox.className="drill-progress";
+  statusBox.innerHTML='<div class="drill-progress-head"><strong>YOUR DRILL PROGRESS</strong><span id="drillProgressText">Checking your student account…</span></div><div class="drill-progress-track"><div class="drill-progress-fill" id="drillProgressFill"></div></div>';
+  const main=document.querySelector("main");
+  const printRow=document.querySelector(".print-row");
+  if(printRow) printRow.insertAdjacentElement("afterend",statusBox); else main?.prepend(statusBox);
+
+  const drills=[...document.querySelectorAll("section.drill[id^='drill-']")];
+  drills.forEach((section,index)=>{
+    const number=index+1;
+    const answer=section.querySelector("details.answer");
+    if(answer){answer.classList.add("review-locked");answer.dataset.locked="true";}
+    const work=document.createElement("div");
+    work.className="drill-work";
+    work.innerHTML='<label for="drillAnswer'+number+'">YOUR ANSWER</label><textarea id="drillAnswer'+number+'" maxlength="10000" placeholder="Write your reasoning and calculations here…"></textarea><div class="drill-controls"><button type="button" data-submit-drill="'+number+'">SUBMIT ANSWER</button><span class="save-state" aria-live="polite">Not submitted yet</span></div>';
+    const question=section.querySelector(".question");
+    (question||section).insertAdjacentElement("afterend",work);
+  });
+
+  const progressText=document.getElementById("drillProgressText");
+  const progressFill=document.getElementById("drillProgressFill");
+  const setProgress=(count)=>{
+    progressText.textContent=count+" / "+drills.length+" submitted";
+    progressFill.style.width=(drills.length?count/drills.length*100:0)+"%";
+  };
+  const showError=(message)=>{
+    const box=document.createElement("div");
+    box.className="drill-auth-error";
+    box.textContent=message;
+    statusBox.insertAdjacentElement("afterend",box);
+  };
+  const config=window.BULLSEYE_SUPABASE_URL&&window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY;
+  if(!window.supabase||!config){
+    progressText.textContent="Student save service unavailable";
+    showError("We could not load the secure student save service. Refresh the page or contact the administrator.");
+    return;
+  }
+  const sb=window.supabase.createClient(window.BULLSEYE_SUPABASE_URL,window.BULLSEYE_SUPABASE_PUBLISHABLE_KEY,{
+    auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+  });
+
+  async function init(){
+    const {data:{session},error:sessionError}=await sb.auth.getSession();
+    if(sessionError||!session){
+      progressText.textContent="Login required";
+      showError("Please log in with your activated student account, then return to Chart Drills. Your answers will be saved to that account.");
+      return;
+    }
+    const {data:profile}=await sb.from("profiles").select("is_admin,role").eq("id",session.user.id).maybeSingle();
+    const admin=profile?.is_admin===true||profile?.role==="admin";
+    if(!admin){
+      const {data:access,error:accessError}=await sb.from("course_access").select("is_active,payment_verified,expires_at").eq("user_id",session.user.id).maybeSingle();
+      const expiry=access?.expires_at?Date.parse(access.expires_at):0;
+      if(accessError||!access?.is_active||!access?.payment_verified||!Number.isFinite(expiry)||expiry<=Date.now()){
+        progressText.textContent="Course access required";
+        showError("Your student session does not currently show active course access. Contact the administrator; do not create a second account.");
+        return;
+      }
+    }
+    const {data:rows,error:loadError}=await sb.from("chart_drill_submissions").select("drill_number,answer_text,submitted_at").eq("user_id",session.user.id);
+    if(loadError){
+      progressText.textContent="Could not load saved answers";
+      showError("Your answers could not be loaded. Please refresh once. If this continues, contact the administrator.");
+      return;
+    }
+    const saved=new Map((rows||[]).map(row=>[Number(row.drill_number),row]));
+    drills.forEach((section,index)=>{
+      const number=index+1,row=saved.get(number),textarea=section.querySelector("textarea"),button=section.querySelector("[data-submit-drill]"),state=section.querySelector(".save-state"),review=section.querySelector("details.answer");
+      if(row){textarea.value=row.answer_text;state.textContent="Saved "+new Date(row.submitted_at).toLocaleString();state.classList.add("saved");button.textContent="UPDATE ANSWER";review?.classList.remove("review-locked");if(review)review.dataset.locked="false";}
+    });
+    setProgress(saved.size);
+    drills.forEach(section=>{
+      const button=section.querySelector("[data-submit-drill]");
+      button.addEventListener("click",async()=>{
+        const number=Number(button.dataset.submitDrill),textarea=section.querySelector("textarea"),state=section.querySelector(".save-state"),review=section.querySelector("details.answer"),answerText=textarea.value.trim();
+        if(!answerText){state.textContent="Write your answer before submitting.";textarea.focus();return;}
+        if(answerText.length>10000){state.textContent="Answer is too long (10,000 character limit).";return;}
+        button.disabled=true;state.textContent="Saving securely…";
+        const {data:{session:current}}=await sb.auth.getSession();
+        if(!current){state.textContent="Session expired. Log in again.";button.disabled=false;return;}
+        const {error}=await sb.from("chart_drill_submissions").upsert({
+          user_id:current.user.id,drill_number:number,answer_text:answerText,submitted_at:new Date().toISOString(),updated_at:new Date().toISOString()
+        },{onConflict:"user_id,drill_number"});
+        button.disabled=false;
+        if(error){state.textContent="Could not save. Please retry.";console.error("Chart drill save failed",error);return;}
+        state.textContent="Saved successfully";state.classList.add("saved");button.textContent="UPDATE ANSWER";
+        review?.classList.remove("review-locked");if(review)review.dataset.locked="false";
+        const count=drills.filter(s=>s.querySelector(".save-state")?.classList.contains("saved")).length;setProgress(count);
+      });
+      const review=section.querySelector("details.answer");
+      review?.addEventListener("click",event=>{
+        if(review.dataset.locked==="true"){event.preventDefault();const state=section.querySelector(".save-state");state.textContent="Submit your answer first to unlock the review note.";}
+      });
+    });
+  }
+  init().catch(error=>{console.error("Chart drill initialization failed",error);progressText.textContent="Could not initialize student progress";showError("Chart Drills could not connect to your student account. Refresh the page or contact support.");});
+})();
 </script>
 </body>
 </html>
