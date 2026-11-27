@@ -17,6 +17,12 @@
 <button id="save">SAVE ACCESS</button><button class="secondary" id="refresh">REFRESH STUDENTS</button>
 <p class="muted">Saving can create an access record for a newly registered student. This does not process a payment or send a receipt.</p></section>
 <section><h2>Student access status</h2><div id="list"></div></section>
+<section class="card" id="chartDrillReview"><h2>Student Chart Drill submissions</h2>
+<p class="muted">Read-only review of submitted answers. Students can only see and edit their own submissions; this admin list is available only to the verified administrator.</p>
+<div id="chartDrillStatus" class="status">Chart Drill submissions not loaded yet.</div>
+<button class="secondary" id="chartDrillRefresh" type="button">REFRESH DRILL SUBMISSIONS</button>
+<div id="chartDrillList"></div>
+</section>
 <section class="card" id="indicatorAccessCard"><h2>Manual Bullseye India indicator access</h2>
 <p class="muted">Separate from course access. The analyzer requires a 365-day active entitlement and independently verified payment. The payment checkbox starts unchecked; saving an unverified row does not grant access.</p>
 <div id="indicatorStatus" class="status">Indicator access controls not loaded.</div>
@@ -81,6 +87,7 @@ async function init(){
    setAdminStatus('Admin access confirmed. Loading course student list…');
    await loadStudents();
    await loadIndicatorMembers();
+   await loadChartDrillSubmissions();
  }catch(error){setAdminStatus('Admin panel could not finish loading: '+(error?.message||String(error))+'. Refresh once; if it repeats, send this message to support.',true)}
 }
 async function loadStudents(){
@@ -119,6 +126,38 @@ $('adminLogout').addEventListener('click',async()=>{
   await sb.auth.signOut();
   location.href='auth.html';
 });
+
+async function loadChartDrillSubmissions(){
+ const status=$('chartDrillStatus'),list=$('chartDrillList');
+ status.classList.remove('error');status.textContent='Loading student answers…';list.replaceChildren();
+ let result;
+ try{result=await withTimeout(sb.rpc('admin_list_chart_drill_submissions'),15000,'Chart Drill submissions')}
+ catch(error){status.textContent='Could not load Chart Drill submissions: '+error.message;status.classList.add('error');return}
+ const {data,error}=result;
+ if(error){status.textContent='Could not load Chart Drill submissions: '+error.message;status.classList.add('error');return}
+ const rows=data||[];
+ if(!rows.length){status.textContent='No Chart Drill answers have been submitted yet.';return}
+ const grouped=new Map();
+ rows.forEach(row=>{if(!grouped.has(row.user_id))grouped.set(row.user_id,[]);grouped.get(row.user_id).push(row)});
+ status.textContent='Loaded '+rows.length+' submitted answer(s) from '+grouped.size+' student account(s).';
+ grouped.forEach((answers,userId)=>{
+  const card=el('article','','card');
+  const first=answers[0];
+  card.append(el('h3',(first.full_name||'Student')+' — '+(first.email||'email unavailable')));
+  card.append(el('p',answers.length+' / 11 drills submitted','muted'));
+  const track=el('div','','progress-bar'),fill=el('div','','progress-fill');
+  fill.style.width=(answers.length/11*100)+'%';track.append(fill);card.append(track);
+  answers.sort((x,y)=>x.drill_number-y.drill_number).forEach(answer=>{
+   const block=el('section','','card');
+   block.append(el('strong','DRILL '+String(answer.drill_number).padStart(2,'0')));
+   block.append(el('p',answer.answer_text));
+   block.append(el('p','Last saved: '+new Date(answer.updated_at||answer.submitted_at).toLocaleString(),'muted'));
+   card.append(block);
+  });
+  list.append(card);
+ });
+}
+$('chartDrillRefresh').addEventListener('click',()=>loadChartDrillSubmissions());
 
 function indicatorRpcUnavailable(error){
  const message=String(error?.message||'');
