@@ -6,17 +6,17 @@ const levels = readFileSync(new URL('../lib/levels.mjs', import.meta.url), 'utf8
 const backtest = readFileSync(new URL('../lib/historical-backtest.mjs', import.meta.url), 'utf8');
 
 const rules = [
-  ['leftBars', 3, /const int LEFT_BARS = (\d+);/, /const int leftBars = (\d+)/],
-  ['rightBars', 3, /const int RIGHT_BARS = (\d+);/, /const int rightBars = (\d+)/],
-  ['atrLength', 14, /const int ATR_PERIOD = (\d+);/, /const int atrLength = (\d+)/],
-  ['clusterAtr', 0.25, /const float CLUSTER_ATR = ([\d.]+);/, /const float clusterAtr = ([\d.]+)/],
+  ['leftBars', 3, /const LEFT_BARS = (\d+);/, /const int leftBars = (\d+)/],
+  ['rightBars', 3, /const RIGHT_BARS = (\d+);/, /const int rightBars = (\d+)/],
+  ['atrLength', 14, /const ATR_PERIOD = (\d+);/, /const int atrLength = (\d+)/],
+  ['clusterAtr', 0.25, /const CLUSTER_ATR = ([\d.]+);/, /const float clusterAtr = ([\d.]+)/],
   ['minTouches', 2, null, /const int minTouches = (\d+)/],
   ['breakoutAtr', 0.10, null, /const float breakoutAtr = ([\d.]+)/],
-  ['volumeLength', 20, /const int VOLUME_PERIOD = (\d+);/, /const int volumeLength = (\d+)/],
-  ['volumeMultiple', 1.5, /const float VOLUME_MULTIPLE = ([\d.]+);/, /const float volumeMultiple = ([\d.]+)/],
+  ['volumeLength', 20, /const VOLUME_PERIOD = (\d+);/, /const int volumeLength = (\d+)/],
+  ['volumeMultiple', 1.5, /const VOLUME_MULTIPLE = ([\d.]+);/, /const float volumeMultiple = ([\d.]+)/],
   ['stopAtr', 0.20, null, /const float stopAtr = ([\d.]+)/],
   ['targetRR', 2.0, null, /const float targetRR = ([\d.]+)/],
-  ['cooldownBars', 12, /const int COOLDOWN_BARS = (\d+);/, /const int cooldownBars = (\d+)/],
+  ['cooldownBars', 12, /const COOLDOWN_BARS = (\d+);/, /const int cooldownBars = (\d+)/],
 ];
 
 function capture(source, pattern, label) {
