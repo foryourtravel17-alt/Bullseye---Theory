@@ -1,0 +1,38 @@
+name: Bullseye Indicator Checks
+
+on:
+  pull_request:
+    paths:
+      - "indicator/**"
+      - "scripts/validate-indicator-entitlement.mjs"
+      - ".github/workflows/indicator-checks.yml"
+  push:
+    branches: [main]
+    paths:
+      - "indicator/**"
+      - "scripts/validate-indicator-entitlement.mjs"
+      - ".github/workflows/indicator-checks.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  indicator-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install isolated analyzer dependencies
+        working-directory: indicator
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Run analyzer and access-gate tests
+        working-directory: indicator
+        run: npm test
+      - name: Check Node and Pine fixed-rule contract
+        run: node indicator/scripts/check-pine-node-contract.mjs
+      - name: Check manual-only entitlement and payment boundaries
+        run: node scripts/validate-indicator-entitlement.mjs
+      - name: Syntax-check analyzer server
+        run: node --check indicator/server.mjs
