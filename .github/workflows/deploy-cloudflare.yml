@@ -48,6 +48,7 @@ jobs:
             echo "PASS /$path"
           }
           check_page "index.html" "READ THE MARKET"
+          check_page "gateway.html" "Official Bullseye Theory Hub"
           check_page "auth.html" "Student Login"
           check_page "dashboard.html" "Student Dashboard"
           check_page "admin.html" "BULLSEYE THEORY — ADMIN"

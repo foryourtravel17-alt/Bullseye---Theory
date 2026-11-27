@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PAGES = [
     "index.html", "auth.html", "privacy.html", "legal.html",
     "disclaimer.html", "payment.html", "membership.html", "terms.html",
-    "refund.html",
+    "refund.html", "gateway.html",
 ]
 SUPPORT = "eyetheorybulls@gmail.com"
 PLACEHOLDERS = (
