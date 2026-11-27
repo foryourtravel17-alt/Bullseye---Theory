@@ -81,7 +81,12 @@ for lesson in lesson-[0-9]*.html; do
 done
 (( lesson_count >= 11 )) || fail "expected at least 11 lesson pages; found $lesson_count"
 
-# Admins must establish the same Worker cookie as paid students before navigating to protected Chart Drills.\ngrep -Fq 'if(active || isAdmin) await syncCourseCookie(session);' dashboard.html || fail "admin dashboard does not establish protected asset session"\ngrep -Fq 'href="lessons/chart-drills.html"' dashboard.html || fail "Chart Drills dashboard navigation is missing"\ntest -s lessons/chart-drills.html || fail "Chart Drills page is missing"\n\n# Inventory every static course asset and fail if any paid lesson/download path
+# Admins must establish the same Worker cookie as paid students before navigating to protected Chart Drills.
+grep -Fq 'if(active || isAdmin) await syncCourseCookie(session);' dashboard.html || fail "admin dashboard does not establish protected asset session"
+grep -Fq 'href="lessons/chart-drills.html"' dashboard.html || fail "Chart Drills dashboard navigation is missing"
+test -s lessons/chart-drills.html || fail "Chart Drills page is missing"
+
+# Inventory every static course asset and fail if any paid lesson/download path
 # falls outside the Worker entitlement matcher.
 node scripts/check-course-asset-protection.mjs
 
