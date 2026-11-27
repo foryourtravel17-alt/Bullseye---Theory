@@ -189,7 +189,7 @@ async function serveProtectedAsset(request, env) {
     return Response.redirect(new URL("/auth.html?session=expired", request.url), 302);
   }
   try {
-    const active = await getVerifiedEntitlement(token, env);
+    const active = await hasProtectedCourseAccess(token, env);
     if (!active) {
       return new Response("Course access is not active. Please sign in and contact support if you believe this is an error.", {
         status: 403,
