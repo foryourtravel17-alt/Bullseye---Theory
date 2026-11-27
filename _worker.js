@@ -45,7 +45,7 @@ function originAllowed(request) {
   return !origin || origin === new URL(request.url).origin;
 }
 
-async function getVerifiedEntitlement(token, env) {
+async function getVerifiedUserId(token, env) {
   const base = String(env.SUPABASE_URL || "").replace(/\/$/, "");
   const key = env.SUPABASE_PUBLISHABLE_KEY;
   if (!base || !key) throw new Error("Worker Supabase configuration is missing");
@@ -56,11 +56,15 @@ async function getVerifiedEntitlement(token, env) {
   });
   if (!auth.ok) return null;
   const user = await auth.json();
-  if (!user?.id) return null;
+  return typeof user?.id === "string" && user.id ? user.id : null;
+}
 
+async function getVerifiedEntitlement(userId, token, env) {
+  const base = String(env.SUPABASE_URL || "").replace(/\/$/, "");
+  const key = env.SUPABASE_PUBLISHABLE_KEY;
   const query = new URLSearchParams({
     select: "is_active,payment_verified,expires_at",
-    user_id: "eq." + user.id,
+    user_id: "eq." + userId,
     limit: "2",
   });
   const accessResponse = await fetch(base + "/rest/v1/course_access?" + query.toString(), {
@@ -76,6 +80,31 @@ async function getVerifiedEntitlement(token, env) {
   return !!access?.is_active && !!access?.payment_verified && Number.isFinite(expiry) && expiry > Date.now();
 }
 
+async function getVerifiedAdmin(userId, token, env) {
+  const base = String(env.SUPABASE_URL || "").replace(/\/$/, "");
+  const key = env.SUPABASE_PUBLISHABLE_KEY;
+  const query = new URLSearchParams({
+    select: "is_admin",
+    id: "eq." + userId,
+    limit: "2",
+  });
+  const profileResponse = await fetch(base + "/rest/v1/profiles?" + query.toString(), {
+    headers: { apikey: key, Authorization: "Bearer " + token },
+    cf: { cacheTtl: 0, cacheEverything: false },
+  });
+  if (!profileResponse.ok) throw new Error("Could not verify administrator profile");
+  const rows = await profileResponse.json();
+  // Admin access is granted only by the server-owned profile flag used by public.is_admin().
+  return Array.isArray(rows) && rows.length === 1 && rows[0]?.is_admin === true;
+}
+
+async function hasProtectedCourseAccess(token, env) {
+  const userId = await getVerifiedUserId(token, env);
+  if (!userId) return false;
+  if (await getVerifiedEntitlement(userId, token, env)) return true;
+  return await getVerifiedAdmin(userId, token, env);
+}
+
 async function setSession(request, env) {
   if (!originAllowed(request)) return json({ error: "Origin not allowed" }, 403);
   const authorization = request.headers.get("Authorization") || "";
@@ -86,7 +115,7 @@ async function setSession(request, env) {
     return json({ error: "Session expired" }, 401);
   }
   try {
-    const active = await getVerifiedEntitlement(token, env);
+    const active = await hasProtectedCourseAccess(token, env);
     if (!active) {
       return new Response(JSON.stringify({ active: false }), {
         status: 200,
